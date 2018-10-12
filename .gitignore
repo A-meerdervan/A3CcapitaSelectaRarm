@@ -1,3 +1,24 @@
+
+# Added by Alex:
+migrations/
+PongImplementation\A3CpongEnv\A3CfromDm-mc\train_0
+PongImplementation\A3CpongEnv\A3CfromDm-mc\train_1
+PongImplementation\A3CpongEnv\A3CfromDm-mc\train_2
+PongImplementation\A3CpongEnv\A3CfromDm-mc\train_3
+PongImplementation\A3CpongEnv\A3CfromDm-mc\train_4
+PongImplementation\A3CpongEnv\A3CfromDm-mc\train_5
+PongImplementation\A3CpongEnv\A3CfromDm-mc\train_6
+PongImplementation\A3CpongEnv\A3CfromDm-mc\train_7
+PongImplementation\A3CpongEnv\A3CfromDm-mc\train_8
+PongImplementation\A3CpongEnv\A3CfromDm-mc\train_9
+PongImplementation\A3CpongEnv\A3CfromDm-mc\train_10
+PongImplementation\A3CpongEnv\A3CfromDm-mc\train_11
+PongImplementation\A3CpongEnv\A3CfromDm-mc\model
+PongImplementation\A3CpongEnv\A3CfromDm-mc\frames
+
+
+# Was already default from the python option in the automatic gitignore generated:
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
