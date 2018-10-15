@@ -5,3 +5,28 @@ Created on Fri Oct 12 12:38:05 2018
 @author: Alex
 """
 
+runfile('C:/Users/Alex/ProgrammerenNa2018/A3CprojectRobotGitRepo/PongImplementation/A3CpongEnv/A3CfromDm-mc/mainA3C.py', wdir='C:/Users/Alex/ProgrammerenNa2018/A3CprojectRobotGitRepo/PongImplementation/A3CpongEnv/A3CfromDm-mc')
+WARNING:tensorflow:From C:/Users/Alex/ProgrammerenNa2018/A3CprojectRobotGitRepo/PongImplementation/A3CpongEnv/A3CfromDm-mc/mainA3C.py:73: BasicLSTMCell.__init__ (from tensorflow.python.ops.rnn_cell_impl) is deprecated and will be removed in a future version.
+Instructions for updating:
+This class is deprecated, please use tf.nn.rnn_cell.LSTMCell, which supports all the feature this cell currently has. Please replace the existing code with tf.nn.rnn_cell.LSTMCell(name='basic_lstm_cell').
+Starting worker 0
+Starting worker 1
+Starting worker 10
+Starting worker 3
+Starting worker 2
+Starting worker 5
+Starting worker 11
+Starting worker 4
+Starting worker 8
+Starting worker 6
+Starting worker 9
+Starting worker 7
+C:/Users/Alex/ProgrammerenNa2018/A3CprojectRobotGitRepo/PongImplementation/A3CpongEnv/A3CfromDm-mc/mainA3C.py:42: DeprecationWarning: `imresize` is deprecated!
+`imresize` is deprecated in SciPy 1.0.0, and will be removed in 1.2.0.
+Use ``skimage.transform.resize`` instead.
+  s = scipy.misc.imresize(s,[84,84])
+C:/Users/Alex/ProgrammerenNa2018/A3CprojectRobotGitRepo/PongImplementation/A3CpongEnv/A3CfromDm-mc/mainA3C.py:340: RuntimeWarning: divide by zero encountered in true_divide
+  print("Episodes", gs1, 'one for ', (time()-s)/(gs1-gs))
+Episodes 0 one for  inf
+Episodes 0 one for  inf
+Episodes 0 one for  inf

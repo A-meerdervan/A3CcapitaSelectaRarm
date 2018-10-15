@@ -8,10 +8,12 @@ import threading
 import multiprocessing
 import numpy as np
 #import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import scipy.signal
 from skimage.color import rgb2gray # gave an error, had to pip it, then another error then had to pip scikit-image
+import skimage
 #matplotlib inline
 from helper import * # had to pip it
 #from vizdoom import *
@@ -39,7 +41,8 @@ def update_target_graph(from_scope,to_scope):
 def process_frame(frame):
     #s = frame[10:-10,30:-30]
     s = rgb2gray(frame)
-    s = scipy.misc.imresize(s,[84,84])
+    s = skimage.transform.resize(s,[84,84])
+    #s = scipy.misc.imresize(s,[84,84]) # This was the line in the original github repo but it was depricated
     s = np.reshape(s,[np.prod(s.shape)]) / 255.0
     return s
 
@@ -70,7 +73,9 @@ class AC_Network():
             hidden = slim.fully_connected(slim.flatten(self.conv2),256,activation_fn=tf.nn.elu)
             
             #Recurrent network for temporal dependencies
-            lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(256,state_is_tuple=True)
+            
+            lstm_cell = tf.nn.rnn_cell.LSTMCell(256,state_is_tuple=True,name='basic_lstm_cell')
+            #lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(256,state_is_tuple=True)
             c_init = np.zeros((1, lstm_cell.state_size.c), np.float32)
             h_init = np.zeros((1, lstm_cell.state_size.h), np.float32)
             self.state_init = [c_init, h_init]
@@ -110,16 +115,23 @@ class AC_Network():
                 self.value_loss = 0.5 * tf.reduce_sum(tf.square(self.target_v - tf.reshape(self.value,[-1])))
                 self.entropy = - tf.reduce_sum(self.policy * tf.log(self.policy + 10e-6))
                 self.policy_loss = -tf.reduce_sum(tf.log(self.responsible_outputs + 10e-6)*self.advantages)
+                #TODO deze entropy parameter tunen en bij de andere hyperpars zetten
                 self.loss = 0.5 * self.value_loss + self.policy_loss - self.entropy * 0.1
                 self.adv_sum = tf.reduce_sum(self.advantages)
 
                 #Get gradients from local network using local losses
+                # Get local network pars
                 local_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope)
+                # Calculate gradients of the local loss with respect to the local network pars
                 self.gradients = tf.gradients(self.loss,local_vars)
                 self.var_norms = tf.global_norm(local_vars)
+                # This line clips the gradients! preventing a to large update
+                #TODO deze clipping parameter tunen, en bij de andere hyperpars zetten
                 grads,self.grad_norms = tf.clip_by_global_norm(self.gradients,40.0)
                 
                 #Apply local gradients to global network
+                # This is the important global network update step!
+                # it is executed by the trainer
                 global_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 'global')
                 self.apply_grads = trainer.apply_gradients(zip(grads,global_vars))
                 
@@ -134,17 +146,24 @@ class Worker():
         self.episode_rewards = []
         self.episode_lengths = []
         self.episode_mean_values = []
+        # write stats of the progress of this worker
         self.summary_writer = tf.summary.FileWriter("train_"+str(self.number))
 
         #Create the local copy of the network and the tensorflow op to copy global paramters to local network
+        # Now this network is still epmty
         self.local_AC = AC_Network(s_size,a_size,self.name,trainer)
+        # Copy a list of global network parameters to self.update_local_ops
         self.update_local_ops = update_target_graph('global',self.name)        
-        
+        # this is correct for Pong
         self.actions = [1,2,3]
-        self.sleep_time = 0.028
-        #End Doom set-up
+        # Specify the environment that the agent will operate in.
         self.env = gym.make('Pong-v0')
         
+    # This function trains the worker on the just completed rollout and at the
+    # end it updates the global network.
+    # The rollout consists of expierences like s,a,r,s' (but not exactly)
+    # This happens periodically after some timesteps. Therefore it needs a bootstrapping value
+    # This value is v(se) where se is the end state of the rollout.
     def train(self,global_AC,rollout,sess,gamma,bootstrap_value):
         rollout = np.array(rollout)
         observations = rollout[:,0]
@@ -156,29 +175,43 @@ class Worker():
         # Here we take the rewards and values from the rollout, and use them to 
         # generate the advantage and discounted returns. 
         # The advantage function uses "Generalized Advantage Estimation"
+        
+        # This line adds the bootstrapped value at the end of the array, so it returns: [r1,r2,r3,v(se)]
         self.rewards_plus = np.asarray(rewards.tolist() + [bootstrap_value])
+        # This line transforms the array of rewards into the right time discounted reward with the bootstrapped value incorporated
         discounted_rewards = discount(self.rewards_plus,gamma)[:-1]
+        # This line produces an array of v(si) values. 
         self.value_plus = np.asarray(values.tolist() + [bootstrap_value])
+        # This step computes the advantage for each timestep but then all at once
+        # It computes: adv = r + gamma*v(t+1) - v(t)
         advantages = rewards + gamma * self.value_plus[1:] - self.value_plus[:-1]
+        # This line makes the advantages also dependend on the adventages in the near future in the time discounted sense
+        # Maybe this step is from the generalized adventage function algotithm? TODO: find out.
         advantages = discount(advantages,gamma)
 
         # Update the global network using gradients from loss
         # Generate network statistics to periodically save
         rnn_state = self.local_AC.state_init
+        # The feeddict is a map from what was just calculted above to the relevant
+        # placeholders in the init of this class.
         feed_dict = {self.local_AC.target_v:discounted_rewards,
             self.local_AC.inputs:np.vstack(observations),
             self.local_AC.actions:actions,
             self.local_AC.advantages:advantages,
             self.local_AC.state_in[0]:rnn_state[0],
             self.local_AC.state_in[1]:rnn_state[1]}
+        # Alex: I think this run fuction takes what it should run from the init
+        # of this class given the second argument, the feed_dict as input for
+        # the placeholders.
         v_l,p_l,e_l,g_n,v_n,adv, apl_g = sess.run([self.local_AC.value_loss,
             self.local_AC.policy_loss,
             self.local_AC.entropy,
             self.local_AC.grad_norms,
             self.local_AC.var_norms,
             self.local_AC.adv_sum,
-            self.local_AC.apply_grads],
+            self.local_AC.apply_grads], # This line is the UPDATE step
             feed_dict=feed_dict)
+        # Take the average of the losses, the gradients and the adventages and return those
         return v_l / len(rollout),p_l / len(rollout),e_l / len(rollout), g_n, v_n, adv/len(rollout)
         
     def work(self,max_episode_length,gamma,global_AC,sess,coord,saver):
@@ -187,6 +220,7 @@ class Worker():
         print("Starting worker " + str(self.number))
         with sess.as_default(), sess.graph.as_default():                 
             while not coord.should_stop():
+                # set self.update_local_ops to global NN vars
                 sess.run(self.update_local_ops)
                 episode_buffer = []
                 episode_values = []
@@ -195,14 +229,17 @@ class Worker():
                 episode_step_count = 0
                 d = False
                 
-                #self.env.new_episode()
+                # init the env and states
                 s = self.env.reset()
                 episode_frames.append(s)
                 s = process_frame(s)
                 rnn_state = self.local_AC.state_init
                 
+                # This while runs until the end of the episode or until 
+                # max timesteps has been reached. Then done = True
                 done = False
                 while not done:
+                    # Only render one thread and not all
                     if self.number == 0:
                         self.env.render()
                     #Take an action using probabilities from policy network output.
@@ -213,52 +250,65 @@ class Worker():
                     a = np.random.choice(a_dist[0],p=a_dist[0])
                     a = np.argmax(a_dist == a)
 
+                    # Take one step in env using the chosen action a
                     s1,r,d, i = self.env.step(self.actions[a])
                     episode_frames.append(s1)
                     s1 = process_frame(s1)
                         
+                    # Store the experience to the buffer
                     episode_buffer.append([s,a,r,s1,d,v[0,0]])
                     episode_values.append(v[0,0])
 
+                    # bookkeeping
                     episode_reward += r
                     s = s1                    
                     total_steps += 1
                     episode_step_count += 1
-                    
-                    #Specific to VizDoom. We sleep the game for a specific time.
-                    #if self.sleep_time>0:
-                    #    sleep(self.sleep_time)
                     
                     # If the episode hasn't ended, but the experience buffer is full, then we
                     # make an update step using that experience rollout.
                     if len(episode_buffer) == 20 and d != True:
                         # Since we don't know what the true final return is, we "bootstrap" from our current
                         # value estimation.
+                        # v1 is the value estimate usted to bootstrap
                         v1 = sess.run(self.local_AC.value, 
                             feed_dict={self.local_AC.inputs:[s],
                             self.local_AC.state_in[0]:rnn_state[0],
                             self.local_AC.state_in[1]:rnn_state[1]})[0,0]
+                        # Here the T timesteps of rollout a.k.a the episode_buffer
+                        # are used to calculate the loss values and the train function
+                        # internally updates the global network pars
                         v_l,p_l,e_l,g_n,v_n, adv = self.train(global_AC,episode_buffer,sess,gamma,v1)
+                        # empty the rollout buffer again
                         episode_buffer = []
+                        # This stores the network parameters of the global NN
+                        # to the variable: self.update_local_ops
+                        # and also updates the local_AC to the global pars
                         sess.run(self.update_local_ops)
+                    # If the episode terminates or the max steps has been reached
+                    # Then the episode (and so this while loop) terminates.
                     if  episode_step_count >= max_episode_length - 1 or d == True:
                         break
-                                            
+                # Now that the episode has terminated, store the relevant
+                # statistics                            
                 self.episode_rewards.append(episode_reward)
                 self.episode_lengths.append(episode_step_count)
                 self.episode_mean_values.append(np.mean(episode_values))
                 
                 # Update the network using the experience buffer at the end of the episode.
                 if len(episode_buffer) != 0:
+                    # internally the train function updates the global_AC pars
                     v_l,p_l,e_l,g_n,v_n,adv = self.train(global_AC,episode_buffer,sess,gamma,0.0)
                                 
                     
                 # Periodically save gifs of episodes, model parameters, and summary statistics.
                 if episode_count % 5 == 0 and episode_count != 0:
+                    # this saves the sess variable of only the frist worker
                     if episode_count % 250 == 0 and self.name == 'worker_0':
                         saver.save(sess,self.model_path+'/model-'+str(episode_count)+'.cptk')
                         print("Saved Model")
 
+                    # Create a tf.summary
                     mean_reward = np.mean(self.episode_rewards[-5:])
                     mean_length = np.mean(self.episode_lengths[-5:])
                     mean_value = np.mean(self.episode_mean_values[-5:])
@@ -275,9 +325,11 @@ class Worker():
                     self.summary_writer.add_summary(summary, episode_count)
 
                     self.summary_writer.flush()
-                #if self.name == 'worker_0':
+                # increment the global episode counter
                 sess.run(self.increment)
+                # increment internal episode counter
                 episode_count += 1
+                # loop back to start the new episode
    
              
 max_episode_length = 10000
