@@ -4,7 +4,7 @@ Created on Tue Jan 23 16:06:14 2018
 
 @author: Alex
 """
-from GlobalConstants import gc
+from GlobalConstantsA3C import gc # has high level constants
 
 class SimpleBot:
     def __init__(self, botType):
@@ -14,6 +14,7 @@ class SimpleBot:
         self.brainNr = -1
 
     def Act_Mature(self, GameState):
+        print(GameState)
         paddleYPos = GameState[0] * gc.NORMALISATION_FACTOR
         ballYPos = GameState[3] * gc.NORMALISATION_FACTOR
         #move up if ball is higher thn Openient Paddle
