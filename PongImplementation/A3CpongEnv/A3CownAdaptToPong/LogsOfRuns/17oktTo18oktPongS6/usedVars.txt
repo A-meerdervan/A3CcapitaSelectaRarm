@@ -1,0 +1,15 @@
+
+in Worker:
+        self.tfSummaryEpInterval = 5
+        self.tfSaveModelInterval = 250
+        self.rolloutLength = 35 # was at 20 for the Dm-mc implementation
+
+in mainA3C:
+
+max_episode_length = 10000
+gamma = .99 # discount rate for advantage estimation and reward discounting
+s_size = 6 # Our pong version has a state of 6 numbers
+a_size = 3 # Agent can move up down or do nothing
+learningRate = 7e-4 #
+load_model = False
+model_path = './model'

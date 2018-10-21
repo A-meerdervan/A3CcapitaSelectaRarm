@@ -32,6 +32,7 @@ class Worker():
         # TODO make global somehow
         self.tfSummaryEpInterval = 5
         self.tfSaveModelInterval = 250
+        self.rolloutLength = 35 # was at 20 for the Dm-mc implementation
         # write stats of the progress of this worker
         self.summary_writer = tf.summary.FileWriter("train_"+str(self.number))
 
@@ -150,7 +151,7 @@ class Worker():
                     
                     # If the episode hasn't ended, but the experience buffer is full, then we
                     # make an update step using that experience rollout.
-                    if len(episode_buffer) == 20 and d != True:
+                    if len(episode_buffer) == self.rolloutLength and d != True:
                         # Since we don't know what the true final return is, we "bootstrap" from our current
                         # value estimation.
                         # v1 is the value estimate usted to bootstrap

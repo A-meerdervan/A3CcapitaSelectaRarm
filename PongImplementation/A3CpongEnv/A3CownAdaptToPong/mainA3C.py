@@ -33,9 +33,11 @@ from Worker import Worker # the worker which acts and trains its brain
    
              
 max_episode_length = 10000
-gamma = .99 # discount rate for advantage estimation and reward discounting
+# TODO: Was eerst .99 maar vanwege onze paper overgezet naar .96
+gamma = .96 # discount rate for advantage estimation and reward discounting
 s_size = 6 # Our pong version has a state of 6 numbers
 a_size = 3 # Agent can move up down or do nothing
+learningRate = 1e-4 # was at 7e-4 for the Dm-mc implementation
 load_model = False
 model_path = './model'
 
@@ -53,7 +55,7 @@ global_episodes = tf.Variable(0,dtype=tf.int32,name='global_episodes',trainable=
 # Alex added: This is used to print the current reward at the end of an episode
 global_rewardEndEpisode = tf.Variable(0,dtype=tf.int32,name='global_rewardEndEpisode',trainable=False)
 
-trainer = tf.train.RMSPropOptimizer(learning_rate=7e-4, decay=0.99, epsilon=0.1)
+trainer = tf.train.RMSPropOptimizer(learning_rate=learningRate, decay=0.99, epsilon=0.1)
 master_network = AC_Network(s_size,a_size,'global',None) # Generate global network
 num_workers = multiprocessing.cpu_count() # Set workers ot number of available CPU threads
 workers = []
