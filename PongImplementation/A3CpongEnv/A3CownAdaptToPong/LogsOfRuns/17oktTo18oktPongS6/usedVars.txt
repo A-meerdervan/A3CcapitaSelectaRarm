@@ -2,7 +2,7 @@
 in Worker:
         self.tfSummaryEpInterval = 5
         self.tfSaveModelInterval = 250
-        self.rolloutLength = 35 # was at 20 for the Dm-mc implementation
+        self.rolloutLength = # 20 was at 20 for the Dm-mc implementation
 
 in mainA3C:
 

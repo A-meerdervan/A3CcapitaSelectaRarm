@@ -11,14 +11,14 @@ import tensorflow as tf
 # Alex: added this
 from Env.GlobalConstantsA3C import gc # has high level constants
 import Env.A3CenvPong # import custom Pong env (no images but 6 numbers as state)
-from AC_Network import AC_Network # The network used as brain
+from AC_Network1 import AC_Network # The network used as brain
 
 import scipy.signal
 from skimage.color import rgb2gray # gave an error, had to pip it, then another error then had to pip scikit-image
 import skimage
 
 class Worker():
-    def __init__(self,name,s_size,a_size,trainer,model_path,global_episodes,global_rewardEndEpisode):
+    def __init__(self,name,s_size,a_size,trainer,model_path,tfSummary_path,global_episodes,global_rewardEndEpisode):
         self.name = "worker_" + str(name)
         self.number = name        
         self.model_path = model_path
@@ -30,11 +30,12 @@ class Worker():
         self.episode_lengths = []
         self.episode_mean_values = []
         # TODO make global somehow
-        self.tfSummaryEpInterval = 5
-        self.tfSaveModelInterval = 250
-        self.rolloutLength = 35 # was at 20 for the Dm-mc implementation
+        self.tfSummaryEpInterval = 1 # was 5
+        self.tfSaveModelInterval = 10 # was 250
+        self.rolloutLength = 20 # was at 20 for the Dm-mc implementation
         # write stats of the progress of this worker
-        self.summary_writer = tf.summary.FileWriter("train_"+str(self.number))
+        # This creates a tensorboard summary writer that writes to tfSummaryPath+ "01" for example
+        self.summary_writer = tf.summary.FileWriter(tfSummary_path[2:] +str(self.number))
 
         #Create the local copy of the network and the tensorflow op to copy global paramters to local network
         # Now this network is still epmty
