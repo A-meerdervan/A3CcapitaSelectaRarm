@@ -130,7 +130,7 @@ class AC_Network():
                 self.gradients = tf.gradients(self.loss,local_vars)
                 self.var_norms = tf.global_norm(local_vars)
                 # ???limits the values of the grads???
-                grads,self.grad_norms = tf.clip_by_global_norm(self.gradients,40.0)
+                grads,self.grad_norms = tf.clip_by_global_norm(self.gradients,cn.run_Clipping)
 
                 #Apply local gradients to global network
                 global_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 'global')
@@ -349,7 +349,7 @@ with tf.Session() as sess:
     # Loop the workers and start a thread for each
     for worker in workers:
         # define a function that executes the work method of each worker
-        worker_work = lambda: worker.work(max_episode_length,cn.run_Gamma,master_network,sess,coord,saver)
+            worker_work = lambda: worker.work(cn.run_MaxEpisodeLenght ,cn.run_Gamma,master_network,sess,coord,saver)
         # execute the function in a new thread
         t = threading.Thread(target=(worker_work))
         # start thread
