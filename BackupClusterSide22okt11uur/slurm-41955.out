@@ -1,0 +1,2 @@
+in noSrun.sh
+/tmp/slurmd/job41955/slurm_script: line 17: 47937 Illegal instruction     python3 mainA3C.py

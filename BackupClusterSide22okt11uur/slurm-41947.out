@@ -1,0 +1,40 @@
+inside script pongS6run1.sh
+inside script pongS6run2.sh
+inside script pongS6run3.sh
+pygame 1.9.4
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Using TensorFlow backend.
+Traceback (most recent call last):
+  File "/home/s1498010/.local/lib/python3.5/site-packages/tensorflow/python/framework/ops.py", line 1626, in _create_c_op
+    c_op = c_api.TF_FinishOperation(op_desc)
+tensorflow.python.framework.errors_impl.InvalidArgumentError: Dimension 1 in both shapes must be equal, but are 256 and 64. Shapes are [6,256] and [6,64]. for 'worker_0/RMSProp/update_global/fully_connected/weights/ApplyRMSProp' (op: 'ApplyRMSProp') with input shapes: [6,256], [6,256], [6,256], [], [], [], [], [6,64].
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "mainA3Cr3.py", line 70, in <module>
+    workers.append(Worker(i,s_size,a_size,trainer,model_path,tfSummary_path,global_episodes,global_rewardEndEpisode))
+  File "/home/s1498010/A3CownAdaptToPong/Worker.py", line 42, in __init__
+    self.local_AC = AC_Network(s_size,a_size,self.name,trainer)
+  File "/home/s1498010/A3CownAdaptToPong/AC_Network.py", line 63, in __init__
+    self.apply_grads = trainer.apply_gradients(zip(grads,global_vars))
+  File "/home/s1498010/.local/lib/python3.5/site-packages/tensorflow/python/training/optimizer.py", line 608, in apply_gradients
+    update_ops.append(processor.update_op(self, grad))
+  File "/home/s1498010/.local/lib/python3.5/site-packages/tensorflow/python/training/optimizer.py", line 115, in update_op
+    update_op = optimizer._apply_dense(g, self._v)  # pylint: disable=protected-access
+  File "/home/s1498010/.local/lib/python3.5/site-packages/tensorflow/python/training/rmsprop.py", line 166, in _apply_dense
+    use_locking=self._use_locking).op
+  File "/home/s1498010/.local/lib/python3.5/site-packages/tensorflow/python/training/gen_training_ops.py", line 847, in apply_rms_prop
+    use_locking=use_locking, name=name)
+  File "/home/s1498010/.local/lib/python3.5/site-packages/tensorflow/python/framework/op_def_library.py", line 787, in _apply_op_helper
+    op_def=op_def)
+  File "/home/s1498010/.local/lib/python3.5/site-packages/tensorflow/python/util/deprecation.py", line 488, in new_func
+    return func(*args, **kwargs)
+  File "/home/s1498010/.local/lib/python3.5/site-packages/tensorflow/python/framework/ops.py", line 3272, in create_op
+    op_def=op_def)
+  File "/home/s1498010/.local/lib/python3.5/site-packages/tensorflow/python/framework/ops.py", line 1790, in __init__
+    control_input_ops)
+  File "/home/s1498010/.local/lib/python3.5/site-packages/tensorflow/python/framework/ops.py", line 1629, in _create_c_op
+    raise ValueError(str(e))
+ValueError: Dimension 1 in both shapes must be equal, but are 256 and 64. Shapes are [6,256] and [6,64]. for 'worker_0/RMSProp/update_global/fully_connected/weights/ApplyRMSProp' (op: 'ApplyRMSProp') with input shapes: [6,256], [6,256], [6,256], [], [], [], [], [6,64].
+srun: error: ctit080: task 0: Exited with exit code 1

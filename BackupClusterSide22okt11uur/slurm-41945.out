@@ -1,0 +1,10 @@
+inside script pongS6run2.sh
+inside script pongS6run1.sh
+pongS6run1.sh: line 6: 12522 Illegal instruction     python3 mainA3Cr1.py
+srun: error: westervlier: task 0: Exited with exit code 132
+2018-10-21 22:21:25.299849: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: FMA
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: got SIGCONT
+slurmstepd-weleveld: error: *** STEP 41945.0 ON weleveld CANCELLED AT 2018-10-21T22:25:28 ***
+slurmstepd-weleveld: error: *** JOB 41945 ON weleveld CANCELLED AT 2018-10-21T22:25:28 ***
+srun: forcing job termination

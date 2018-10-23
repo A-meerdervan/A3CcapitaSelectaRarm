@@ -1,0 +1,807 @@
+inside script pongS6run1.sh
+inside script pongS6run1.sh
+inside script pongS6run1.sh
+inside script pongS6run1.sh
+pygame 1.9.4
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Using TensorFlow backend.
+Traceback (most recent call last):
+  File "mainA3Cr1.py", line 54, in <module>
+    os.makedirs(model_path)
+  File "/usr/lib/python3.5/os.py", line 241, in makedirs
+    mkdir(name, mode)
+FileExistsError: [Errno 17] File exists: './LogsOfRuns/testRUN1/model'
+srun: error: ctit080: task 0: Exited with exit code 1
+2018-10-21 21:54:02.001938: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2018-10-21 21:54:02.153805: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2018-10-21 21:54:02.353638: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+pygame 1.9.4
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Starting worker 0
+Starting worker 2
+Starting worker 3
+Starting worker 12
+Starting worker 5
+Starting worker 11
+Starting worker 13
+Starting worker 1
+Starting worker 9
+Starting worker 4
+Starting worker 8
+Starting worker 10
+Starting worker 14
+Starting worker 15
+Starting worker 7
+Starting worker 6
+Episodes 0 one for  inf 
+Reward at end of episode:  0
+Episodes 0 one for  inf 
+Reward at end of episode:  -16
+Episodes 1 one for  10.012377977371216 
+Reward at end of episode:  -16
+Episodes 2 one for  10.025249719619751 
+Reward at end of episode:  -17
+Episodes 2 one for  inf 
+Reward at end of episode:  -10
+Episodes 2 one for  inf 
+Reward at end of episode:  -16
+Episodes 3 one for  10.014716148376465 
+Reward at end of episode:  -16
+Episodes 4 one for  10.020273685455322 
+Reward at end of episode:  -15
+Episodes 4 one for  inf 
+Reward at end of episode:  -13
+Episodes 5 one for  10.048501253128052 
+Reward at end of episode:  -18
+Episodes 5 one for  inf 
+Reward at end of episode:  -15
+Episodes 6 one for  10.034762382507324 
+Reward at end of episode:  -16
+Episodes 6 one for  inf 
+Reward at end of episode:  -16
+Episodes 7 one for  10.014559268951416 
+Reward at end of episode:  -12
+Episodes 7 one for  inf 
+Reward at end of episode:  -18
+Episodes 8 one for  10.014066219329834 
+Reward at end of episode:  -18
+Episodes 8 one for  inf 
+Reward at end of episode:  -15
+Episodes 9 one for  10.018273115158081 
+Reward at end of episode:  -16
+Episodes 10 one for  10.015195846557617 
+Reward at end of episode:  -16
+Episodes 10 one for  inf 
+Reward at end of episode:  -19
+Episodes 11 one for  10.105526447296143 
+Reward at end of episode:  -16
+Episodes 11 one for  inf 
+Reward at end of episode:  -16
+Episodes 12 one for  10.109715461730957 
+Reward at end of episode:  -14
+Episodes 13 one for  10.015204668045044 
+Reward at end of episode:  -18
+Episodes 13 one for  inf 
+Reward at end of episode:  -16
+Episodes 14 one for  10.051189184188843 
+Reward at end of episode:  -18
+Episodes 14 one for  inf 
+Reward at end of episode:  -14
+Episodes 15 one for  10.027465581893921 
+Reward at end of episode:  -14
+Episodes 15 one for  inf 
+Reward at end of episode:  -15
+Episodes 16 one for  10.015096664428711 
+Reward at end of episode:  -13
+Episodes 16 one for  inf 
+Reward at end of episode:  -18
+Episodes 17 one for  10.012879371643066 
+Reward at end of episode:  -17
+Episodes 17 one for  inf 
+Reward at end of episode:  -19
+Episodes 18 one for  10.075888633728027 
+Reward at end of episode:  -18
+Episodes 18 one for  inf 
+Reward at end of episode:  -16
+Episodes 19 one for  10.013098955154419 
+Reward at end of episode:  -13
+Episodes 19 one for  inf 
+Reward at end of episode:  -16
+Episodes 20 one for  10.016459465026855 
+Reward at end of episode:  -15
+Episodes 21 one for  10.02589464187622 
+Reward at end of episode:  -14
+Episodes 21 one for  inf 
+Reward at end of episode:  -17
+Episodes 22 one for  10.007849216461182 
+Reward at end of episode:  -16
+Episodes 22 one for  inf 
+Reward at end of episode:  -13
+Episodes 22 one for  inf 
+Reward at end of episode:  -17
+Episodes 23 one for  10.091979026794434 
+Reward at end of episode:  -15
+Episodes 24 one for  10.0211501121521 
+Reward at end of episode:  -14
+Episodes 24 one for  inf 
+Reward at end of episode:  -14
+Episodes 25 one for  10.028233051300049 
+Reward at end of episode:  -15
+Episodes 25 one for  inf 
+Reward at end of episode:  -17
+Episodes 25 one for  inf 
+Reward at end of episode:  -13
+Episodes 26 one for  10.09196949005127 
+Reward at end of episode:  -16
+Episodes 26 one for  inf 
+Reward at end of episode:  -17
+Episodes 27 one for  10.01494026184082 
+Reward at end of episode:  -18
+Episodes 28 one for  10.036258459091187 
+Reward at end of episode:  -17
+Episodes 28 one for  inf 
+Reward at end of episode:  -14
+Episodes 29 one for  10.014599084854126 
+Reward at end of episode:  -14
+Episodes 29 one for  inf 
+Reward at end of episode:  -17
+Episodes 30 one for  10.012254476547241 
+Reward at end of episode:  -13
+Episodes 30 one for  inf 
+Reward at end of episode:  -15
+Episodes 31 one for  10.019405603408813 
+Reward at end of episode:  -18
+Episodes 31 one for  inf 
+Reward at end of episode:  -18
+Episodes 31 one for  inf 
+Reward at end of episode:  -16
+Episodes 32 one for  10.026602983474731 
+Reward at end of episode:  -13
+Episodes 33 one for  10.014431476593018 
+Reward at end of episode:  -16
+Episodes 33 one for  inf 
+Reward at end of episode:  -13
+Episodes 34 one for  10.101669788360596 
+Reward at end of episode:  -17
+Episodes 34 one for  inf 
+Reward at end of episode:  -17
+Episodes 35 one for  10.032012462615967 
+Reward at end of episode:  -16
+Episodes 35 one for  inf 
+Reward at end of episode:  -18
+Episodes 36 one for  10.033980131149292 
+Reward at end of episode:  -12
+Episodes 36 one for  inf 
+Reward at end of episode:  -17
+Episodes 37 one for  10.018628120422363 
+Reward at end of episode:  -16
+Episodes 37 one for  inf 
+Reward at end of episode:  -15
+Episodes 38 one for  10.026200771331787 
+Reward at end of episode:  -16
+Episodes 38 one for  inf 
+Reward at end of episode:  -17
+Episodes 38 one for  inf 
+Reward at end of episode:  -17
+Episodes 39 one for  10.012931108474731 
+Reward at end of episode:  -16
+Episodes 39 one for  inf 
+Reward at end of episode:  -16
+Episodes 40 one for  10.018035650253296 
+Reward at end of episode:  -11
+Episodes 40 one for  inf 
+Reward at end of episode:  -17
+Episodes 41 one for  10.09657597541809 
+Reward at end of episode:  -14
+Episodes 41 one for  inf 
+Reward at end of episode:  -15
+Episodes 42 one for  10.014668703079224 
+Reward at end of episode:  -16
+Episodes 42 one for  inf 
+Reward at end of episode:  -16
+Episodes 43 one for  10.026535034179688 
+Reward at end of episode:  -16
+Episodes 43 one for  inf 
+Reward at end of episode:  -19
+Episodes 44 one for  10.052095651626587 
+Reward at end of episode:  -17
+Episodes 44 one for  inf 
+Reward at end of episode:  -19
+Episodes 45 one for  10.017977952957153 
+Reward at end of episode:  -18
+Episodes 45 one for  inf 
+Reward at end of episode:  -18
+Episodes 46 one for  10.017891883850098 
+Reward at end of episode:  -18
+Episodes 46 one for  inf 
+Reward at end of episode:  -16
+Episodes 47 one for  10.016299724578857 
+Reward at end of episode:  -16
+Episodes 47 one for  inf 
+Reward at end of episode:  -18
+Episodes 48 one for  10.057927131652832 
+Reward at end of episode:  -16
+Episodes 48 one for  inf 
+Reward at end of episode:  -18
+Episodes 48 one for  inf 
+Reward at end of episode:  -12
+Episodes 49 one for  10.014093399047852 
+Reward at end of episode:  -11
+Episodes 49 one for  inf 
+Reward at end of episode:  -14
+Episodes 50 one for  10.039889574050903 
+Reward at end of episode:  -13
+Episodes 50 one for  inf 
+Reward at end of episode:  -15
+Episodes 51 one for  10.023497581481934 
+Reward at end of episode:  -12
+Episodes 51 one for  inf 
+Reward at end of episode:  -11
+Episodes 52 one for  10.012436151504517 
+Reward at end of episode:  -17
+Episodes 52 one for  inf 
+Reward at end of episode:  -16
+Episodes 53 one for  10.101168155670166 
+Reward at end of episode:  -16
+Episodes 53 one for  inf 
+Reward at end of episode:  -15
+Episodes 54 one for  10.014397382736206 
+Reward at end of episode:  -13
+Episodes 54 one for  inf 
+Reward at end of episode:  -12
+Episodes 55 one for  10.01226806640625 
+Reward at end of episode:  -13
+Episodes 55 one for  inf 
+Reward at end of episode:  -15
+Episodes 55 one for  inf 
+Reward at end of episode:  -15
+Episodes 56 one for  10.015320777893066 
+Reward at end of episode:  -19
+Episodes 56 one for  inf 
+Reward at end of episode:  -17
+Episodes 57 one for  10.01451563835144 
+Reward at end of episode:  -13
+Episodes 57 one for  inf 
+Reward at end of episode:  -14
+Episodes 58 one for  10.02569842338562 
+Reward at end of episode:  -18
+Episodes 58 one for  inf 
+Reward at end of episode:  -13
+Episodes 59 one for  10.038312911987305 
+Reward at end of episode:  -14
+Episodes 59 one for  inf 
+Reward at end of episode:  -14
+Episodes 59 one for  inf 
+Reward at end of episode:  -14
+Episodes 60 one for  10.107649564743042 
+Reward at end of episode:  -17
+Episodes 61 one for  10.017575025558472 
+pygame 1.9.4
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Starting worker 1
+Starting worker 4
+Starting worker 11
+Starting worker 0
+Starting worker 7
+Starting worker 13
+Starting worker 14
+Starting worker 3
+Starting worker 10
+Starting worker 5
+Starting worker 6
+Starting worker 15
+Starting worker 8
+Starting worker 12
+Starting worker 9
+Starting worker 2
+Episodes 0 one for  inf 
+Reward at end of episode:  0
+Episodes 0 one for  inf 
+Reward at end of episode:  -17
+Episodes 1 one for  10.014030694961548 
+Reward at end of episode:  -14
+Episodes 1 one for  inf 
+Reward at end of episode:  -13
+Episodes 2 one for  10.014145851135254 
+Reward at end of episode:  -17
+Episodes 2 one for  inf 
+Reward at end of episode:  -17
+Episodes 3 one for  10.012480735778809 
+Reward at end of episode:  -11
+Episodes 3 one for  inf 
+Reward at end of episode:  -18
+Episodes 4 one for  10.015448093414307 
+Reward at end of episode:  -18
+Episodes 5 one for  10.01961898803711 
+Reward at end of episode:  -13
+Episodes 5 one for  inf 
+Reward at end of episode:  -16
+Episodes 5 one for  inf 
+Reward at end of episode:  -17
+Episodes 6 one for  10.027718305587769 
+Reward at end of episode:  -14
+Episodes 7 one for  10.01512885093689 
+Reward at end of episode:  -17
+Episodes 7 one for  inf 
+Reward at end of episode:  -16
+Episodes 8 one for  10.02107834815979 
+Reward at end of episode:  -17
+Episodes 8 one for  inf 
+Reward at end of episode:  -15
+Episodes 9 one for  10.023068189620972 
+Reward at end of episode:  -16
+Episodes 9 one for  inf 
+Reward at end of episode:  -10
+Episodes 10 one for  10.077693223953247 
+Reward at end of episode:  -18
+Episodes 10 one for  inf 
+Reward at end of episode:  -13
+Episodes 11 one for  10.015045166015625 
+Reward at end of episode:  -13
+Episodes 11 one for  inf 
+Reward at end of episode:  -18
+Episodes 12 one for  10.013155460357666 
+Reward at end of episode:  -16
+Episodes 12 one for  inf 
+Reward at end of episode:  -17
+Episodes 13 one for  10.019383907318115 
+Reward at end of episode:  -18
+Episodes 13 one for  inf 
+Reward at end of episode:  -15
+Episodes 13 one for  inf 
+Reward at end of episode:  -17
+Episodes 14 one for  10.013696908950806 
+Reward at end of episode:  -15
+Episodes 15 one for  10.012397527694702 
+Reward at end of episode:  -15
+Episodes 15 one for  inf 
+Reward at end of episode:  -18
+Episodes 16 one for  10.023133754730225 
+Reward at end of episode:  -16
+Episodes 16 one for  inf 
+Reward at end of episode:  -16
+Episodes 17 one for  10.015836477279663 
+Reward at end of episode:  -16
+Episodes 17 one for  inf 
+Reward at end of episode:  -11
+Episodes 17 one for  inf 
+Reward at end of episode:  -13
+Episodes 18 one for  10.02778697013855 
+Reward at end of episode:  -17
+Episodes 18 one for  inf 
+Reward at end of episode:  -16
+Episodes 19 one for  10.012908220291138 
+Reward at end of episode:  -17
+Episodes 19 one for  inf 
+Reward at end of episode:  -12
+Episodes 20 one for  10.04065990447998 
+Reward at end of episode:  -13
+Episodes 20 one for  inf 
+Reward at end of episode:  -14
+Episodes 21 one for  10.017826318740845 
+Reward at end of episode:  -14
+Episodes 22 one for  10.014659881591797 
+Reward at end of episode:  -14
+Episodes 22 one for  inf 
+Reward at end of episode:  -15
+Episodes 22 one for  inf 
+Reward at end of episode:  -18
+Episodes 23 one for  10.014014720916748 
+Reward at end of episode:  -17
+Episodes 24 one for  10.015867710113525 
+Reward at end of episode:  -15
+Episodes 24 one for  inf 
+Reward at end of episode:  -17
+Episodes 25 one for  10.014411449432373 
+Reward at end of episode:  -18
+Episodes 25 one for  inf 
+Reward at end of episode:  -18
+Episodes 26 one for  10.015412330627441 
+Reward at end of episode:  -14
+Episodes 26 one for  inf 
+Reward at end of episode:  -16
+Episodes 27 one for  10.013664245605469 
+Reward at end of episode:  -16
+Episodes 27 one for  inf 
+Reward at end of episode:  -19
+Episodes 28 one for  10.019067764282227 
+Reward at end of episode:  -14
+Episodes 28 one for  inf 
+Reward at end of episode:  -13
+Episodes 29 one for  10.014223098754883 
+Reward at end of episode:  -16
+Episodes 29 one for  inf 
+Reward at end of episode:  -16
+Episodes 30 one for  10.01398253440857 
+Reward at end of episode:  -12
+Episodes 30 one for  inf 
+Reward at end of episode:  -16
+Episodes 31 one for  10.032891511917114 
+Reward at end of episode:  -15
+Episodes 31 one for  inf 
+Reward at end of episode:  -17
+Episodes 32 one for  10.017967224121094 
+Reward at end of episode:  -18
+Episodes 32 one for  inf 
+Reward at end of episode:  -18
+Episodes 33 one for  10.018628597259521 
+Reward at end of episode:  -14
+Episodes 33 one for  inf 
+Reward at end of episode:  -12
+Episodes 34 one for  10.011171340942383 
+Reward at end of episode:  -17
+Episodes 34 one for  inf 
+Reward at end of episode:  -18
+Episodes 35 one for  10.016929626464844 
+Reward at end of episode:  -16
+Episodes 35 one for  inf 
+Reward at end of episode:  -15
+Episodes 36 one for  10.017999172210693 
+Reward at end of episode:  -16
+Episodes 36 one for  inf 
+Reward at end of episode:  -13
+Episodes 37 one for  10.01375937461853 
+Reward at end of episode:  -14
+Episodes 37 one for  inf 
+Reward at end of episode:  -15
+Episodes 38 one for  10.01348876953125 
+Reward at end of episode:  -14
+Episodes 38 one for  inf 
+Reward at end of episode:  -14
+Episodes 39 one for  10.050713777542114 
+Reward at end of episode:  -14
+Episodes 39 one for  inf 
+Reward at end of episode:  -16
+Episodes 40 one for  10.01733684539795 
+Reward at end of episode:  -15
+Episodes 41 one for  10.1704843044281 
+Reward at end of episode:  -16
+Episodes 41 one for  inf 
+Reward at end of episode:  -15
+Episodes 41 one for  inf 
+Reward at end of episode:  -10
+Episodes 42 one for  10.075862169265747 
+Reward at end of episode:  -17
+Episodes 42 one for  inf 
+Reward at end of episode:  -12
+Episodes 43 one for  10.014626741409302 
+Reward at end of episode:  -16
+Episodes 43 one for  inf 
+Reward at end of episode:  -14
+Episodes 44 one for  10.013022184371948 
+Reward at end of episode:  -13
+Episodes 44 one for  inf 
+Reward at end of episode:  -14
+Episodes 45 one for  10.021545171737671 
+Reward at end of episode:  -15
+Episodes 45 one for  inf 
+Reward at end of episode:  -18
+Episodes 45 one for  inf 
+Reward at end of episode:  -14
+Episodes 46 one for  10.015766620635986 
+Reward at end of episode:  -12
+Episodes 46 one for  inf 
+Reward at end of episode:  -13
+Episodes 47 one for  10.010385751724243 
+Reward at end of episode:  -11
+Episodes 47 one for  inf 
+Reward at end of episode:  -16
+Episodes 47 one for  inf 
+Reward at end of episode:  -14
+Episodes 48 one for  10.013632535934448 
+Reward at end of episode:  -16
+Episodes 48 one for  inf 
+Reward at end of episode:  -9
+Episodes 49 one for  10.011732578277588 
+Reward at end of episode:  -11
+Episodes 49 one for  inf 
+Reward at end of episode:  -10
+Episodes 50 one for  10.035030364990234 
+Reward at end of episode:  -12
+Episodes 50 one for  inf 
+Reward at end of episode:  -15
+Episodes 51 one for  10.016228914260864 
+Reward at end of episode:  -17
+Episodes 51 one for  inf 
+Reward at end of episode:  -11
+Episodes 51 one for  inf 
+Reward at end of episode:  -9
+Episodes 52 one for  10.018271923065186 
+Reward at end of episode:  -16
+Episodes 52 one for  inf 
+Reward at end of episode:  -13
+Episodes 53 one for  10.012014865875244 
+Reward at end of episode:  -16
+Episodes 53 one for  inf 
+Reward at end of episode:  -11
+Episodes 53 one for  inf 
+Reward at end of episode:  -11
+Episodes 54 one for  10.015969038009644 
+Reward at end of episode:  -17
+Episodes 54 one for  inf 
+Reward at end of episode:  -13
+Episodes 54 one for  inf 
+Reward at end of episode:  -16
+Episodes 55 one for  10.014928579330444 
+Reward at end of episode:  -13
+Episodes 55 one for  inf 
+Reward at end of episode:  -17
+Episodes 56 one for  10.014631032943726 
+Reward at end of episode:  -18
+Episodes 56 one for  inf 
+Reward at end of episode:  -16
+Episodes 57 one for  10.014687299728394 
+Reward at end of episode:  -9
+Episodes 57 one for  inf 
+Reward at end of episode:  -12
+Episodes 58 one for  10.036284685134888 
+Reward at end of episode:  -14
+Episodes 58 one for  inf 
+Reward at end of episode:  -10
+pygame 1.9.4
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Starting worker 0
+Starting worker 2
+Starting worker 13
+Starting worker 9
+Starting worker 14
+Starting worker 10
+Starting worker 6
+Starting worker 1
+Starting worker 3
+Starting worker 5
+Starting worker 8
+Starting worker 4
+Starting worker 12
+Starting worker 15
+Starting worker 7
+Starting worker 11
+Episodes 0 one for  inf 
+Reward at end of episode:  0
+Episodes 0 one for  inf 
+Reward at end of episode:  -16
+Episodes 1 one for  10.01233696937561 
+Reward at end of episode:  -16
+Episodes 2 one for  10.149437427520752 
+Reward at end of episode:  -16
+Episodes 2 one for  inf 
+Reward at end of episode:  -14
+Episodes 3 one for  10.038667917251587 
+Reward at end of episode:  -13
+Episodes 3 one for  inf 
+Reward at end of episode:  -15
+Episodes 4 one for  10.011008739471436 
+Reward at end of episode:  -18
+Episodes 4 one for  inf 
+Reward at end of episode:  -17
+Episodes 5 one for  10.012215375900269 
+Reward at end of episode:  -19
+Episodes 5 one for  inf 
+Reward at end of episode:  -17
+Episodes 6 one for  10.016436338424683 
+Reward at end of episode:  -17
+Episodes 6 one for  inf 
+Reward at end of episode:  -14
+Episodes 7 one for  10.013547658920288 
+Reward at end of episode:  -14
+Episodes 7 one for  inf 
+Reward at end of episode:  -17
+Episodes 8 one for  10.012903451919556 
+Reward at end of episode:  -17
+Episodes 8 one for  inf 
+Reward at end of episode:  -18
+Episodes 9 one for  10.034915685653687 
+Reward at end of episode:  -15
+Episodes 9 one for  inf 
+Reward at end of episode:  -19
+Episodes 10 one for  10.012498140335083 
+Reward at end of episode:  -13
+Episodes 10 one for  inf 
+Reward at end of episode:  -16
+Episodes 11 one for  10.018529176712036 
+Reward at end of episode:  -14
+Episodes 11 one for  inf 
+Reward at end of episode:  -15
+Episodes 12 one for  10.016425132751465 
+Reward at end of episode:  -19
+Episodes 12 one for  inf 
+Reward at end of episode:  -12
+Episodes 13 one for  10.012909650802612 
+Reward at end of episode:  -13
+Episodes 13 one for  inf 
+Reward at end of episode:  -18
+Episodes 14 one for  10.014535665512085 
+Reward at end of episode:  -17
+Episodes 14 one for  inf 
+Reward at end of episode:  -18
+Episodes 15 one for  10.0390784740448 
+Reward at end of episode:  -13
+Episodes 15 one for  inf 
+Reward at end of episode:  -13
+Episodes 16 one for  10.031144142150879 
+Reward at end of episode:  -17
+Episodes 16 one for  inf 
+Reward at end of episode:  -17
+Episodes 17 one for  10.018486738204956 
+Reward at end of episode:  -14
+Episodes 17 one for  inf 
+Reward at end of episode:  -15
+Episodes 18 one for  10.019615173339844 
+Reward at end of episode:  -16
+Episodes 19 one for  10.030381917953491 
+Reward at end of episode:  -16
+Episodes 19 one for  inf 
+Reward at end of episode:  -18
+Episodes 20 one for  10.025517702102661 
+Reward at end of episode:  -16
+Episodes 20 one for  inf 
+Reward at end of episode:  -17
+Episodes 21 one for  10.015683650970459 
+Reward at end of episode:  -17
+Episodes 21 one for  inf 
+Reward at end of episode:  -17
+Episodes 22 one for  10.012447595596313 
+Reward at end of episode:  -15
+Episodes 22 one for  inf 
+Reward at end of episode:  -16
+Episodes 22 one for  inf 
+Reward at end of episode:  -17
+Episodes 23 one for  10.012860298156738 
+Reward at end of episode:  -13
+Episodes 24 one for  10.0180184841156 
+Reward at end of episode:  -15
+Episodes 24 one for  inf 
+Reward at end of episode:  -14
+Episodes 25 one for  10.015159368515015 
+Reward at end of episode:  -18
+Episodes 25 one for  inf 
+Reward at end of episode:  -16
+Episodes 26 one for  10.023818731307983 
+Reward at end of episode:  -18
+Episodes 26 one for  inf 
+Reward at end of episode:  -16
+Episodes 27 one for  10.043687582015991 
+Reward at end of episode:  -11
+Episodes 27 one for  inf 
+Reward at end of episode:  -15
+Episodes 28 one for  10.016112804412842 
+Reward at end of episode:  -15
+Episodes 28 one for  inf 
+Reward at end of episode:  -15
+Episodes 29 one for  10.035095453262329 
+Reward at end of episode:  -15
+Episodes 29 one for  inf 
+Reward at end of episode:  -15
+Episodes 30 one for  10.036293506622314 
+Reward at end of episode:  -16
+Episodes 30 one for  inf 
+Reward at end of episode:  -11
+Episodes 31 one for  10.041808366775513 
+Reward at end of episode:  -11
+Episodes 31 one for  inf 
+Reward at end of episode:  -14
+Episodes 31 one for  inf 
+Reward at end of episode:  -20
+Episodes 32 one for  10.014774560928345 
+Reward at end of episode:  -16
+Episodes 33 one for  10.014875173568726 
+Reward at end of episode:  -19
+Episodes 33 one for  inf 
+Reward at end of episode:  -18
+Episodes 34 one for  10.0185387134552 
+Reward at end of episode:  -13
+Episodes 34 one for  inf 
+Reward at end of episode:  -17
+Episodes 35 one for  10.033666849136353 
+Reward at end of episode:  -17
+Episodes 35 one for  inf 
+Reward at end of episode:  -15
+Episodes 35 one for  inf 
+Reward at end of episode:  -14
+Episodes 36 one for  10.013114929199219 
+Reward at end of episode:  -12
+Episodes 37 one for  10.016430139541626 
+Reward at end of episode:  -16
+Episodes 37 one for  inf 
+Reward at end of episode:  -17
+Episodes 38 one for  10.01453447341919 
+Reward at end of episode:  -10
+Episodes 38 one for  inf 
+Reward at end of episode:  -18
+Episodes 39 one for  10.019861459732056 
+Reward at end of episode:  -16
+Episodes 39 one for  inf 
+Reward at end of episode:  -10
+Episodes 40 one for  10.013102531433105 
+Reward at end of episode:  -18
+Episodes 40 one for  inf 
+Reward at end of episode:  -16
+Episodes 40 one for  inf 
+Reward at end of episode:  -15
+Episodes 41 one for  10.011977195739746 
+Reward at end of episode:  -14
+Episodes 41 one for  inf 
+Reward at end of episode:  -16
+Episodes 42 one for  10.01353645324707 
+Reward at end of episode:  -16
+Episodes 42 one for  inf 
+Reward at end of episode:  -14
+Episodes 43 one for  10.01311206817627 
+Reward at end of episode:  -17
+Episodes 43 one for  inf 
+Reward at end of episode:  -13
+Episodes 44 one for  10.014862298965454 
+Reward at end of episode:  -14
+Episodes 44 one for  inf 
+Reward at end of episode:  -14
+Episodes 45 one for  10.016855716705322 
+Reward at end of episode:  -15
+Episodes 45 one for  inf 
+Reward at end of episode:  -18
+Episodes 46 one for  10.014228820800781 
+Reward at end of episode:  -12
+Episodes 46 one for  inf 
+Reward at end of episode:  -18
+Episodes 47 one for  10.12441635131836 
+Reward at end of episode:  -15
+Episodes 47 one for  inf 
+Reward at end of episode:  -16
+Episodes 48 one for  10.018358945846558 
+Reward at end of episode:  -17
+Episodes 48 one for  inf 
+Reward at end of episode:  -15
+Episodes 49 one for  10.031062364578247 
+Reward at end of episode:  -16
+Episodes 49 one for  inf 
+Reward at end of episode:  -15
+Episodes 50 one for  10.029128551483154 
+Reward at end of episode:  -13
+Episodes 50 one for  inf 
+Reward at end of episode:  -15
+Episodes 51 one for  10.01525330543518 
+Reward at end of episode:  -11
+Episodes 51 one for  inf 
+Reward at end of episode:  -13
+Episodes 52 one for  10.013986587524414 
+Reward at end of episode:  -16
+Episodes 52 one for  inf 
+Reward at end of episode:  -14
+Episodes 53 one for  10.019703388214111 
+Reward at end of episode:  -17
+Episodes 53 one for  inf 
+Reward at end of episode:  -13
+Episodes 53 one for  inf 
+Reward at end of episode:  -15
+Episodes 54 one for  10.020538091659546 
+Reward at end of episode:  -12
+Episodes 54 one for  inf 
+Reward at end of episode:  -15
+Episodes 55 one for  10.015749216079712 
+Reward at end of episode:  -12
+Episodes 55 one for  inf 
+Reward at end of episode:  -13
+Episodes 56 one for  10.060650825500488 
+Reward at end of episode:  -20
+Episodes 56 one for  inf 
+Reward at end of episode:  -13
+Episodes 56 one for  inf 
+Reward at end of episode:  -15
+Episodes 57 one for  10.026385068893433 
+Reward at end of episode:  -13
+Episodes 57 one for  inf 
+Reward at end of episode:  -10
+Episodes 58 one for  10.015868186950684 
+Reward at end of episode:  -15
+Episodes 58 one for  inf 
+Reward at end of episode:  -13
+Episodes 59 one for  10.015748262405396 
+Reward at end of episode:  -18
+Episodes 59 one for  inf 
+Reward at end of episode:  -18
+Episodes 59 one for  inf 
+Reward at end of episode:  -14
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: got SIGCONT
+slurmstepd-ctit080: error: *** STEP 41939.0 ON ctit080 CANCELLED AT 2018-10-21T22:25:28 ***
+slurmstepd-ctit080: error: *** JOB 41939 ON ctit080 CANCELLED AT 2018-10-21T22:25:28 ***
+srun: forcing job termination

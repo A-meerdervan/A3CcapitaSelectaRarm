@@ -11,7 +11,8 @@ import multiprocessing
 # Own files
 from AC_Network import AC_Network
 from Worker import Worker
-from Env.GlobalConstantsA3C import gc # has high level constants
+#from Env.GlobalConstantsA3C import gc # has high level constants
+from runConfig import rc
 import Env.A3CenvPong # import custom Pong env (no images but 6 numbers as state)
 
 # end imports
@@ -22,7 +23,7 @@ class EvalWorker():
         self.sess = sess
         self.save = save
         self.max_episode_length = max_episode_length
-        self.env = Env.A3CenvPong.A3CenvPong()
+        self.env = Env.A3CenvPong.A3CenvPong(rc.RENDER_SCREEN)
         self.actions = actionSpace
         self.verbose = verbose
         
@@ -36,7 +37,7 @@ class EvalWorker():
         s = self.env.reset()
         done = False
         while ( not done):
-            if gc.RENDER_SCREEN: self.env.render()
+            if rc.RENDER_SCREEN: self.env.render()
             #Take an action using probabilities from policy network output.
             a_dist,v = sess.run([self.local_AC.policy,self.local_AC.value],
                 feed_dict={self.local_AC.inputs:[s]})
@@ -81,12 +82,13 @@ class EvalWorker():
         
 # Here are the parameters that should match the run which is being evaluated
 # --------------------------------------
-max_episode_length = 10000
-s_size = 6 # Our pong version has a state of 6 numbers
-a_size = 3 # Agent can move up down or do nothing
-load_model = True
-model_path = './model'
 cpu_count_training = 12 # Number of cpu's used during training
+evalFolder = 'openAIsettings' # The folder that holds the model and train folders
+nrOfEvalGames = 10
+            
+max_episode_length = 10000
+load_model = True # must be True to evaluate a given model file
+model_path = './LogsOfRuns/' + evalFolder + "/model"
 # These should be added for better generality:
 results_path = './results'
 # Maybe the learning rate enzo, maar miss maakt dat niet uit. (dingen die de trainer meekrijgt)
@@ -97,8 +99,6 @@ results_path = './results'
 save = False # not used yet, but should save things to file or something
 verbose = True # if true it prints results, if not it prints nothing
 # pong specific action space
-actionSpace = [1,2,3]
-nrOfEvalGames = 10
 
 tf.reset_default_graph()
 
@@ -112,12 +112,12 @@ global_episodes = tf.Variable(0,dtype=tf.int32,name='global_episodes',trainable=
 global_rewardEndEpisode = tf.Variable(0,dtype=tf.int32,name='global_rewardEndEpisode',trainable=False)
 
 trainer = tf.train.RMSPropOptimizer(learning_rate=7e-4, decay=0.99, epsilon=0.1)
-master_network = AC_Network(s_size,a_size,'global',None) # Generate global network
+master_network = AC_Network(rc.S_SIZE,rc.A_SIZE,'global',None) # Generate global network
 num_workers = cpu_count_training
 workers = []
 # Create worker classes
 for i in range(num_workers):
-    workers.append(Worker(i,s_size,a_size,trainer,model_path,global_episodes,global_rewardEndEpisode))
+    workers.append(Worker(i,rc.S_SIZE,rc.A_SIZE,trainer,model_path,rc.TF_SUMM_PATH,global_episodes,global_rewardEndEpisode))
 saver = tf.train.Saver(max_to_keep=5)
 
 # A: I think this means that it is able to continiue where it left off in a previous run
@@ -128,7 +128,7 @@ with tf.Session() as sess:
     ckpt = tf.train.get_checkpoint_state(model_path)
     saver.restore(sess,ckpt.model_checkpoint_path)
    # Start 1 EvalWorker
-    evalWorker = EvalWorker(actionSpace,master_network,sess,save,verbose,max_episode_length)
+    evalWorker = EvalWorker(rc.ACTION_SPACE,master_network,sess,save,verbose,max_episode_length)
     evalWorker.playNgames(nrOfEvalGames)
 
 

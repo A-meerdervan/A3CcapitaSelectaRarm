@@ -1,0 +1,4 @@
+inside script pongS6run1.sh
+inside script pongS6run2.sh
+slurmstepd-ctit080: error: execve(): pongS6run3.sh: Permission denied
+srun: error: ctit080: task 0: Exited with exit code 13

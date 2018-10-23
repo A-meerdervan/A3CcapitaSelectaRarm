@@ -1,0 +1,27 @@
+
+OpenAI settings:
+
+# used settings
+load_model = False
+outputs_folder = '/openAIsettings'
+num_workers = 12 #multiprocessing.cpu_count() # Set workers ot number of available CPU threads
+max_episode_length = 10000
+s_size = 6 # Our pong version has a state of 6 numbers
+a_size = 3 # Agent can move up down or do nothing
+# OpenAI settings:
+gamma = .99 # discount rate for advantage estimation and reward discounting
+learningRate = 1e-3 # was at 7e-4 for the Dm-mc implementation
+alpha = 0.99 # was at 0.99 originally, openAI also had 0.99
+epsilon= 1e-5 # was at 0.1 originally, openAI had 1e-5
+
+# OpenAI Network settings:
+2 hid layers. tanh act.fn. 64 nodes
+
+# Training:
+self.vf_coef = 0.5 # Was originally at 0.5, openAI also had 0.5
+self.ent_coef = 0.01 # Was at 0.1 originally, openAI has 0.01 as default in A2C
+self.max_grad_norm = 0.5 # was originally 40 and openAI has 0.5 in A2C
+
+self.tfSummaryEpInterval = 5 # was 5
+self.tfSaveModelInterval = 250 # was 250
+self.rolloutLength = 5 # was at 20 for the Dm-mc implementation and 5 is default for openAI A2C

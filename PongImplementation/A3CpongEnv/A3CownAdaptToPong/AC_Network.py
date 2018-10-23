@@ -9,15 +9,20 @@ Created on Wed Oct 17 15:20:32 2018
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import numpy as np
+from runConfig import rc # has high level constants
 #---- End imports ----
 
 class AC_Network():
     def __init__(self,s_size,a_size,scope,trainer):
+        self.vf_coef = rc.VF_COEF
+        self.ent_coef = rc.ENT_COEF # Was at 0.1 originally, openAI has 0.01 as default in A2C
+        self.max_grad_norm = rc.MAX_GRAD_NORM # was originally 40 and openAI has 0.5 in A2C
         with tf.variable_scope(scope):
+            
             #Input and visual encoding layers
             self.inputs = tf.placeholder(shape = [None, s_size],dtype=tf.float32, name='inputState')
-            hidden1 = slim.fully_connected(self.inputs,64,activation_fn=tf.nn.relu)
-            hidden2 = slim.fully_connected(hidden1,64,activation_fn=tf.nn.relu)
+            hidden1 = slim.fully_connected(self.inputs,rc.N_HID_NODES,activation_fn=tf.tanh)
+            hidden2 = slim.fully_connected(hidden1,rc.N_HID_NODES,activation_fn=tf.tanh)
             # TODO: maybe slim.flatten() gebruiken voor je de layer als input geeft
             #Output layers for policy and value estimations
             self.policy = slim.fully_connected(hidden2,a_size,
@@ -43,7 +48,7 @@ class AC_Network():
                 self.entropy = - tf.reduce_sum(self.policy * tf.log(self.policy + 10e-6))
                 self.policy_loss = -tf.reduce_sum(tf.log(self.responsible_outputs + 10e-6)*self.advantages)
                 #TODO deze entropy parameter tunen en bij de andere hyperpars zetten
-                self.loss = 0.5 * self.value_loss + self.policy_loss - self.entropy * 0.1
+                self.loss = self.vf_coef * self.value_loss + self.policy_loss - self.entropy * self.ent_coef
                 self.adv_sum = tf.reduce_sum(self.advantages)
 
                 #Get gradients from local network using local losses
@@ -54,7 +59,7 @@ class AC_Network():
                 self.var_norms = tf.global_norm(local_vars)
                 # This line clips the gradients! preventing a to large update
                 #TODO deze clipping parameter tunen, en bij de andere hyperpars zetten
-                grads,self.grad_norms = tf.clip_by_global_norm(self.gradients,40.0)
+                grads,self.grad_norms = tf.clip_by_global_norm(self.gradients,self.max_grad_norm)
                 
                 #Apply local gradients to global network
                 # This is the important global network update step!

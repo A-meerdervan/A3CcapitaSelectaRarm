@@ -1,0 +1,3 @@
+inside script pongS6run.sh
+pongS6run.sh: line 6: 46703 Illegal instruction     python3 mainA3C.py
+srun: error: westervlier: task 0: Exited with exit code 132

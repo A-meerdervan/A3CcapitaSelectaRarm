@@ -1,0 +1,267 @@
+inside script pongS6run.sh
+2018-10-21 18:14:18.007302: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+pygame 1.9.4
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Starting worker 0
+Starting worker 3
+Starting worker 14
+Starting worker 11
+Starting worker 9
+Starting worker 8
+Starting worker 4
+Starting worker 5
+Starting worker 1
+Starting worker 10
+Starting worker 6
+Starting worker 13
+Starting worker 15
+Starting worker 7
+Starting worker 12
+Starting worker 2
+Episodes 0 one for  inf 
+Reward at end of episode:  0
+Episodes 0 one for  inf 
+Reward at end of episode:  -13
+Episodes 1 one for  10.015212535858154 
+Reward at end of episode:  -12
+Episodes 1 one for  inf 
+Reward at end of episode:  -16
+Episodes 2 one for  10.0152907371521 
+Reward at end of episode:  -18
+Episodes 2 one for  inf 
+Reward at end of episode:  -15
+Episodes 3 one for  10.01331114768982 
+Reward at end of episode:  -16
+Episodes 3 one for  inf 
+Reward at end of episode:  -19
+Episodes 4 one for  10.014382362365723 
+Reward at end of episode:  -13
+Episodes 4 one for  inf 
+Reward at end of episode:  -16
+Episodes 5 one for  10.027637720108032 
+Reward at end of episode:  -18
+Episodes 5 one for  inf 
+Reward at end of episode:  -17
+Episodes 6 one for  10.014290809631348 
+Reward at end of episode:  -17
+Episodes 6 one for  inf 
+Reward at end of episode:  -19
+Episodes 7 one for  10.022634744644165 
+Reward at end of episode:  -14
+Episodes 7 one for  inf 
+Reward at end of episode:  -16
+Episodes 8 one for  10.010910511016846 
+Reward at end of episode:  -18
+Episodes 8 one for  inf 
+Reward at end of episode:  -16
+Episodes 9 one for  10.029964685440063 
+Reward at end of episode:  -14
+Episodes 9 one for  inf 
+Reward at end of episode:  -16
+Episodes 10 one for  10.013798713684082 
+Reward at end of episode:  -16
+Saved Model at local ep count:  10
+Episodes 11 one for  10.012150049209595 
+Reward at end of episode:  -14
+Episodes 11 one for  inf 
+Reward at end of episode:  -19
+Episodes 12 one for  10.013190507888794 
+Reward at end of episode:  -15
+Episodes 12 one for  inf 
+Reward at end of episode:  -17
+Episodes 13 one for  10.017266035079956 
+Reward at end of episode:  -18
+Episodes 13 one for  inf 
+Reward at end of episode:  -15
+Episodes 14 one for  10.01727032661438 
+Reward at end of episode:  -19
+Episodes 15 one for  10.033551931381226 
+Reward at end of episode:  -15
+Episodes 15 one for  inf 
+Reward at end of episode:  -15
+Episodes 16 one for  10.022674083709717 
+Reward at end of episode:  -15
+Episodes 16 one for  inf 
+Reward at end of episode:  -18
+Episodes 17 one for  10.029857635498047 
+Reward at end of episode:  -16
+Episodes 17 one for  inf 
+Reward at end of episode:  -18
+Episodes 18 one for  10.025138139724731 
+Reward at end of episode:  -16
+Episodes 18 one for  inf 
+Reward at end of episode:  -16
+Episodes 19 one for  10.011820554733276 
+Reward at end of episode:  -17
+Episodes 19 one for  inf 
+Reward at end of episode:  -12
+Episodes 20 one for  10.105246782302856 
+Reward at end of episode:  -18
+Episodes 20 one for  inf 
+Reward at end of episode:  -17
+Saved Model at local ep count:  20
+Episodes 21 one for  10.026118278503418 
+Reward at end of episode:  -18
+Episodes 21 one for  inf 
+Reward at end of episode:  -17
+Episodes 22 one for  10.099900960922241 
+Reward at end of episode:  -12
+Episodes 22 one for  inf 
+Reward at end of episode:  -16
+Episodes 23 one for  10.018140077590942 
+Reward at end of episode:  -18
+Episodes 23 one for  inf 
+Reward at end of episode:  -17
+Episodes 24 one for  10.02738881111145 
+Reward at end of episode:  -17
+Episodes 24 one for  inf 
+Reward at end of episode:  -17
+Episodes 25 one for  10.021161556243896 
+Reward at end of episode:  -12
+Episodes 25 one for  inf 
+Reward at end of episode:  -15
+Episodes 26 one for  10.028156995773315 
+Reward at end of episode:  -16
+Episodes 26 one for  inf 
+Reward at end of episode:  -19
+Episodes 26 one for  inf 
+Reward at end of episode:  -15
+Episodes 27 one for  10.019548654556274 
+Reward at end of episode:  -13
+Episodes 27 one for  inf 
+Reward at end of episode:  -16
+Episodes 28 one for  10.016258001327515 
+Reward at end of episode:  -17
+Episodes 28 one for  inf 
+Reward at end of episode:  -14
+Episodes 29 one for  10.293913841247559 
+Reward at end of episode:  -18
+Episodes 29 one for  inf 
+Reward at end of episode:  -15
+Episodes 30 one for  10.018891334533691 
+Reward at end of episode:  -14
+Episodes 30 one for  inf 
+Reward at end of episode:  -14
+Saved Model at local ep count:  30
+Episodes 31 one for  10.015338659286499 
+Reward at end of episode:  -17
+Episodes 31 one for  inf 
+Reward at end of episode:  -15
+Episodes 32 one for  10.041564702987671 
+Reward at end of episode:  -10
+Episodes 32 one for  inf 
+Reward at end of episode:  -16
+Episodes 33 one for  10.011307001113892 
+Reward at end of episode:  -18
+Episodes 33 one for  inf 
+Reward at end of episode:  -16
+Episodes 34 one for  10.012799263000488 
+Reward at end of episode:  -12
+Episodes 34 one for  inf 
+Reward at end of episode:  -17
+Episodes 35 one for  10.024830341339111 
+Reward at end of episode:  -15
+Episodes 35 one for  inf 
+Reward at end of episode:  -18
+Episodes 36 one for  10.026360988616943 
+Reward at end of episode:  -15
+Episodes 36 one for  inf 
+Reward at end of episode:  -17
+Episodes 37 one for  10.022879838943481 
+Reward at end of episode:  -14
+Episodes 37 one for  inf 
+Reward at end of episode:  -14
+Episodes 38 one for  10.112057209014893 
+Reward at end of episode:  -15
+Episodes 38 one for  inf 
+Reward at end of episode:  -18
+Episodes 39 one for  10.026281595230103 
+Reward at end of episode:  -17
+Episodes 39 one for  inf 
+Reward at end of episode:  -15
+Episodes 39 one for  inf 
+Reward at end of episode:  -16
+Episodes 40 one for  10.013321161270142 
+Reward at end of episode:  -17
+Saved Model at local ep count:  40
+Episodes 41 one for  10.192813158035278 
+Reward at end of episode:  -17
+Episodes 41 one for  inf 
+Reward at end of episode:  -18
+Episodes 42 one for  10.0167396068573 
+Reward at end of episode:  -16
+Episodes 42 one for  inf 
+Reward at end of episode:  -14
+Episodes 43 one for  10.013258695602417 
+Reward at end of episode:  -14
+Episodes 43 one for  inf 
+Reward at end of episode:  -15
+Episodes 44 one for  10.015695333480835 
+Reward at end of episode:  -15
+Episodes 44 one for  inf 
+Reward at end of episode:  -18
+Episodes 45 one for  10.01537561416626 
+Reward at end of episode:  -14
+Episodes 46 one for  10.015561819076538 
+Reward at end of episode:  -15
+Episodes 46 one for  inf 
+Reward at end of episode:  -14
+Episodes 47 one for  10.021979331970215 
+Reward at end of episode:  -18
+Episodes 47 one for  inf 
+Reward at end of episode:  -15
+Episodes 47 one for  inf 
+Reward at end of episode:  -14
+Episodes 48 one for  10.120202779769897 
+Reward at end of episode:  -16
+Episodes 49 one for  10.01330018043518 
+Reward at end of episode:  -13
+Episodes 49 one for  inf 
+Reward at end of episode:  -18
+Episodes 50 one for  10.112593412399292 
+Reward at end of episode:  -15
+Episodes 50 one for  inf 
+Reward at end of episode:  -19
+Saved Model at local ep count:  50
+Episodes 51 one for  10.015217781066895 
+Reward at end of episode:  -17
+Episodes 51 one for  inf 
+Reward at end of episode:  -16
+Episodes 51 one for  inf 
+Reward at end of episode:  -18
+Episodes 52 one for  10.091660022735596 
+Reward at end of episode:  -17
+Episodes 53 one for  10.018157243728638 
+Reward at end of episode:  -13
+Episodes 53 one for  inf 
+Reward at end of episode:  -15
+Episodes 54 one for  10.037255764007568 
+Reward at end of episode:  -14
+Episodes 54 one for  inf 
+Reward at end of episode:  -13
+Episodes 55 one for  10.12612795829773 
+Reward at end of episode:  -16
+Episodes 56 one for  10.02043628692627 
+Reward at end of episode:  -14
+Episodes 56 one for  inf 
+Reward at end of episode:  -14
+Episodes 57 one for  10.020074844360352 
+Reward at end of episode:  -15
+Episodes 57 one for  inf 
+Reward at end of episode:  -16
+Episodes 58 one for  10.099252462387085 
+Reward at end of episode:  -19
+Episodes 58 one for  inf 
+Reward at end of episode:  -16
+Episodes 59 one for  10.019957304000854 
+Reward at end of episode:  -17
+Episodes 59 one for  inf 
+Reward at end of episode:  -9
+Episodes 60 one for  10.01478123664856 
+Reward at end of episode:  -18
+Episodes 60 one for  inf 
+srun: got SIGCONT
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd-ctit080: error: *** JOB 41930 ON ctit080 CANCELLED AT 2018-10-21T18:38:06 ***
+srun: forcing job termination
+slurmstepd-ctit080: error: *** STEP 41930.0 ON ctit080 CANCELLED AT 2018-10-21T18:38:06 ***

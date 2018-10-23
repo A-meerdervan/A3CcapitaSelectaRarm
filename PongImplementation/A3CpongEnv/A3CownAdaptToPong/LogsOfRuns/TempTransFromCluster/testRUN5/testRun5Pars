@@ -1,0 +1,19 @@
+Network is 1 hid met 256 nodes
+
+# Run specific parameters
+max_episode_length = 10000
+# TODO: Was eerst .99 maar vanwege onze paper overgezet naar .96
+gamma = .99 # discount rate for advantage estimation and reward discounting
+s_size = 6 # Our pong version has a state of 6 numbers
+a_size = 3 # Agent can move up down or do nothing
+learningRate = 1e-3 # was at 7e-4 for the Dm-mc implementation
+load_model = False
+outputs_folder = '/testRUN5'
+num_workers = 16 #multiprocessing.cpu_count() # Set workers ot number of available CPU threads
+
+        self.tfSummaryEpInterval = 5 # was 5
+        self.tfSaveModelInterval = 250 # was 250
+        self.rolloutLength = 20 # was at 20 for the Dm-mc implementation
+
+
+

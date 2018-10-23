@@ -1,0 +1,2 @@
+srun: error: --ntasks must be set with --exclusive
+srun: error: --ntasks must be set with --exclusive

@@ -9,9 +9,10 @@ import numpy as np
 import tensorflow as tf
 
 # Alex: added this
-from Env.GlobalConstantsA3C import gc # has high level constants
+#from Env.GlobalConstantsA3C import gc # has high level constants
+from runConfig import rc # has high level constants
 import Env.A3CenvPong # import custom Pong env (no images but 6 numbers as state)
-from AC_Network1 import AC_Network # The network used as brain
+from AC_Network import AC_Network # The network used as brain
 
 import scipy.signal
 from skimage.color import rgb2gray # gave an error, had to pip it, then another error then had to pip scikit-image
@@ -29,10 +30,9 @@ class Worker():
         self.episode_rewards = []
         self.episode_lengths = []
         self.episode_mean_values = []
-        # TODO make global somehow
-        self.tfSummaryEpInterval = 1 # was 5
-        self.tfSaveModelInterval = 10 # was 250
-        self.rolloutLength = 20 # was at 20 for the Dm-mc implementation
+        self.tfSummaryEpInterval = rc.TF_SUM_EP_INTVL
+        self.tfSaveModelInterval = rc.TF_SAVE_MODEL_INTVL
+        self.rolloutLength = rc.NSTEPS # was at 20 for the Dm-mc implementation and 5 is default for openAI A2C
         # write stats of the progress of this worker
         # This creates a tensorboard summary writer that writes to tfSummaryPath+ "01" for example
         self.summary_writer = tf.summary.FileWriter(tfSummary_path[2:] +str(self.number))
@@ -46,7 +46,7 @@ class Worker():
         self.actions = [1,2,3]
         # Specify the environment that the agent will operate in.
         #self.env = gym.make('Pong-v0')
-        self.env = Env.A3CenvPong.A3CenvPong()
+        self.env = Env.A3CenvPong.A3CenvPong(rc.RENDER_SCREEN)
         
     # This function trains the worker on the just completed rollout and at the
     # end it updates the global network.
@@ -126,7 +126,7 @@ class Worker():
                 done = False
                 while not done:
                     # Only render one thread and not all
-                    if self.number == 0 and gc.RENDER_SCREEN:
+                    if self.number == 0 and rc.RENDER_SCREEN:
                         self.env.render()
                     #Take an action using probabilities from policy network output.
                     a_dist,v = sess.run([self.local_AC.policy,self.local_AC.value],
