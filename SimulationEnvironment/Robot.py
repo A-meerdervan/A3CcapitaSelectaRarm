@@ -5,17 +5,18 @@ Created on Fri Oct 12 10:28:13 2018
 @author: arnol
 """
 import numpy as np
+import gobalConst as cn
 
 class Robot:
     def __init__(self, jointLenght = [100, 100, 80, 20], jointAngles = [90,0,0], width = 10):
-        self.jointLength = jointLenght   # in pixels. [link 1, link 2, link 3, endeffector stick]
+        self.jointLength = cn.rob_JointLenght   # in pixels. [link 1, link 2, link 3, endeffector stick]
         self.reach = np.sum(self.jointLength)
         self.jointAngles = jointAngles   # in radians
-        self.width = width               # in pixels
+        self.width = cn.rob_JointWidth               # in pixels
 #        self.endeffectorWidth = 2        # width of the slim endeffector piece
-        self.maxJointAngle = np.radians(np.array([170,170]))
-        self.standardDeviation = 0.001
-        self.stepSize = np.radians(1.4)             # stepsize in degrees
+        self.maxJointAngle = cn.rob_MaxJointAngle
+        self.standardDeviation = cn.rob_NoiseStandDev
+        self.stepSize = cn.rob_StepSize            # stepsize in degrees
 
     def computeJointLocations(self, zeroPosition):
         # t_1 is angle at the base
@@ -45,9 +46,14 @@ class Robot:
 
         # check angles
         for j in self.jointAngles:
-            if (j > 3.141592653589793):
-                j = j - 3.141592653589793
-            elif(j < -3.141592653589793):
-                j = j + 3.141592653589793
+#            if (j > 3.141592653589793):
+#                j = j - 3.141592653589793
+#            elif(j < -3.141592653589793):
+#                j = j + 3.141592653589793
+            # if one of the angles exceeds the maximum angle, then revert back to the previous angle
+            if (j > self.maxJointAngle[0] or j < self.maxJointAngle[1]):
+                self.jointAngles = self.jointAngles - self.stepSize*joint - noise*joint
+                break
+
 
         return self.jointAngles

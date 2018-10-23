@@ -9,31 +9,34 @@ import numpy as np
 #import time
 import math
 import Robot
+#import threading
+import gobalConst as cn
 #import copy
 
 #pygame.init()
 #screen = pygame.display.set_mode((400, 400))
-
+#def importPygame():
+#    import pygame
 
 class SimulationEnvironment:
     def __init__(self, randomGoal, WINDOW_WIDTH = 400, WINDOW_HEIGHT = 400):
-        #initialize our screen using width and height vars
-#        if (render):
-#        self.screen = pygame.display.set_mode((0, 0))
-        self.zeroPosition = ([WINDOW_WIDTH/2, WINDOW_HEIGHT])   # reference for drawing
-        self.WINDOW_HEIGHT = WINDOW_HEIGHT
-        self.WINDOW_WIDTH = WINDOW_WIDTH
+        self.screen = 0 #pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+        self.zeroPosition = ([cn.sim_WINDOW_WIDTH/2, cn.sim_WINDOW_HEIGHT])   # reference for drawing
+        self.WINDOW_HEIGHT = cn.sim_WINDOW_HEIGHT
+        self.WINDOW_WIDTH = cn.sim_WINDOW_WIDTH
         self.robot = Robot.Robot([100,100,80,20], np.radians(np.array([105,-90,120])))
-        self.envWalls = np.array([[(120,400), (120,300)], [(120,300), (80,300)], [(80,300),
-                      (80,100)], [(80,100), (280,100)], [(280,100), (280,400)], [(280,400),(120,400)]])
+        self.envWalls = np.array([[(120,400), (120,300)], [(120,300), (40,300)], [(40,300),
+                      (40,140)], [(40,140), (280,140)], [(280,140), (280,400)], [(280,400),(120,400)]])
         self.envWallSide = ['l', 'b', 'l', 't', 'r', 'b']
         self.envPoints = self.wallsTOPoints(self.envWalls)
-        self.addNoise = True
-        self.goal = np.array([150,150])  # define goal where the robot should go
+        self.addNoise = cn.sim_AddNoise
+        self.goal = cn.sim_Goal
         self.senseDistances = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0]])
         self.distanceEndEffector = np.array([0,0])
-        self.randomGoal = randomGoal
+        self.randomGoal = cn.sim_RandomGoal
         self.ctr = 0
+#        self.reward = 0
+#        self.clock = pygame.time.Clock()
 
         if (randomGoal):
             self.goal = self.createRandomGoal()
@@ -42,7 +45,6 @@ class SimulationEnvironment:
         # map the 6 outputs from the NN to the actions one can take
         # returns whether there is a collision (True), the reward, and whether the goal
         # has been reached
-
         a = np.zeros((6,1))   # added to convert the output of the agent to the simulation env
         a[action - 1] = 1
 #        action = a
@@ -67,15 +69,10 @@ class SimulationEnvironment:
         self.ctr = self.ctr + 1
 
         state = self.getState()
-#        pygame.event.get()
+
+        self.reward = r # temporary line!
         return [state, r, done]  # return [state, reward, done, timestep]
 
-    def quitScreen(self):
-##
-#        pygame.display.quit()
-#        break
-#        pygame.quit()
-        return
 
     def reset(self):
         """resets the robot and the environment, and also returns the state"""
@@ -83,7 +80,7 @@ class SimulationEnvironment:
 #            pygame.display.init()
 #            self.screen = pygame.display.set_mode((self.WINDOW_WIDTH, self.WINDOW_HEIGHT))
 
-        self.robot.jointAngles = np.radians(np.array([120,-140,140]))
+        self.robot.jointAngles = cn.rob_ResetAngles
 
         self.ctr = 0
 
@@ -98,9 +95,9 @@ class SimulationEnvironment:
         return self.getState()
 
     def getState(self):
-        s1 = np.resize(self.senseDistances, (12,1))
-        s2 = np.resize(self.robot.jointAngles, (3,1))
-        s3 = np.resize(self.distanceEndEffector, (2,1))
+        s1 = np.resize(self.senseDistances/400, (12,1)) # normalized between 0 and 1
+        s2 = np.resize(self.robot.jointAngles/3.141592653589793, (3,1)) # normalized between -1 and 1
+        s3 = np.resize(self.distanceEndEffector/400, (2,1)) # normalized between 0 and 1
 
         return np.reshape(np.vstack((s1,s2,s3)), (1,17))
 
@@ -129,23 +126,32 @@ class SimulationEnvironment:
         if (d < 5):
             # reached goal
             reachedGoal = True
-            reward = 200
+            reward = 100
         else:
             reachedGoal = False
 
-        gamma = 0.05
-        reward = -1 * math.exp(gamma * d)
+        gamma = -0.01
+        offset = 100
+        reward = offset * math.exp(gamma * d) - offset
 
-        if minDistance < 20:
-            reward = reward - (20 - minDistance)*5
+        thresholdWall = 20
+        wallReward = 100
 
         if collision:
-            reward = reward - 100
+            reward = reward - wallReward
+        elif minDistance < thresholdWall:
+            reward = reward - (thresholdWall - minDistance) * (wallReward/thresholdWall)
 
-        return [reward, reachedGoal]
+#        if collision:
+#            reward = reward - wallReward
+
+        return [reward/200, reachedGoal]
 
     # TODO: Manage screen in A3C file --> return all objects to be drawn
     def render(self):
+        if (self.screen == 0):
+            self.screen = pygame.display.set_mode((cn.sim_WINDOW_WIDTH, cn.sim_WINDOW_HEIGHT))
+
         [wall, goal] = self.drawEnvironment()
         robot = self.drawRobot()
 
@@ -154,7 +160,7 @@ class SimulationEnvironment:
     def drawEnvironment(self):
 #        pygame.event.pump()
 
-#        self.screen.fill((0,0,0)) # black out screen
+        self.screen.fill((0,0,0)) # black out screen
 
         colour = (255,0,0)
         thickness = 10
@@ -177,7 +183,7 @@ class SimulationEnvironment:
             ctr += 1
 
         # draw goal
-#        pygame.draw.circle(self.screen, (0,255,0), self.goal, 5, 0)
+        pygame.draw.circle(self.screen, (0,255,0), self.goal, 5, 0)
 
         return [walls, self.goal]
 
@@ -190,10 +196,10 @@ class SimulationEnvironment:
         endEffector = [(x_3,y_3),(x_ee,y_ee)]
 
         thickness = self.robot.width
-#        pygame.draw.lines(self.screen, colour, False, pointlist, thickness)
-#        pygame.draw.lines(self.screen, colour, False, endEffector, 2)
+        pygame.draw.lines(self.screen, colour, False, pointlist, thickness)
+        pygame.draw.lines(self.screen, colour, False, endEffector, 2)
 
-#        pygame.display.flip()
+        pygame.display.flip()
 
         return [(x_0, y_0), (x_1,y_1),(x_2,y_2),(x_3,y_3),(x_ee,y_ee)]
 
@@ -364,9 +370,10 @@ class SimulationEnvironment:
         return True
 
     def checkNOCollision(self):
-        c = self.checkNOCollisionWithItself()
-        if not c:
-            return [c, 0]
+        # cannot collide with itself now
+#        c = self.checkNOCollisionWithItself()
+#        if not c:
+#            return [c, 0]
 
         """ checks if the robot is fully in the environment. Returns True if there is no collision"""
         [x_0,y_0,x_1,y_1,x_2,y_2,x_3,y_3,x_ee,y_ee] = self.robot.computeJointLocations(self.zeroPosition)

@@ -27,7 +27,7 @@ import numpy as np
 import math
 #import SelfplayExperiment
 import CSVhandler as csvH
-from GlobalConstants import gc
+from GlobalConstantsA3C import gc # has high level constants
 
 #size of our window
 WINDOW_WIDTH = 500
