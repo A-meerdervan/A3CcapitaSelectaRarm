@@ -23,13 +23,20 @@ rob_ResetAngles = np.radians(np.array([120,-140,140]))
 
 
 
-run_Render = True
+run_Render = False
 run_FPS = 15
 run_MaxEpisodeLenght = 10000
 run_Gamma = .99 # discount rate for advantage estimation and reward discounting
 run_sSize = 17 # Observations are greyscale frames of 84 * 84 * 1
 run_aSize = 6 # Agent can rotate each joint in 2 directions
 run_LoadModel = False
-run_ModelPath = './model'
 run_LearningRate = 1e-3
 run_BufferSize = 30
+
+OUTP_FOLDER = '/run99'
+
+OUTP_FOLDER = './LogsOfRuns' + OUTP_FOLDER
+TF_SUMM_PATH = OUTP_FOLDER + '/train_'
+run_ModelPath = OUTP_FOLDER + '/model'
+
+

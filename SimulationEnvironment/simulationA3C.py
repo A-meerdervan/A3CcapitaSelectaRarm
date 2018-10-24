@@ -130,7 +130,7 @@ class AC_Network():
                 self.gradients = tf.gradients(self.loss,local_vars)
                 self.var_norms = tf.global_norm(local_vars)
                 # ???limits the values of the grads???
-                grads,self.grad_norms = tf.clip_by_global_norm(self.gradients,cn.run_Clipping)
+                grads,self.grad_norms = tf.clip_by_global_norm(self.gradients,40)
 
                 #Apply local gradients to global network
                 global_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 'global')
@@ -138,7 +138,7 @@ class AC_Network():
                 self.apply_grads = trainer.apply_gradients(zip(grads,global_vars))
 
 class Worker():
-    def __init__(self,name,s_size,a_size,trainer,model_path,global_episodes,global_rewardEndEpisode):
+    def __init__(self,name,s_size,a_size,trainer,model_path,tfSummary_path,global_episodes,global_rewardEndEpisode):
         self.name = "worker_" + str(name)
         self.number = name
         self.model_path = model_path
@@ -149,7 +149,7 @@ class Worker():
         self.episode_rewards = []
         self.episode_lengths = []
         self.episode_mean_values = []
-        self.summary_writer = tf.summary.FileWriter("train_"+str(self.number))
+        self.summary_writer = tf.summary.FileWriter(tfSummary_path[2:] + str(self.number))
 
         #Create the local copy of the network and the tensorflow op to copy global paramters to local network
         self.local_AC = AC_Network(s_size,a_size,self.name,trainer)
@@ -269,8 +269,8 @@ class Worker():
 
 
                 # Periodically save gifs of episodes, model parameters, and summary statistics.
-                if episode_count % 5 == 0 and episode_count != 0:
-                    if episode_count % 20 == 0 and self.name == 'worker_0':
+                if episode_count % 20 == 0 and episode_count != 0:
+                    if episode_count % 500 == 0 and self.name == 'worker_0':
                         saver.save(sess,self.model_path+'/model-'+str(episode_count)+'.cptk')
                         print("Saved Model")
 
@@ -320,11 +320,11 @@ global_episodes = tf.Variable(0,dtype=tf.int32,name='global_episodes',trainable=
 global_rewardEndEpisode = tf.Variable(0,dtype=tf.int32,name='global_rewardEndEpisode',trainable=False)
 trainer = tf.train.RMSPropOptimizer(learning_rate=cn.run_LearningRate, decay=0.99, epsilon=0.1)
 master_network = AC_Network(cn.run_sSize,cn.run_aSize,'global',None) # Generate global network
-num_workers = multiprocessing.cpu_count() # Set workers ot number of available CPU threads
+num_workers = 16 #num_workers = multiprocessing.cpu_count() # Set workers ot number of available CPU threads
 workers = []
 # Create worker classes
-for i in range(num_workers - 0):
-    workers.append(Worker(i,cn.run_sSize,cn.run_aSize,trainer,cn.run_ModelPath,global_episodes,global_rewardEndEpisode))
+for i in range(num_workers):
+    workers.append(Worker(i,cn.run_sSize,cn.run_aSize,trainer,cn.run_ModelPath,cn.TF_SUMM_PATH,global_episodes,global_rewardEndEpisode))
 saver = tf.train.Saver(max_to_keep=5)
 
 # Run everything in a tensforflow session called sess
@@ -349,7 +349,7 @@ with tf.Session() as sess:
     # Loop the workers and start a thread for each
     for worker in workers:
         # define a function that executes the work method of each worker
-            worker_work = lambda: worker.work(cn.run_MaxEpisodeLenght ,cn.run_Gamma,master_network,sess,coord,saver)
+        worker_work = lambda: worker.work(cn.run_MaxEpisodeLenght ,cn.run_Gamma,master_network,sess,coord,saver)
         # execute the function in a new thread
         t = threading.Thread(target=(worker_work))
         # start thread
