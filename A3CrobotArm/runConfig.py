@@ -20,7 +20,7 @@ class RunConfig:
         
         self.ENV_IS_RARM = True
         # How to display?:
-        self.RENDER_SCREEN = False
+        self.RENDER_SCREEN = True
         self.SHOW_NORMAL_SPEED = False # Is used in evalModel.py
         self.FPS = 30 # frame rate per second
         
