@@ -135,9 +135,9 @@ class Worker():
                     #Take an action using probabilities from policy network output.
                     a_dist,v = sess.run([self.local_AC.policy,self.local_AC.value],
                         feed_dict={self.local_AC.inputs:[s]})
-#                    a = np.random.choice(a_dist[0],p=a_dist[0])
-#                    a = np.argmax(a_dist == a)
-                    a = np.random.randint(0, 5 + 1)
+                    a = np.random.choice(a_dist[0],p=a_dist[0])
+                    a = np.argmax(a_dist == a)
+#                    a = np.random.randint(0, 5 + 1)
 
                     # Take one step in env using the chosen action a
                     s1,r,d, i = self.env.step(self.actions[a])
