@@ -16,7 +16,9 @@ import os# Alex: I added this
 #from Env.GlobalConstantsA3C import gc # has high level constants
 from Worker import Worker # the worker which acts and trains its brain
 from AC_Network import AC_Network # The network used as brain
-from runConfig import rc # has high level constants
+#from runConfig import rc # has high level constants
+import runConfig as rc # has high level constants
+
 
 # Added to be able to run the our robot arm sim
 import pygame # for the clock to wait with showing a render (not every frame is renderd)
@@ -39,7 +41,7 @@ if not os.path.exists(rc.MODEL_PATH):
 # This only tracks the episode count of worker0 but it is globally availlable to be able to print in the main thread
 global_episodes = tf.Variable(0,dtype=tf.int32,name='global_episodes',trainable=False)
 # Alex added: This is used to print the current reward at the end of an episode (updated by all workers)
-global_rewardEndEpisode = tf.Variable(0,dtype=tf.int32,name='global_rewardEndEpisode',trainable=False)
+global_rewardEndEpisode = tf.Variable(0,dtype=tf.float32,name='global_rewardEndEpisode',trainable=False)
 
 trainer = tf.train.RMSPropOptimizer(learning_rate=rc.L_RATE, decay=rc.ALPHA, epsilon=rc.EPSILON)
 master_network = AC_Network(rc.S_SIZE,rc.A_SIZE,'global',None) # Generate global network

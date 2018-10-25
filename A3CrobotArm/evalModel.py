@@ -13,7 +13,9 @@ import pygame
 from AC_Network import AC_Network
 from Worker import Worker
 #from Env.GlobalConstantsA3C import gc # has high level constants
-from runConfig import rc
+#from runConfig import rc # has high level constants
+import runConfig as rc # has high level constants
+
 import Env.A3CenvPong # import custom Pong env (no images but 6 numbers as state)
 import SimulationEnvironment as sim # own Rarm sim
 

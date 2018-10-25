@@ -11,7 +11,11 @@ import math
 import Robot
 #import threading
 #import gobalConst as cn
-from runConfig import rc # has high level constants
+
+#from runConfig import rc # has high level constants
+import runConfig as rc # has high level constants
+
+
 #import copy
 
 #pygame.init()
@@ -36,6 +40,7 @@ class SimulationEnvironment:
         self.distanceEndEffector = np.array([0,0])
         self.randomGoal = rc.sim_RandomGoal
         self.ctr = 0
+        self.nrOfGoalHits = 0 # keep track of the number of times the goal has been reached
 #        self.reward = 0
 #        self.clock = pygame.time.Clock()
 
@@ -124,31 +129,38 @@ class SimulationEnvironment:
         d = self.goal - xy_ee
         self.distanceEndEffector = d
         d = np.sqrt(d[0]**2 + d[1]**2)
+        
+        reward = 0.0
 
         reachedGoal = False
         if (d < 5):
             # reached goal
             reachedGoal = True
-            reward = 100
+            reward = 100.0
+            # Increase the number of times the goal was hit
+            self.nrOfGoalHits = self.nrOfGoalHits + 1
+            # If the goal has been reached, then exit this function
+            return [reward/200.0, reachedGoal]
         else:
             reachedGoal = False
+# This is commented out to try only sparse rewards, LETS SEE!
+        g = -0.01
+        offset = 0.6
+        reward = offset * math.exp(g * d) - offset
 
-        gamma = -0.01
-        offset = 100
-        reward = offset * math.exp(gamma * d) - offset
-
-        thresholdWall = 20
-        wallReward = 100
+        thresholdWall = 20.0
+        wallReward = 100.0
 
         if collision:
             reward = reward - wallReward
-        elif minDistance < thresholdWall:
-            reward = reward - (thresholdWall - minDistance) * (wallReward/thresholdWall)
+# Commented this to try without the linear reward until the wall, LETS SEE!
+#        elif minDistance < thresholdWall:
+#            reward = reward - (thresholdWall - minDistance) * (wallReward/thresholdWall)
 
 #        if collision:
 #            reward = reward - wallReward
 
-        return [reward/200, reachedGoal]
+        return [reward/200.0, reachedGoal]
 
     # TODO: Manage screen in A3C file --> return all objects to be drawn
     def render(self):
