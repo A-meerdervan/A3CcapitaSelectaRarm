@@ -98,8 +98,12 @@ class SimulationEnvironment:
         if (self.randomGoal):
             self.goal = self.createRandomGoal()
 
+        if (cn.rob_RandomInit):
+            self.createRandomInit()
+
         # check the environment for collisions (needed for the state)
         [col, dist] = self.checkNOCollision()
+        self.render()
         # compute reward (as it computes distance to endeffector)
         [r, reachGoal] = self.computeReward(dist, not col)
 
@@ -291,6 +295,20 @@ class SimulationEnvironment:
 
         return np.array([x,y])
 
+    def createRandomInit(self):
+        minTheta = self.robot.maxJointAngle[1]
+        maxTheta = self.robot.maxJointAngle[0]
+
+        initCorrect = False
+        while(not initCorrect):
+#            th = np.array([0,0,0])
+            th = (np.random.random_sample((3)) - 0.5) * maxTheta
+            self.robot.jointAngles = th
+
+            [initCorrect, dist] = self.checkNOCollision()
+
+        return
+
     def wallsTOPoints(self,walls):
         """environment is defined in walls. This can be converted into the corner
         points of the environment"""
@@ -428,25 +446,7 @@ class SimulationEnvironment:
         # check the links between joints for collisions
         l = [x_0, y_0, x_1,y_1,x_2,y_2,x_3,y_3,x_ee,y_ee]
         for j in range(0,3):
-#            th = np.sum(self.robot.jointAngles[:j+1])
-#            # test cum angle, to check which side should be checked for a collision
-#            # TODO: check both lines.
-#            if (th > 1.5707963267948966):
-#                corners = self.findCornerPoint(self.envPoints, [l[2*j] - w, l[2*j+1]], [l[2*j+2] - w, l[2*j+3]])
-#                [a,b] = self.computeLine([l[2*j] - w, l[2*j+1]], [l[2*j+2] - w, l[2*j+3]])
-#            else:
-#                corners = self.findCornerPoint(self.envPoints, [l[2*j] + w, l[2*j+1]], [l[2*j+2] + w, l[2*j+3]])
-#                [a,b] = self.computeLine([l[2*j] + w, l[2*j+1]], [l[2*j+2] + w, l[2*j+3]])
-#
-#            if (corners.all() != 0):
-#                for c in corners:
-#                    [d, x, y]  = self.computeDistanceLineANDPoint([a,b], c)
-#                    distance = min(distance, d)
-#
-#                    b = self.isPointInEnvironment([x, y])
-#                    if not b:
-#                        return [False, 0]
-
+            # TODO: this does not work
             [b1, d] = self.checkLine([l[2*j] - w, l[2*j+1]], [l[2*j+2] - w, l[2*j+3]])
             distance = min(distance, d)
 
@@ -475,25 +475,25 @@ class SimulationEnvironment:
 
         return [True, distance]
 
-class EnvironmentCreator:
-    def __init__(self):
-        self.WINDOW_WIDTH = 400
-        self.WINDOW_HEIGHT = 400
-
-
-    def createEnvironment(self):
-        # type 1:
-        leftWall = np.random.randint(0,self.WINDOW_WIDTH/2 - 60)
-        middleWall = np.random.randint(leftWall,self.WINDOW_WIDTH/2 - 51)
-        rightWall = np.random.randint(self.WINDOW_WIDTH/2 + 50, self.WINDOW_WIDTH)
-        top = np.random.randint(30,self.WINDOW_HEIGHT/2)
-        bottom = np.random.randint(self.WINDOW_HEIGHT/2 + 30, self.WINDOW_HEIGHT)
-
-        self.walls = np.array([[(middleWall,self.WINDOW_HEIGHT), (middleWall,bottom)], [(middleWall,bottom), (leftWall,bottom)], [(leftWall,bottom),
-                      (leftWall,top)], [(leftWall,top), (rightWall,top)], [(rightWall,top), (rightWall,self.WINDOW_HEIGHT)], [(rightWall,self.WINDOW_HEIGHT),(middleWall,self.WINDOW_HEIGHT)]])
-        self.wallSide = ['l', 'b', 'l', 't', 'r', 'b']
-
-        return [self.walls, self.wallSide]
+#class EnvironmentCreator:
+#    def __init__(self):
+#        self.WINDOW_WIDTH = 400
+#        self.WINDOW_HEIGHT = 400
+#
+#
+#    def createEnvironment(self):
+#        # type 1:
+#        leftWall = np.random.randint(0,self.WINDOW_WIDTH/2 - 60)
+#        middleWall = np.random.randint(leftWall,self.WINDOW_WIDTH/2 - 51)
+#        rightWall = np.random.randint(self.WINDOW_WIDTH/2 + 50, self.WINDOW_WIDTH)
+#        top = np.random.randint(30,self.WINDOW_HEIGHT/2)
+#        bottom = np.random.randint(self.WINDOW_HEIGHT/2 + 30, self.WINDOW_HEIGHT)
+#
+#        self.walls = np.array([[(middleWall,self.WINDOW_HEIGHT), (middleWall,bottom)], [(middleWall,bottom), (leftWall,bottom)], [(leftWall,bottom),
+#                      (leftWall,top)], [(leftWall,top), (rightWall,top)], [(rightWall,top), (rightWall,self.WINDOW_HEIGHT)], [(rightWall,self.WINDOW_HEIGHT),(middleWall,self.WINDOW_HEIGHT)]])
+#        self.wallSide = ['l', 'b', 'l', 't', 'r', 'b']
+#
+#        return [self.walls, self.wallSide]
 
 #    def createVeryRandomEnvironment(self):
 #        nrWalls = np.random.randint(3,10)

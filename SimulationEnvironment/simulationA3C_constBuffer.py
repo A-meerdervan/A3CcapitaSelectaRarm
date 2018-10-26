@@ -330,19 +330,19 @@ with tf.Session() as sess:
     # Start the "work" process for each worker in a separate threat.
     # this list contains the worker threads which are running
        # solves the problem of making it responsive
-#    workers[0].work(cn.run_MaxEpisodeLenght,cn.run_Gamma,master_network,sess,coord,saver)
+    workers[0].work(cn.run_MaxEpisodeLenght,cn.run_Gamma,master_network,sess,coord,saver)
 #
-    worker_threads = []
-#     Loop the workers and start a thread for each
-    for worker in workers:
-        # define a function that executes the work method of each worker
-        worker_work = lambda: worker.work(cn.run_MaxEpisodeLenght ,cn.run_Gamma,master_network,sess,coord,saver)
-        # execute the function in a new thread
-        t = threading.Thread(target=(worker_work))
-        # start thread
-        t.start()
-        # keep track of the threads
-        worker_threads.append(t)
+#    worker_threads = []
+##     Loop the workers and start a thread for each
+#    for worker in workers:
+#        # define a function that executes the work method of each worker
+#        worker_work = lambda: worker.work(cn.run_MaxEpisodeLenght ,cn.run_Gamma,master_network,sess,coord,saver)
+#        # execute the function in a new thread
+#        t = threading.Thread(target=(worker_work))
+#        # start thread
+#        t.start()
+#        # keep track of the threads
+#        worker_threads.append(t)
     gs = 0
 #     The coordinator has the overview and while it wants to continue:
 #     This routine probes the training proces and prints an update, every 10 seconds.

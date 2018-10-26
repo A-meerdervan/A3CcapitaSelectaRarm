@@ -14,12 +14,13 @@ sim_RandomGoal = True
 sim_Goal = np.array([100,200])
 sim_AddNoise = True
 
+rob_RandomInit = False
 rob_NoiseStandDev = 0.001
 rob_StepSize = np.radians(1.4)
 rob_MaxJointAngle = np.radians(np.array([170,-170]))
 rob_JointLenght = [100, 100, 80, 20]
 rob_JointWidth = 10
-rob_ResetAngles = np.radians(np.array([120,-140,140]))
+rob_ResetAngles = np.radians(np.array([110,30,140]))
 
 
 
