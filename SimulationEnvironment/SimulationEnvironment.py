@@ -103,7 +103,7 @@ class SimulationEnvironment:
 
         # check the environment for collisions (needed for the state)
         [col, dist] = self.checkNOCollision()
-        self.render()
+
         # compute reward (as it computes distance to endeffector)
         [r, reachGoal] = self.computeReward(dist, not col)
 
@@ -469,7 +469,7 @@ class SimulationEnvironment:
                 [d, x, y]  = self.computeDistanceLineANDPoint([a,b], c)
                 distance = min(distance, d)
 
-                b = self.isPointInEnvironment([x, y])
+                [b, x] = self.isPointInEnvironment([x, y])
                 if not b:
                     return [False, 0]
 

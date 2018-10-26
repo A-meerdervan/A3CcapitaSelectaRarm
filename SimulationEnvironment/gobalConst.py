@@ -20,7 +20,7 @@ rob_StepSize = np.radians(1.4)
 rob_MaxJointAngle = np.radians(np.array([170,-170]))
 rob_JointLenght = [100, 100, 80, 20]
 rob_JointWidth = 10
-rob_ResetAngles = np.radians(np.array([110,30,140]))
+rob_ResetAngles = np.radians(np.array([140,-140,140]))
 
 
 
