@@ -10,7 +10,7 @@ import numpy as np
 sim_WINDOW_WIDTH = 400
 sim_WINDOW_HEIGHT = 400
 
-sim_RandomGoal = False
+sim_RandomGoal = True
 sim_Goal = np.array([100,200])
 sim_AddNoise = True
 
@@ -25,7 +25,7 @@ rob_ResetAngles = np.radians(np.array([120,-140,140]))
 
 run_Render = True
 run_FPS = 15
-run_MaxEpisodeLenght = 10000
+run_MaxEpisodeLenght = 2000
 run_Gamma = .96 # discount rate for advantage estimation and reward discounting
 run_sSize = 17 # Observations are greyscale frames of 84 * 84 * 1
 run_aSize = 6 # Agent can rotate each joint in 2 directions

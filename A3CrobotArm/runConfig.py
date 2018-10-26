@@ -21,7 +21,7 @@ import numpy as np
 ENV_IS_RARM = True
 # How to display?:
 RENDER_SCREEN = True
-SHOW_NORMAL_SPEED = False # Is used in evalModel.py
+SHOW_NORMAL_SPEED = True # Is used in evalModel.py
 FPS = 30 # frame rate per second
 
 # =======================================================================
@@ -34,7 +34,7 @@ L_RATE = 7e-3 # was at 7e-4 for the Dm-mc implementation
 ALPHA = 0.99 # was at 0.99 originally, openAI also had 0.99
 EPSILON = 1e-5 # was at 0.1 originally, openAI had 1e-5
 LOAD_MODEL = False
-OUTP_FOLDER = '/verwijderDittttSparse'
+OUTP_FOLDER = '/TestRun'
 NUM_WORKERS = 4 #multiprocessing.cpu_count() # Set workers ot number of available CPU threads
 
 if ENV_IS_RARM:
@@ -63,7 +63,7 @@ MAX_GRAD_NORM = 0.5 # was originally 40 and openAI has 0.5 in A2C
 # ========================================================================
 
 TF_SUM_EP_INTVL = 20 # was 5
-TF_SAVE_MODEL_INTVL = 250 # was 250
+TF_SAVE_MODEL_INTVL = 20 # was 250
 NSTEPS = 20 # was at 20 for the Dm-mc implementation and 5 is default for openAI A2C
 
 # OWN robot arm sim PARAMETERS

@@ -101,8 +101,8 @@ class EvalWorker():
 
 # Here are the parameters that should match the run which is being evaluated
 # --------------------------------------
-cpu_count_training = 2 # Number of cpu's used during training
-evalFolder = 'RarmVerwijderDit' # The folder that holds the model and train folders
+cpu_count_training = 4 # Number of cpu's used during training
+evalFolder = 'TestRun' # The folder that holds the model and train folders
 nrOfEvalGames = 10
 
 max_episode_length = 10000
@@ -127,7 +127,7 @@ if not os.path.exists(results_path):
 
 global_episodes = tf.Variable(0,dtype=tf.int32,name='global_episodes',trainable=False)
 # Alex added: This is used to print the current reward at the end of an episode
-global_rewardEndEpisode = tf.Variable(0,dtype=tf.int32,name='global_rewardEndEpisode',trainable=False)
+global_rewardEndEpisode = tf.Variable(0,dtype=tf.float32,name='global_rewardEndEpisode',trainable=False)
 
 trainer = tf.train.RMSPropOptimizer(learning_rate=7e-4, decay=0.99, epsilon=0.1)
 master_network = AC_Network(rc.S_SIZE,rc.A_SIZE,'global',None) # Generate global network

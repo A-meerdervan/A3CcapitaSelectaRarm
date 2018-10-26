@@ -71,12 +71,12 @@ class AC_Network():
 #            self.conv2 = slim.conv2d(activation_fn=tf.nn.elu,
 #                inputs=self.conv1,num_outputs=32,
 #                kernel_size=[4,4],stride=[2,2],padding='VALID')
-            hidden = slim.fully_connected(self.inputs,256,activation_fn=tf.nn.elu)
-            hidden2 = slim.fully_connected(hidden,256,activation_fn=tf.nn.elu)
+            hidden = slim.fully_connected(self.inputs,1024,activation_fn=tf.nn.elu)
+            hidden2 = slim.fully_connected(hidden,1024,activation_fn=tf.nn.elu)
 
             # -- Specifies a LSTM cell with all its vars -- #
             #Recurrent network for temporal dependencies
-            lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(256,state_is_tuple=True)
+            lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(1024,state_is_tuple=True)
             # init hidden state
             c_init = np.zeros((1, lstm_cell.state_size.c), np.float32)
             # init output state
@@ -95,7 +95,7 @@ class AC_Network():
                 time_major=False)
             lstm_c, lstm_h = lstm_state
             self.state_out = (lstm_c[:1, :], lstm_h[:1, :])
-            rnn_out = tf.reshape(lstm_outputs, [-1, 256])
+            rnn_out = tf.reshape(lstm_outputs, [-1, 1024])
 
             #Output layers for policy and value estimations
             self.policy = slim.fully_connected(rnn_out,a_size,
@@ -169,10 +169,15 @@ class Worker():
 
         if(len(rewards) < 30):
 #            rewards = np.asarray(rewards)
-            print('d')
-            rollout = np.concatenate((rollout, np.repeat(rollout[0], 30-len(rewards))))
-            print(len(rewards))
-#            print(discounted_rewards[0], 'aaa ', rewards, len(discounted_rewards))
+            x = np.repeat([rollout[0]], 30-len(rewards), axis=0)
+            rollout = np.concatenate((rollout, x), axis=0)
+
+            rollout = np.array(rollout)
+            observations = rollout[:,0]
+            actions = rollout[:,1]
+            rewards = rollout[:,2]
+#            next_observations = rollout[:,3]
+            values = rollout[:,5]
 
         # Here we take the rewards and values from the rollout, and use them to
         # generate the advantage and discounted returns.
@@ -264,6 +269,7 @@ class Worker():
                             self.local_AC.state_in[1]:rnn_state[1]})[0,0]
                         v_l,p_l,e_l,g_n,v_n, adv = self.train(global_AC,episode_buffer,sess,gamma,v1)
                         episode_buffer = []
+#                        print(v1)
                         sess.run(self.update_local_ops)
                     if  episode_step_count >= max_episode_length - 1 or d == True:
                         self.r = r
@@ -333,7 +339,7 @@ global_episodes = tf.Variable(0,dtype=tf.int32,name='global_episodes',trainable=
 global_rewardEndEpisode = tf.Variable(0,dtype=tf.int32,name='global_rewardEndEpisode',trainable=False)
 trainer = tf.train.RMSPropOptimizer(learning_rate=cn.run_LearningRate, decay=0.99, epsilon=0.1)
 master_network = AC_Network(cn.run_sSize,cn.run_aSize,'global',None) # Generate global network
-num_workers = 1 #num_workers = multiprocessing.cpu_count() # Set workers ot number of available CPU threads
+num_workers = 4 #num_workers = multiprocessing.cpu_count() # Set workers ot number of available CPU threads
 workers = []
 # Create worker classes
 for i in range(num_workers):
@@ -356,19 +362,19 @@ with tf.Session() as sess:
     # Start the "work" process for each worker in a separate threat.
     # this list contains the worker threads which are running
        # solves the problem of making it responsive
-    workers[0].work(cn.run_MaxEpisodeLenght,cn.run_Gamma,master_network,sess,coord,saver)
+#    workers[0].work(cn.run_MaxEpisodeLenght,cn.run_Gamma,master_network,sess,coord,saver)
 #
-#    worker_threads = []
-    # Loop the workers and start a thread for each
-#    for worker in workers:
-#        # define a function that executes the work method of each worker
-#        worker_work = lambda: worker.work(cn.run_MaxEpisodeLenght ,cn.run_Gamma,master_network,sess,coord,saver)
-#        # execute the function in a new thread
-#        t = threading.Thread(target=(worker_work))
-#        # start thread
-#        t.start()
-#        # keep track of the threads
-#        worker_threads.append(t)
+    worker_threads = []
+#     Loop the workers and start a thread for each
+    for worker in workers:
+        # define a function that executes the work method of each worker
+        worker_work = lambda: worker.work(cn.run_MaxEpisodeLenght ,cn.run_Gamma,master_network,sess,coord,saver)
+        # execute the function in a new thread
+        t = threading.Thread(target=(worker_work))
+        # start thread
+        t.start()
+        # keep track of the threads
+        worker_threads.append(t)
     gs = 0
 #     The coordinator has the overview and while it wants to continue:
 #     This routine probes the training proces and prints an update, every 10 seconds.

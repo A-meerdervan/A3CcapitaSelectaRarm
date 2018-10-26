@@ -19,7 +19,7 @@ import gobalConst as cn
 #    import pygame
 
 class SimulationEnvironment:
-    def __init__(self, randomGoal, WINDOW_WIDTH = 400, WINDOW_HEIGHT = 400):
+    def __init__(self, WINDOW_WIDTH = 400, WINDOW_HEIGHT = 400):
         self.screen = 0 #pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.zeroPosition = ([cn.sim_WINDOW_WIDTH/2, cn.sim_WINDOW_HEIGHT])   # reference for drawing
         self.WINDOW_HEIGHT = cn.sim_WINDOW_HEIGHT
@@ -27,7 +27,9 @@ class SimulationEnvironment:
         self.robot = Robot.Robot([100,100,80,20], np.radians(np.array([105,-90,120])))
         self.envWalls = np.array([[(120,400), (120,300)], [(120,300), (40,300)], [(40,300),
                       (40,140)], [(40,140), (280,140)], [(280,140), (280,400)], [(280,400),(120,400)]])
-        self.envWallSide = ['l', 'b', 'l', 't', 'r', 'b']
+#        self.envWalls = np.array([[(10,400),(10,140)], [(10,140), (280,140)], [(280,140), (280,400)], [(280,400),(10,400)]])
+        self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
+#        self.envWallSide = ['l', 't', 'r', 'b']
         self.envPoints = self.wallsTOPoints(self.envWalls)
         self.addNoise = cn.sim_AddNoise
         self.goal = cn.sim_Goal
@@ -38,7 +40,7 @@ class SimulationEnvironment:
 #        self.reward = 0
         self.clock = pygame.time.Clock()
 
-        if (randomGoal):
+        if (self.randomGoal):
             self.goal = self.createRandomGoal()
 
     def step(self, action):
@@ -55,14 +57,21 @@ class SimulationEnvironment:
         act = a * actionMap
         act = np.max(act, axis=1) + np.min(act, axis=1)
 
+        # save previous state of the robot
+        stateAng = self.robot.jointAngles
         # move the robot
         self.robot.moveJoints(act, self.addNoise)
 
         [col, dist] = self.checkNOCollision()
         [r, reachGoal] = self.computeReward(dist, not col)
 
+        # Prikkeldraad code!
         done = False
-        if (not col or reachGoal):
+#        if (not col or reachGoal):
+#            done = True
+        if not col:
+            self.robot.jointAngles = stateAng
+        elif reachGoal:
             done = True
 
         # increase count
@@ -126,6 +135,7 @@ class SimulationEnvironment:
         d = np.sqrt(d[0]**2 + d[1]**2)
 
         reachedGoal = False
+        reward = 0
         if (d < 5):
             # reached goal
             reachedGoal = True
@@ -135,7 +145,7 @@ class SimulationEnvironment:
 
         gamma = -0.01
         offset = 100
-        reward = offset * math.exp(gamma * d) - offset
+        reward = reward + offset * math.exp(gamma * d) - offset
 
         thresholdWall = 20
         wallReward = 100
