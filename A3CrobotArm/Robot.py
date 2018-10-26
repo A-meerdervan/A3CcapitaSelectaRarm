@@ -6,7 +6,9 @@ Created on Fri Oct 12 10:28:13 2018
 """
 import numpy as np
 #import gobalConst as cn
-from runConfig import rc # has high level constants
+#from runConfig import rc # has high level constants
+import runConfig as rc # has high level constants
+
 
 class Robot:
     def __init__(self):

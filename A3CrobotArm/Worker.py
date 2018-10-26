@@ -10,7 +10,9 @@ import tensorflow as tf
 
 # Alex: added this
 #from Env.GlobalConstantsA3C import gc # has high level constants
-import runConfig #import rc # has high level constants
+
+#from runConfig import rc # has high level constants
+import runConfig as rc # has high level constants
 
 from AC_Network import AC_Network # The network used as brain
 
@@ -114,7 +116,7 @@ class Worker():
                 episode_buffer = []
                 episode_values = []
                 #episode_frames = []
-                episode_reward = 0
+                episode_reward = 0.0
                 episode_step_count = 0
                 d = False
 
@@ -141,6 +143,7 @@ class Worker():
 
                     # Take one step in env using the chosen action a
                     s1,r,d, i = self.env.step(self.actions[a])
+                    #if self.name == 'worker_0': print(r)
                     # No frames to proces so commented out:
                     #episode_frames.append(s1)
                     #s1 = self.process_frame(s1)
@@ -185,9 +188,15 @@ class Worker():
                 self.episode_mean_values.append(np.mean(episode_values))
 
                 #Alex added: Store a global end of episode reward to print it
+<<<<<<< HEAD
                 sess.run(self.global_rewardEndEpisode.assign(int(episode_reward)))
 
 
+=======
+                sess.run(self.global_rewardEndEpisode.assign(episode_reward))
+
+
+>>>>>>> 754b4b59bdff6ec410271365e9733feb792a0166
                 # Update the network using the experience buffer at the end of the episode.
                 if len(episode_buffer) != 0:
                     # internally the train function updates the global_AC pars
@@ -211,6 +220,8 @@ class Worker():
                     summary.value.add(tag='Perf/Length', simple_value=float(mean_length))
                     summary.value.add(tag='Perf/Value', simple_value=float(mean_value))
                     summary.value.add(tag='Perf/Average reward', simple_value=float(episode_reward/episode_step_count))
+                    # Add the number of times the robot reached the goal
+                    if rc.ENV_IS_RARM: summary.value.add(tag='Perf/nrOfGoalHits', simple_value=int(self.env.nrOfGoalHits))
                     summary.value.add(tag='Losses/Value Loss', simple_value=float(v_l))
                     summary.value.add(tag='Losses/Policy Loss', simple_value=float(p_l))
                     summary.value.add(tag='Losses/Entropy', simple_value=float(e_l))
