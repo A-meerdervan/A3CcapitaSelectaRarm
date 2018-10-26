@@ -32,7 +32,7 @@ class EvalWorker():
         self.actions = actionSpace
         self.verbose = verbose
         self.clock = pygame.time.Clock()
-        
+
     def play1Game(self):
         # stuff to keep track of
         episode_values = []
@@ -44,10 +44,11 @@ class EvalWorker():
         done = False
         while ( not done):
             # When render, always do env.render(), but slow down if needed
-            if rc.RENDER_SCREEN: 
+            if rc.RENDER_SCREEN:
                 if rc.SHOW_NORMAL_SPEED:
                     self.clock.tick(rc.FPS)
                 self.env.render()
+                pygame.event.get()
             #Take an action using probabilities from policy network output.
             a_dist,v = sess.run([self.local_AC.policy,self.local_AC.value],
                 feed_dict={self.local_AC.inputs:[s]})
@@ -56,22 +57,22 @@ class EvalWorker():
 
             # Take one step in env using the chosen action a
             s1,r,d, i = self.env.step(self.actions[a])
-    
-            s = s1 # needed for next timestep    
+
+            s = s1 # needed for next timestep
             # bookkeeping
             episode_reward += r
             episode_step_count += 1
             episode_values.append(v[0,0])
-                    
+
             # If the episode terminates or the max steps has been reached
             # Then the episode (and so this while loop) terminates.
             if  episode_step_count >= self.max_episode_length - 1 or d == True:
                 break
         # Now that the episode has terminated, store the relevant
-        # statistics                            
+        # statistics
         episode_mean_value = np.mean(episode_values)
         return [episode_reward,episode_mean_value,episode_step_count]
-    
+
     def playNgames(self,n):
         # The last 2 rows are for the averages and the standard devs
         results = np.zeros([n + 2 , 3]) # watchout the 3 is hardcoded
@@ -84,26 +85,26 @@ class EvalWorker():
         results[n+1,:] = [np.std(results[:n,0]),np.std(results[:n,1]),np.std(results[:n,2])]
         # Specific to our pong implementation
         if not rc.ENV_IS_RARM: self.env.quitScreen()
-        if self.verbose: 
+        if self.verbose:
             print(results[n,:],"the means", )
             print(results[n + 1,:],"the standard devs", )
             print("ewa ik ben klaar met evalueren man")
-    
+
     # Get the right env
     def getEnv(self,envIsRarm):
         if envIsRarm:
-            return sim.SimulationEnvironment(rc.sim_RandomGoal)    
+            return sim.SimulationEnvironment(rc.sim_RandomGoal)
         # Play Pong S6
         else:
             return Env.A3CenvPong.A3CenvPong(rc.RENDER_SCREEN)
-        
-        
+
+
 # Here are the parameters that should match the run which is being evaluated
 # --------------------------------------
 cpu_count_training = 2 # Number of cpu's used during training
 evalFolder = 'RarmVerwijderDit' # The folder that holds the model and train folders
 nrOfEvalGames = 10
-            
+
 max_episode_length = 10000
 load_model = True # must be True to evaluate a given model file
 model_path = './LogsOfRuns/' + evalFolder + "/model"
@@ -120,7 +121,7 @@ verbose = True # if true it prints results, if not it prints nothing
 tf.reset_default_graph()
 
 # TODO: use this to store some results
-#Create a directory to save episode playback gifs to 
+#Create a directory to save episode playback gifs to
 if not os.path.exists(results_path):
     os.makedirs(results_path)
 

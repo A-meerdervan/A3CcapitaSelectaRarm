@@ -9,13 +9,10 @@ Created on Wed Oct 17 15:20:32 2018
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import numpy as np
-<<<<<<< HEAD
-import runConfig as rc # has high level constants
-=======
+
 #from runConfig import rc # has high level constants
 import runConfig as rc # has high level constants
 
->>>>>>> 754b4b59bdff6ec410271365e9733feb792a0166
 #---- End imports ----
 
 class AC_Network():

@@ -167,6 +167,13 @@ class Worker():
         next_observations = rollout[:,3]
         values = rollout[:,5]
 
+        if(len(rewards) < 30):
+#            rewards = np.asarray(rewards)
+            print('d')
+            rollout = np.concatenate((rollout, np.repeat(rollout[0], 30-len(rewards))))
+            print(len(rewards))
+#            print(discounted_rewards[0], 'aaa ', rewards, len(discounted_rewards))
+
         # Here we take the rewards and values from the rollout, and use them to
         # generate the advantage and discounted returns.
         # The advantage function uses "Generalized Advantage Estimation"
@@ -177,8 +184,7 @@ class Worker():
         cumelative reward is much lower. The agent cannot train when it has terminated, or its reward needs to be extended
         with the last received reward untill lenth is equal. This is implemented this way because it does work with sparse
         rewards, then you dont have such problems"""
-        if(len(discounted_rewards) < 30):
-            print(discounted_rewards[0], 'aaa ', rewards, len(discounted_rewards))
+
         #TODO: why only use the first decimal?
         self.value_plus = np.asarray(values.tolist() + [bootstrap_value])
         advantages = rewards + gamma * self.value_plus[1:] - self.value_plus[:-1]
@@ -350,19 +356,19 @@ with tf.Session() as sess:
     # Start the "work" process for each worker in a separate threat.
     # this list contains the worker threads which are running
        # solves the problem of making it responsive
-#    workers[0].work(cn.run_MaxEpisodeLenght,cn.run_Gamma,master_network,sess,coord,saver)
+    workers[0].work(cn.run_MaxEpisodeLenght,cn.run_Gamma,master_network,sess,coord,saver)
 #
-    worker_threads = []
+#    worker_threads = []
     # Loop the workers and start a thread for each
-    for worker in workers:
-        # define a function that executes the work method of each worker
-        worker_work = lambda: worker.work(cn.run_MaxEpisodeLenght ,cn.run_Gamma,master_network,sess,coord,saver)
-        # execute the function in a new thread
-        t = threading.Thread(target=(worker_work))
-        # start thread
-        t.start()
-        # keep track of the threads
-        worker_threads.append(t)
+#    for worker in workers:
+#        # define a function that executes the work method of each worker
+#        worker_work = lambda: worker.work(cn.run_MaxEpisodeLenght ,cn.run_Gamma,master_network,sess,coord,saver)
+#        # execute the function in a new thread
+#        t = threading.Thread(target=(worker_work))
+#        # start thread
+#        t.start()
+#        # keep track of the threads
+#        worker_threads.append(t)
     gs = 0
 #     The coordinator has the overview and while it wants to continue:
 #     This routine probes the training proces and prints an update, every 10 seconds.

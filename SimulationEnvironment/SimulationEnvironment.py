@@ -117,6 +117,7 @@ class SimulationEnvironment:
 
     def computeReward(self, minDistance, collision):
         # compute distance to goal
+        # TODO: put variables in the globalConstants
         xy = self.robot.computeJointLocations(self.zeroPosition)
         xy_ee = np.array([xy[8], xy[9]])
 

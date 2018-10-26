@@ -77,7 +77,7 @@ class SimulationEnvironment:
         state = self.getState()
 
         self.reward = r # temporary line!
-        self.clock.tick(10)
+#        self.clock.tick(10)
 
         return [state, r, done, self.ctr]  # return [state, reward, done, timestep]
 
@@ -131,7 +131,7 @@ class SimulationEnvironment:
         d = self.goal - xy_ee
         self.distanceEndEffector = d
         d = np.sqrt(d[0]**2 + d[1]**2)
-        
+
         reward = 0.0
 
         reachedGoal = False

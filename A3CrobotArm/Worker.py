@@ -188,15 +188,9 @@ class Worker():
                 self.episode_mean_values.append(np.mean(episode_values))
 
                 #Alex added: Store a global end of episode reward to print it
-<<<<<<< HEAD
-                sess.run(self.global_rewardEndEpisode.assign(int(episode_reward)))
-
-
-=======
                 sess.run(self.global_rewardEndEpisode.assign(episode_reward))
 
 
->>>>>>> 754b4b59bdff6ec410271365e9733feb792a0166
                 # Update the network using the experience buffer at the end of the episode.
                 if len(episode_buffer) != 0:
                     # internally the train function updates the global_AC pars
@@ -263,7 +257,6 @@ class Worker():
 
     # Discounting function used to calculate discounted returns.
     def discount(self,x, gamma):
-        print(x)
         return scipy.signal.lfilter([1], [1, -gamma], x[::-1], axis=0)[::-1]
 
     #        # Get the right env
