@@ -23,12 +23,9 @@ import pygame
 #from time import sleep
 from time import time
 import os
-import logging # logs messages in multithreading applications
+#import logging # logs messages in multithreading applications
 
 #---- End imports ----
-logging.basicConfig(level=logging.DEBUG,
-                    format='[%(levelname)s] (%(threadName)-10s) %(message)s',
-                    )
 
 # Copies one set of variables to another.
 # Used to set worker network parameters to those of global network.
@@ -48,7 +45,9 @@ def process_frame(frame):
 
 # Discounting function used to calculate discounted returns.
 def discount(x, gamma):
-    return scipy.signal.lfilter([1], [1, -gamma], x[::-1], axis=0)[::-1]
+    rew = scipy.signal.lfilter([1], [1, -gamma], x[::-1], axis=0)[::-1]
+#    print(x, len(x), rew)
+    return rew
 
 #Used to initialize weights for policy and value output layers
 def normalized_columns_initializer(std=1.0):
@@ -172,7 +171,15 @@ class Worker():
         # generate the advantage and discounted returns.
         # The advantage function uses "Generalized Advantage Estimation"
         self.rewards_plus = np.asarray(rewards.tolist() + [bootstrap_value])
-        discounted_rewards = discount(self.rewards_plus,gamma)[:-1]
+#        print('ee ',  self.rewards_plus)
+        discounted_rewards = discount(self.rewards_plus,gamma)[:-1]   #the :-1 takes only the first decimal
+        """Trains when the episode has ended, but then the rewards array is shorter, thus the discounted
+        cumelative reward is much lower. The agent cannot train when it has terminated, or its reward needs to be extended
+        with the last received reward untill lenth is equal. This is implemented this way because it does work with sparse
+        rewards, then you dont have such problems"""
+        if(len(discounted_rewards) < 30):
+            print(discounted_rewards[0], 'aaa ', rewards, len(discounted_rewards))
+        #TODO: why only use the first decimal?
         self.value_plus = np.asarray(values.tolist() + [bootstrap_value])
         advantages = rewards + gamma * self.value_plus[1:] - self.value_plus[:-1]
         advantages = discount(advantages,gamma)
@@ -320,7 +327,7 @@ global_episodes = tf.Variable(0,dtype=tf.int32,name='global_episodes',trainable=
 global_rewardEndEpisode = tf.Variable(0,dtype=tf.int32,name='global_rewardEndEpisode',trainable=False)
 trainer = tf.train.RMSPropOptimizer(learning_rate=cn.run_LearningRate, decay=0.99, epsilon=0.1)
 master_network = AC_Network(cn.run_sSize,cn.run_aSize,'global',None) # Generate global network
-num_workers = 16 #num_workers = multiprocessing.cpu_count() # Set workers ot number of available CPU threads
+num_workers = 1 #num_workers = multiprocessing.cpu_count() # Set workers ot number of available CPU threads
 workers = []
 # Create worker classes
 for i in range(num_workers):
@@ -343,7 +350,7 @@ with tf.Session() as sess:
     # Start the "work" process for each worker in a separate threat.
     # this list contains the worker threads which are running
        # solves the problem of making it responsive
-#    workers[0].work(max_episode_length,gamma,master_network,sess,coord,saver)
+#    workers[0].work(cn.run_MaxEpisodeLenght,cn.run_Gamma,master_network,sess,coord,saver)
 #
     worker_threads = []
     # Loop the workers and start a thread for each
@@ -357,8 +364,8 @@ with tf.Session() as sess:
         # keep track of the threads
         worker_threads.append(t)
     gs = 0
-    # The coordinator has the overview and while it wants to continue:
-    # This routine probes the training proces and prints an update, every 10 seconds.
+#     The coordinator has the overview and while it wants to continue:
+#     This routine probes the training proces and prints an update, every 10 seconds.
 #    if showScreen:
 #        workers[0].env.initScreen()
 

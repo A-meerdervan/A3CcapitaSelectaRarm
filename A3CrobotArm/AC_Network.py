@@ -9,7 +9,7 @@ Created on Wed Oct 17 15:20:32 2018
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import numpy as np
-from runConfig import rc # has high level constants
+import runConfig as rc # has high level constants
 #---- End imports ----
 
 class AC_Network():
@@ -19,7 +19,7 @@ class AC_Network():
         self.max_grad_norm = rc.MAX_GRAD_NORM # was originally 40 and openAI has 0.5 in A2C
         self.n_hid_nodes = rc.N_HID_NODES
         with tf.variable_scope(scope):
-            
+
             #Input and visual encoding layers
             self.inputs = tf.placeholder(shape = [None, s_size],dtype=tf.float32, name='inputState')
             hidden1 = slim.fully_connected(self.inputs,self.n_hid_nodes,activation_fn=tf.tanh)
@@ -34,7 +34,7 @@ class AC_Network():
                 activation_fn=None,
                 weights_initializer=self.normalized_columns_initializer(1.0),
                 biases_initializer=None)
-            
+
             #Only the worker network need ops for loss functions and gradient updating.
             if scope != 'global':
                 self.actions = tf.placeholder(shape=[None],dtype=tf.int32)
@@ -61,13 +61,13 @@ class AC_Network():
                 # This line clips the gradients! preventing a to large update
                 #TODO deze clipping parameter tunen, en bij de andere hyperpars zetten
                 grads,self.grad_norms = tf.clip_by_global_norm(self.gradients,self.max_grad_norm)
-                
+
                 #Apply local gradients to global network
                 # This is the important global network update step!
                 # it is executed by the trainer
                 global_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 'global')
                 self.apply_grads = trainer.apply_gradients(zip(grads,global_vars))
-        
+
         #Used to initialize weights for policy and value output layers
     def normalized_columns_initializer(self,std=1.0):
         def _initializer(shape, dtype=None, partition_info=None):

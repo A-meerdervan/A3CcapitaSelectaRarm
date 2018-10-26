@@ -14,22 +14,16 @@ import os# Alex: I added this
 
 # Alex: added this
 #from Env.GlobalConstantsA3C import gc # has high level constants
-from Worker import Worker # the worker which acts and trains its brain
-from AC_Network import AC_Network # The network used as brain
-from runConfig import rc # has high level constants
-
+import Worker   # the worker which acts and trains its brain
+import AC_Network # The network used as brain
+#import runConfig as rc # has high level constants
+from runConfig import RunConfig as rc
 # Added to be able to run the our robot arm sim
 import pygame # for the clock to wait with showing a render (not every frame is renderd)
-import logging # logs messages in multithreading applications
+#import logging # logs messages in multithreading applications
 
 
 #---- End imports ----
-
-# TODO arnold vragen wat dit doet:
-logging.basicConfig(level=logging.DEBUG,
-                    format='[%(levelname)s] (%(threadName)-10s) %(message)s',
-                    )
-
 
 tf.reset_default_graph()
 
@@ -61,7 +55,7 @@ with tf.Session() as sess:
         saver.restore(sess,ckpt.model_checkpoint_path)
     else:
         sess.run(tf.global_variables_initializer())
-        
+
     # This is where the asynchronous magic happens.
     # Start the "work" process for each worker in a separate threat.
     # this list contains the worker threads which are running

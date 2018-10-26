@@ -36,7 +36,7 @@ class SimulationEnvironment:
         self.randomGoal = cn.sim_RandomGoal
         self.ctr = 0
 #        self.reward = 0
-#        self.clock = pygame.time.Clock()
+        self.clock = pygame.time.Clock()
 
         if (randomGoal):
             self.goal = self.createRandomGoal()
@@ -70,7 +70,9 @@ class SimulationEnvironment:
 
         state = self.getState()
 
-        self.reward = r # temporary line!
+        self.reward = r # TODO: temporary lines!
+#        self.clock.tick(10)
+
         return [state, r, done]  # return [state, reward, done, timestep]
 
 
