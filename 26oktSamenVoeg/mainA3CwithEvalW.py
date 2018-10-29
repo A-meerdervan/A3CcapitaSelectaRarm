@@ -195,8 +195,7 @@ class Worker():
 
                 s = self.env.reset()
 
-                done = False
-                while not done:
+                while True:
                     #Take an action using probabilities from policy network output.
                     a_dist,v = sess.run([self.local_AC.policy,self.local_AC.value],
                         feed_dict={self.local_AC.inputs:[s]})
@@ -224,8 +223,7 @@ class Worker():
                         sess.run(self.update_local_ops)
                     if  i >= max_episode_length - 1 or d == True:
                         break
-
-            	# here the episode has endend, now do bookkeeping:
+                # here the episode has endend, now do bookkeeping:
                 self.episode_rewards.append(episode_reward)
                 self.episode_lengths.append(i)
                 self.episode_mean_values.append(np.mean(episode_values))

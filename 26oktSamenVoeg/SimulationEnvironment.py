@@ -156,17 +156,19 @@ class SimulationEnvironment:
             # reached goal
             reachedGoal = True
             reward = cn.sim_GoalReward
+            return [reward/cn.sim_rewardNormalisation, reachedGoal]
         else:
             reachedGoal = False
-
+#        if reachedGoal:
+#            print('d ',d,'minD ',minDistance)
+#            print('terminalReward 06 ',reward)
         # Compute the reward relative to the distance of the end effector
         # to the goal. This is caculated exponentially
         gamma = cn.sim_expRewardGamma # this sets the slope
         offset = cn.sim_expRewardOffset  # this determines the maximum negative reward
         # only calculate the relative punishment if the goal has not been reached
-        if not reachedGoal:
+        if not cn.sim_SparseRewards:
             reward = reward + offset * math.exp(gamma * d) - offset
-
         # Calculate the linear punishment when being near to the wall
         thresholdWall = cn.sim_thresholdWall # the amount of pixels where the linear rewards starts
         wallReward = cn.sim_WallReward
@@ -289,10 +291,10 @@ class SimulationEnvironment:
 
     def createRandomGoal(self):
         # create a random goal that sits within the environment AND reach of the robot
-        minx = np.min(self.envWalls[:,0,0]) + 15
-        maxx = np.max(self.envWalls[:,0,0]) - 15
-        miny = np.min(self.envWalls[:,0,1]) + 15
-        maxy = 300 - 15 #np.max(self.envWalls[:,0,1])
+        minx = np.min(self.envWalls[:,0,0]) + 1.*cn.sim_thresholdWall
+        maxx = np.max(self.envWalls[:,0,0]) - 1.*cn.sim_thresholdWall
+        miny = np.min(self.envWalls[:,0,1]) + 1.*cn.sim_thresholdWall
+        maxy = 300. - 1.*cn.sim_thresholdWall #np.max(self.envWalls[:,0,1])
 
         pointCorrect = False
         while(not pointCorrect):

@@ -23,15 +23,22 @@ sim_WINDOW_WIDTH = 400
 sim_WINDOW_HEIGHT = 400
 
 sim_RandomGoal = True
+sim_SparseRewards = True
 sim_Goal = np.array([100,200])
 sim_AddNoise = True
 sim_goalRadius = 5
 sim_GoalReward = 100
 sim_expRewardGamma = -0.01 
 sim_expRewardOffset = 100
-sim_thresholdWall = 20 # linear punishmet starts at this amount of pixels
+sim_thresholdWall = 20. # linear punishmet starts at this amount of pixels
 sim_WallReward = 100
-sim_rewardNormalisation = sim_WallReward + sim_expRewardOffset
+# the normalisation is dependend on whether sparse rewards are used
+if sim_SparseRewards:
+    # the higest reward must be 1, this ensures that is true.
+    sim_rewardNormalisation = max(sim_GoalReward,sim_WallReward)
+else: # in case no sparse rewards    
+    sim_rewardNormalisation = sim_WallReward + sim_expRewardOffset
+print("GlobalCOnst ",sim_rewardNormalisation)
 
 
 
@@ -45,7 +52,7 @@ rob_ResetAngles = np.radians(np.array([130,-140,140]))
 
 run_Render = True
 run_NumOfWorkers = 12
-run_MaxEpisodeLenght = 400
+run_MaxEpisodeLenght = 600
 run_FPS = 15
 run_Gamma = .96 # discount rate for advantage estimation and reward discounting
 run_sSize = 17 # Observations are greyscale frames of 84 * 84 * 1
@@ -54,11 +61,11 @@ run_LoadModel = False
 run_LearningRate = 1e-3
 run_BufferSize = 30
 run_actionSpace = [1,2,3,4,5,6]
-run_TFsummIntrvl = 10 # after this many episodes a datapoint is saved
+run_TFsummIntrvl = 1 # after this many episodes a datapoint is saved
 run_TFmodelSaveIntrvl = 250 # after this many episodes the model is saved.
 
 
-OUTP_FOLDER = '/verwijderDeze'
+OUTP_FOLDER = '/verwijderDeze2'
 
 OUTP_FOLDER = './LogsOfRuns' + OUTP_FOLDER
 TF_SUMM_PATH = OUTP_FOLDER + '/train_'
