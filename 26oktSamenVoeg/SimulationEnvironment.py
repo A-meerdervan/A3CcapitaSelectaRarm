@@ -36,7 +36,8 @@ class SimulationEnvironment:
         self.senseDistances = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0]])
         self.distanceEndEffector = np.array([0,0])
         self.randomGoal = cn.sim_RandomGoal
-        self.ctr = 0
+        self.ctr = 0 # current timestep
+        self.wallHits = 0 #nr of times the agent wanted to hit the wall
 #        self.reward = 0
         self.clock = pygame.time.Clock()
 
@@ -71,9 +72,10 @@ class SimulationEnvironment:
 
         # Prikkeldraad code!
         done = False
-        # if a col occured then set the robot angles back
+        # if a collision occured then set the robot angles back
         #print('Col detected after action ',not col)
         if not col:
+            self.wallHits += 1
             self.robot.jointAngles = stateAng
         elif reachGoal:
             done = True
@@ -97,7 +99,8 @@ class SimulationEnvironment:
 
         self.robot.jointAngles = cn.rob_ResetAngles 
 
-        self.ctr = 0
+        self.ctr = 0 # reset the number of timesteps
+        self.wallHits = 0 # reset the number of times the wall was hit
 
         if (self.randomGoal):
             self.goal = self.createRandomGoal()
@@ -152,30 +155,27 @@ class SimulationEnvironment:
         if (d <= cn.sim_goalRadius):
             # reached goal
             reachedGoal = True
-            reward = 100
+            reward = cn.sim_GoalReward
         else:
             reachedGoal = False
 
         # Compute the reward relative to the distance of the end effector
         # to the goal. This is caculated exponentially
-        gamma = -0.01 # this sets the slope
-        offset = 100  # this determines the maximum negative reward
+        gamma = cn.sim_expRewardGamma # this sets the slope
+        offset = cn.sim_expRewardOffset  # this determines the maximum negative reward
         # only calculate the relative punishment if the goal has not been reached
         if not reachedGoal:
             reward = reward + offset * math.exp(gamma * d) - offset
 
-        thresholdWall = 20
-        wallReward = 100
-
+        # Calculate the linear punishment when being near to the wall
+        thresholdWall = cn.sim_thresholdWall # the amount of pixels where the linear rewards starts
+        wallReward = cn.sim_WallReward
         if collision:
             reward = reward - wallReward
         elif minDistance < thresholdWall:
             reward = reward - (thresholdWall - minDistance) * (wallReward/thresholdWall)
 
-#        if collision:
-#            reward = reward - wallReward
-
-        return [reward/200, reachedGoal]
+        return [reward/cn.sim_rewardNormalisation, reachedGoal]
 
     # TODO: Manage screen in A3C file --> return all objects to be drawn
     def render(self):

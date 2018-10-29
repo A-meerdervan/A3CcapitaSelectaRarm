@@ -124,10 +124,8 @@ class Worker():
         self.local_AC = AC_Network(s_size,a_size,self.name,trainer)
         self.update_local_ops = update_target_graph('global',self.name)
 
-        self.actions = [1,2,3,4,5,6]
-        self.sleep_time = 0.028
+        self.actions = cn.run_actionSpace
         self.env = sim.SimulationEnvironment()
-        self.r = 0
 
     def train(self,global_AC,rollout,sess,gamma,bootstrap_value):
         rollout = np.array(rollout)
@@ -186,16 +184,13 @@ class Worker():
 
     def work(self,max_episode_length,gamma,global_AC,sess,coord,saver):
         episode_count = sess.run(self.global_episodes)
-        total_steps = 0
-        steps_train = 0
         print("Starting worker " + str(self.number))
         with sess.as_default(), sess.graph.as_default():
             while not coord.should_stop():
                 sess.run(self.update_local_ops)
                 episode_buffer = []
                 episode_values = []
-                episode_reward = 0
-                episode_step_count = 0
+                episode_reward = 0.0
                 d = False
 
                 s = self.env.reset()
@@ -216,8 +211,6 @@ class Worker():
 
                     episode_reward += r
                     s = s1
-                    total_steps += 1
-                    episode_step_count += 1
 
                     # If the episode hasn't ended, but the experience buffer is full, then we
                     # make an update step using that experience rollout.
@@ -229,12 +222,12 @@ class Worker():
                         v_l,p_l,e_l,g_n,v_n, adv = self.train(global_AC,episode_buffer,sess,gamma,v1)
                         episode_buffer = []
                         sess.run(self.update_local_ops)
-                    if  episode_step_count >= max_episode_length - 1 or d == True:
-                        self.r = r
+                    if  i >= max_episode_length - 1 or d == True:
                         break
 
+            	# here the episode has endend, now do bookkeeping:
                 self.episode_rewards.append(episode_reward)
-                self.episode_lengths.append(episode_step_count)
+                self.episode_lengths.append(i)
                 self.episode_mean_values.append(np.mean(episode_values))
 
                 #Alex added: Store a global end of episode reward to print it
@@ -246,8 +239,8 @@ class Worker():
 
 
                 # Periodically save gifs of episodes, model parameters, and summary statistics.
-                if episode_count % 20 == 0 and episode_count != 0:
-                    if episode_count % 500 == 0 and self.name == 'worker_0':
+                if episode_count % cn.run_TFsummIntrvl == 0 and episode_count != 0:
+                    if episode_count % cn.run_TFmodelSaveIntrvl == 0 and self.name == 'worker_0':
                         saver.save(sess,self.model_path+'/model-'+str(episode_count)+'.cptk')
                         print("Saved Model")
 
@@ -255,22 +248,26 @@ class Worker():
                     mean_length = np.mean(self.episode_lengths[-5:])
                     mean_value = np.mean(self.episode_mean_values[-5:])
                     summary = tf.Summary()
-                    summary.value.add(tag='Perf/Reward', simple_value=float(mean_reward))
+                    # Add the percentage of timesteps that the agent wanted to hit the wall
+                    if cn.ENV_IS_RARM: summary.value.add(tag='Perf/WallHitPercentage'
+                                                         , simple_value=int(self.env.wallHits))
+                    summary.value.add(tag='Perf/Terminal Reward', simple_value=float(r * cn.sim_rewardNormalisation))
+                    summary.value.add(tag='Perf/SumReward', simple_value=float(mean_reward))
                     summary.value.add(tag='Perf/Length', simple_value=float(mean_length))
-                    summary.value.add(tag='Perf/Value', simple_value=float(mean_value))
-                    summary.value.add(tag='Perf/Average reward', simple_value=float(episode_reward/episode_step_count))
+                    summary.value.add(tag='Perf/AvrgValue', simple_value=float(mean_value))
+                    summary.value.add(tag='Perf/Average reward', simple_value=float(episode_reward/i))
                     summary.value.add(tag='Losses/Value Loss', simple_value=float(v_l))
                     summary.value.add(tag='Losses/Policy Loss', simple_value=float(p_l))
                     summary.value.add(tag='Losses/Entropy', simple_value=float(e_l))
                     summary.value.add(tag='Losses/Advantage', simple_value=float(adv))
                     summary.value.add(tag='Losses/Grad Norm', simple_value=float(g_n))
                     summary.value.add(tag='Losses/Var Norm', simple_value=float(v_n))
-                    summary.value.add(tag='Terminal Reward', simple_value=float(self.r*200))
                     self.summary_writer.add_summary(summary, episode_count)
 
                     self.summary_writer.flush()
-                #if self.name == 'worker_0':
-                sess.run(self.increment)
+                # only print in main the nr of episodes of worker_0
+                if self.name == 'worker_0':
+                    sess.run(self.increment)
                 episode_count += 1
                 
 class EvalWorker():
