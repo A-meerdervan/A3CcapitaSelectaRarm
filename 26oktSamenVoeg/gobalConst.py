@@ -15,15 +15,19 @@ EVAL_SHOW_NORMAL_SPEED = True # only relevant during evaluation episodes
 EVAL_FPS = 30 # only relevant during evalutation episodes
 EVAL_RENDER = False # only relevant ruing evaluation episodes
 #EVAL_CPU_CNT = 12 # Number of cpu's used during training
-EVAL_FOLDER = 'runRandomG96' # The folder that holds the model and train folders
-EVAL_NR_OF_GAMES = 100
+EVAL_FOLDER = 'run29OktSparse99' # The folder that holds the model and train folders
+# deze heb je nodig om iets te evalueren in een compleet andere map
+#EVAL_HIGHLEVEL_FOLDER = './LogsOfRuns/TempTransferCluster29okt'
+#tussen = EVAL_HIGHLEVEL_FOLDER + '/' + EVAL_FOLDER
+#EVAL_MODEL_PATH = tussen + "/model"
+EVAL_NR_OF_GAMES = 10
 # ===================================================================
 
 sim_WINDOW_WIDTH = 400
 sim_WINDOW_HEIGHT = 400
 
 sim_RandomGoal = True
-sim_SparseRewards = True
+sim_SparseRewards = False
 sim_Goal = np.array([100,200])
 sim_AddNoise = True
 sim_goalRadius = 5
@@ -41,7 +45,6 @@ else: # in case no sparse rewards
 print("GlobalCOnst ",sim_rewardNormalisation)
 
 
-
 rob_RandomInit = False
 rob_NoiseStandDev = 0.001
 rob_StepSize = np.radians(1.4)
@@ -54,7 +57,7 @@ run_Render = True
 run_NumOfWorkers = 12
 run_MaxEpisodeLenght = 600
 run_FPS = 15
-run_Gamma = .96 # discount rate for advantage estimation and reward discounting
+run_Gamma = .99 # discount rate for advantage estimation and reward discounting
 run_sSize = 17 # Observations are greyscale frames of 84 * 84 * 1
 run_aSize = 6 # Agent can rotate each joint in 2 directions
 run_LoadModel = False
@@ -65,7 +68,7 @@ run_TFsummIntrvl = 1 # after this many episodes a datapoint is saved
 run_TFmodelSaveIntrvl = 250 # after this many episodes the model is saved.
 
 
-OUTP_FOLDER = '/verwijderDeze2'
+OUTP_FOLDER = '/verwijderDeze3'
 
 OUTP_FOLDER = './LogsOfRuns' + OUTP_FOLDER
 TF_SUMM_PATH = OUTP_FOLDER + '/train_'

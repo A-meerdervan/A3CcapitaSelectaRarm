@@ -118,6 +118,8 @@ class Worker():
         self.episode_rewards = []
         self.episode_lengths = []
         self.episode_mean_values = []
+        self.episode_wallHitPercentages = []
+        self.episode_terminalRewards = []
         self.summary_writer = tf.summary.FileWriter(tfSummary_path[2:] + str(self.number))
 
         #Create the local copy of the network and the tensorflow op to copy global paramters to local network
@@ -135,17 +137,25 @@ class Worker():
 #        next_observations = rollout[:,3]
         values = rollout[:,5]
 
-        if(len(rewards) < cn.run_BufferSize):
-#            rewards = np.asarray(rewards)
-            x = np.repeat([rollout[0]], cn.run_BufferSize-len(rewards), axis=0)
-            rollout = np.concatenate((rollout, x), axis=0)
-
-            rollout = np.array(rollout)
-            observations = rollout[:,0]
-            actions = rollout[:,1]
-            rewards = rollout[:,2]
-#            next_observations = rollout[:,3]
-            values = rollout[:,5]
+        """
+        This was Arnolds patch to deal with termination of the episode when hitting a wall
+        Now it is not needed anymore and actually causes instability and a too low estimate of the value 
+        of reaching the goal.
+        Trains when the episode has ended, but then the rewards array is shorter, thus the discounted
+        cumelative reward is much lower. The agent cannot train when it has terminated, or its reward needs to be extended
+        with the last received reward untill lenth is equal. This is implemented this way because it does work with sparse
+        rewards, then you dont have such problems"""
+#        if(len(rewards) < cn.run_BufferSize):
+##            rewards = np.asarray(rewards)
+#            x = np.repeat([rollout[0]], cn.run_BufferSize-len(rewards), axis=0)
+#            rollout = np.concatenate((rollout, x), axis=0)
+#
+#            rollout = np.array(rollout)
+#            observations = rollout[:,0]
+#            actions = rollout[:,1]
+#            rewards = rollout[:,2]
+##            next_observations = rollout[:,3]
+#            values = rollout[:,5]
 
         # Here we take the rewards and values from the rollout, and use them to
         # generate the advantage and discounted returns.
@@ -153,10 +163,6 @@ class Worker():
         self.rewards_plus = np.asarray(rewards.tolist() + [bootstrap_value])
 #        print('ee ',  self.rewards_plus)
         discounted_rewards = discount(self.rewards_plus,gamma)[:-1]   #the :-1 takes only the first decimal
-        """Trains when the episode has ended, but then the rewards array is shorter, thus the discounted
-        cumelative reward is much lower. The agent cannot train when it has terminated, or its reward needs to be extended
-        with the last received reward untill lenth is equal. This is implemented this way because it does work with sparse
-        rewards, then you dont have such problems"""
 
         #TODO: why only use the first decimal?
         self.value_plus = np.asarray(values.tolist() + [bootstrap_value])
@@ -200,10 +206,9 @@ class Worker():
                     a_dist,v = sess.run([self.local_AC.policy,self.local_AC.value],
                         feed_dict={self.local_AC.inputs:[s]})
                     a = np.random.choice(a_dist[0],p=a_dist[0])
-#                    print(a_dist)
                     a = np.argmax(a_dist == a)
 
-                    s1,r,d,i = self.env.step(self.actions[a])
+                    s1,r,d,epLength = self.env.step(self.actions[a])
 
                     episode_buffer.append([s,a,r,s1,d,v[0,0]])
                     episode_values.append(v[0,0])
@@ -221,18 +226,23 @@ class Worker():
                         v_l,p_l,e_l,g_n,v_n, adv = self.train(global_AC,episode_buffer,sess,gamma,v1)
                         episode_buffer = []
                         sess.run(self.update_local_ops)
-                    if  i >= max_episode_length - 1 or d == True:
+                    if  epLength >= max_episode_length - 1 or d == True:
                         break
                 # here the episode has endend, now do bookkeeping:
                 self.episode_rewards.append(episode_reward)
-                self.episode_lengths.append(i)
+                self.episode_lengths.append(epLength)
                 self.episode_mean_values.append(np.mean(episode_values))
+                self.episode_wallHitPercentages.append(self.env.wallHits/epLength)
+                self.episode_terminalRewards.append(r)
+                # print terminal reward
+                print('terminalR ',r)
 
                 #Alex added: Store a global end of episode reward to print it
                 sess.run(self.global_rewardEndEpisode.assign(int(episode_reward)))
 
                 # Update the network using the experience buffer at the end of the episode.
-                if len(episode_buffer) != 0:
+                # But only update if the termination was not caused by reaching max steps
+                if len(episode_buffer) != 0 and epLength < max_episode_length:
                     v_l,p_l,e_l,g_n,v_n,adv = self.train(global_AC,episode_buffer,sess,gamma,0.0)
 
 
@@ -241,15 +251,17 @@ class Worker():
                     if episode_count % cn.run_TFmodelSaveIntrvl == 0 and self.name == 'worker_0':
                         saver.save(sess,self.model_path+'/model-'+str(episode_count)+'.cptk')
                         print("Saved Model")
-
-                    mean_reward = np.mean(self.episode_rewards[-5:])
-                    mean_length = np.mean(self.episode_lengths[-5:])
-                    mean_value = np.mean(self.episode_mean_values[-5:])
+                    
+                    mean_reward = np.mean(self.episode_rewards[-cn.run_TFsummIntrvl:])
+                    mean_length = np.mean(self.episode_lengths[-cn.run_TFsummIntrvl:])
+                    mean_value = np.mean(self.episode_mean_values[-cn.run_TFsummIntrvl:])
+                    mean_WallHitPerctg = np.mean(self.episode_wallHitPercentages[-cn.run_TFsummIntrvl:])
+                    mean_terminalRs = np.mean(self.episode_terminalRewards[-cn.run_TFsummIntrvl:])
                     summary = tf.Summary()
                     # Add the percentage of timesteps that the agent wanted to hit the wall
                     if cn.ENV_IS_RARM: summary.value.add(tag='Perf/WallHitPercentage'
-                                                         , simple_value=int(self.env.wallHits))
-                    summary.value.add(tag='Perf/Terminal Reward', simple_value=float(r * cn.sim_rewardNormalisation))
+                                                         , simple_value=float(mean_WallHitPerctg))
+                    summary.value.add(tag='Perf/Terminal Reward', simple_value=float(mean_terminalRs * cn.sim_rewardNormalisation))
                     summary.value.add(tag='Perf/SumReward', simple_value=float(mean_reward))
                     summary.value.add(tag='Perf/Length', simple_value=float(mean_length))
                     summary.value.add(tag='Perf/AvrgValue', simple_value=float(mean_value))
@@ -371,7 +383,8 @@ saver = tf.train.Saver(max_to_keep=5)
 if cn.EVAL_MODE:
     save = False
     verbose = True
-    model_path = './LogsOfRuns/' + cn.EVAL_FOLDER + "/model"
+    model_path =  './LogsOfRuns/' + cn.EVAL_FOLDER + "/model"
+    #print(model_path)
     with tf.Session() as sess:
         coord = tf.train.Coordinator()
         print('Loading Model...')
