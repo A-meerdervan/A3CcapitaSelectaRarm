@@ -101,6 +101,9 @@ class SimulationEnvironment:
 
         self.ctr = 0 # reset the number of timesteps
         self.wallHits = 0 # reset the number of times the wall was hit
+        
+        if cn.rob_RandomWalls:
+            self.setRandomEnv()
 
         if (self.randomGoal):
             self.goal = self.createRandomGoal()
@@ -111,10 +114,11 @@ class SimulationEnvironment:
         # check the environment for collisions (needed for the state)
         [col, dist] = self.checkNOCollision()
         if not col:
-             raise NameError('A collission has occured before the robot '
-                             + 'had the chance to move! you must redefine your'+
-                             'starting angles/reset angles')
-        # compute reward (as it computes distance to endeffector)
+            print('colision on start, you fucked up the angles')
+#             raise NameError('A collission has occured before the robot '
+#                             + 'had the chance to move! you must redefine your'+
+#                             'starting angles/reset angles')
+#        # compute reward (as it computes distance to endeffector)
         [r, reachGoal] = self.computeReward(dist, not col)
 
         return self.getState()
@@ -130,6 +134,56 @@ class SimulationEnvironment:
 
     def setGoal(self, goal):
         self.goal = goal
+        
+    def setRandomEnv(self):
+        # get the random envNr
+        envNr = np.random.randint(1, 6 + 1)
+        envNr = 6
+        # Switch between environments per reset of the environment.
+        # This is a pipe witch a corner to the left (most used during training. Our first env.)
+        if envNr == 1:
+            self.envWalls = np.array([[(120,400), (120,300)], [(120,300), (40,300)], [(40,300),
+                      (40,140)], [(40,140), (280,140)], [(280,140), (280,400)], [(280,400),(120,400)]])
+            self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
+        # A pipe witch is straight up and wide
+        elif envNr == 2:
+            rC = 200 # robotCenter, the x pos of the arm bottom
+            pR = 80 # the width of the pipe
+            self.envWalls = np.array([[(rC-pR,400), (rC-pR,100)], [(rC-pR,100), (rC+pR,100)], [(rC+pR,100),
+                      (rC+pR,400)], [(rC+pR,400), (rC-pR,400)]])
+            self.envWallSide = ['l', 't','r', 'b']
+        # A pipe witch is straight up and narrower
+        elif envNr == 3:
+            rC = 200 # robotCenter, the x pos of the arm bottom
+            pR = 70 # the width of the pipe
+            self.envWalls = np.array([[(rC-pR,400), (rC-pR,100)], [(rC-pR,100), (rC+pR,100)], [(rC+pR,100),
+                      (rC+pR,400)], [(rC+pR,400), (rC-pR,400)]])
+            self.envWallSide = ['l', 't','r', 'b']
+        # this is a T shaped pipe 
+        elif envNr == 4:
+            self.envWalls = np.array([[(140,400), (140,300)], [(140,300), (45,300)], [(45,300),
+                      (45,180)], [(45,180), (355,180)], [(355,180), (355,300)], [(355,300),(260,300)],[(260,300),(260,400)],[(260,400),(140,400)]])
+            self.envWallSide = ['l', 'b','l', 't', 'r', 'b','r','b']#            
+        # 
+        # this is a turn to the right Which is at the top of the reach of the arm
+        elif envNr == 5:
+            tYs = 200 # rurnYstart This is the upper height of right side
+            tYe = 110 #turn Y end
+            self.envWalls = np.array([[(140,400), (140,tYe)], [(140,tYe), (355,tYe)], [(355,tYe),
+                      (355,tYs)], [(355,tYs),(260,tYs)],[(260,tYs),(260,400)],[(260,400),(140,400)]])
+            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']           
+        # this is a turn to the right which is lower
+        elif envNr == 6:
+            tYs = 300 # rurnYstart This is the upper height of right side
+            tYe = 190 #turn Y end
+            self.envWalls = np.array([[(140,400), (140,tYe)], [(140,tYe), (355,tYe)], [(355,tYe),
+                      (355,tYs)], [(355,tYs),(260,tYs)],[(260,tYs),(260,400)],[(260,400),(140,400)]])
+            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']     
+            
+        else:
+            raise NameError('envNr was out of range, no such environment defined')
+#        
+
 
     def setEnvironment(self, envWalls, envSides, setGoal):
         self.envWalls = envWalls
