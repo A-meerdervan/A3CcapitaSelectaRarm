@@ -10,12 +10,12 @@ import numpy as np
 ENV_IS_RARM = True
 
 # PARS FOR EVALUATION ONLY
-EVAL_MODE = False
+EVAL_MODE = True
 EVAL_SHOW_NORMAL_SPEED = True # only relevant during evaluation episodes
 EVAL_FPS = 30 # only relevant during evalutation episodes
-EVAL_RENDER = False # only relevant ruing evaluation episodes
+EVAL_RENDER = True # only relevant ruing evaluation episodes
 #EVAL_CPU_CNT = 12 # Number of cpu's used during training
-EVAL_FOLDER = 'run29OktSparse99' # The folder that holds the model and train folders
+EVAL_FOLDER = 'run29oktRandomG98' # The folder that holds the model and train folders
 # deze heb je nodig om iets te evalueren in een compleet andere map
 #EVAL_HIGHLEVEL_FOLDER = './LogsOfRuns/TempTransferCluster29okt'
 #tussen = EVAL_HIGHLEVEL_FOLDER + '/' + EVAL_FOLDER
@@ -55,17 +55,25 @@ rob_ResetAngles = np.radians(np.array([130,-140,140]))
 
 run_Render = True
 run_NumOfWorkers = 12
-run_MaxEpisodeLenght = 600
+run_MaxEpisodeLenght = 2000
 run_FPS = 15
 run_Gamma = .99 # discount rate for advantage estimation and reward discounting
 run_sSize = 17 # Observations are greyscale frames of 84 * 84 * 1
 run_aSize = 6 # Agent can rotate each joint in 2 directions
 run_LoadModel = False
 run_LearningRate = 1e-3
+run_epsilon = 0.1
+run_decay = 0.99
 run_BufferSize = 30
 run_actionSpace = [1,2,3,4,5,6]
 run_TFsummIntrvl = 1 # after this many episodes a datapoint is saved
 run_TFmodelSaveIntrvl = 250 # after this many episodes the model is saved.
+
+# Pars used in NETWORK
+netw_nHidNodes = 512
+netw_vfCoef = 0.5 # Was originally at 0.5, openAI also had 0.5
+netw_entCoef = 0.1 # Was at 0.1 originally, openAI has 0.01 as default in A2C
+netw_maxGradNorm = 40 # was originally 40 and openAI has 0.5 in A2C
 
 
 OUTP_FOLDER = '/verwijderDeze3'

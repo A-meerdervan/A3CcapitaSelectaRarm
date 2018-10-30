@@ -64,8 +64,8 @@ class AC_Network():
             # s_size is input size
             self.inputs = tf.placeholder(shape=[None,s_size],dtype=tf.float32)
 
-            hidden = slim.fully_connected(self.inputs,512,activation_fn=tf.nn.elu)
-            hidden2 = slim.fully_connected(hidden,512,activation_fn=tf.nn.elu)
+            hidden = slim.fully_connected(self.inputs,cn.netw_nHidNodes,activation_fn=tf.nn.elu)
+            hidden2 = slim.fully_connected(hidden,cn.netw_nHidNodes,activation_fn=tf.nn.elu)
 
             #Output layers for policy and value estimations
             self.policy = slim.fully_connected(hidden2,a_size,
@@ -90,7 +90,7 @@ class AC_Network():
                 self.value_loss = 0.5 * tf.reduce_sum(tf.square(self.target_v - tf.reshape(self.value,[-1])))
                 self.entropy = - tf.reduce_sum(self.policy * tf.log(self.policy + 10e-6))
                 self.policy_loss = -tf.reduce_sum(tf.log(self.responsible_outputs + 10e-6)*self.advantages)
-                self.loss = 0.5 * self.value_loss + self.policy_loss - self.entropy * 0.1
+                self.loss = cn.netw_vfCoef * self.value_loss + self.policy_loss - self.entropy * cn.netw_entCoef
                 self.adv_sum = tf.reduce_sum(self.advantages)
 
                 #Get gradients from local network using local losses
@@ -99,7 +99,7 @@ class AC_Network():
                 self.gradients = tf.gradients(self.loss,local_vars)
                 self.var_norms = tf.global_norm(local_vars)
                 # ???limits the values of the grads???
-                grads,self.grad_norms = tf.clip_by_global_norm(self.gradients,40)
+                grads,self.grad_norms = tf.clip_by_global_norm(self.gradients,cn.netw_maxGradNorm)
 
                 #Apply local gradients to global network
                 global_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 'global')
@@ -369,7 +369,7 @@ if not os.path.exists(cn.run_ModelPath):
 
 global_episodes = tf.Variable(0,dtype=tf.int32,name='global_episodes',trainable=False)
 global_rewardEndEpisode = tf.Variable(0,dtype=tf.int32,name='global_rewardEndEpisode',trainable=False)
-trainer = tf.train.RMSPropOptimizer(learning_rate=cn.run_LearningRate, decay=0.99, epsilon=0.1)
+trainer = tf.train.RMSPropOptimizer(learning_rate=cn.run_LearningRate, decay=cn.run_decay, epsilon=cn.run_epsilon)
 master_network = AC_Network(cn.run_sSize,cn.run_aSize,'global',None) # Generate global network
 num_workers = cn.run_NumOfWorkers #num_workers = multiprocessing.cpu_count() # Set workers ot number of available CPU threads
 workers = []
