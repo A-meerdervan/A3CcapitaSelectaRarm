@@ -323,6 +323,7 @@ class EvalWorker():
             episode_reward += r
             episode_step_count += 1
             episode_values.append(v[0,0])
+                
 
             # If the episode terminates or the max steps has been reached
             # Then the episode (and so this while loop) terminates.
@@ -330,19 +331,22 @@ class EvalWorker():
                 break
         # Now that the episode has terminated, store the relevant
         # statistics
+        won = 0.
+        if r * cn.sim_rewardNormalisation == cn.sim_GoalReward:
+            won = 1.
         episode_mean_value = np.mean(episode_values)
-        return [episode_reward,episode_mean_value,episode_step_count]
+        return [episode_reward,episode_mean_value,episode_step_count,won]
 
     def playNgames(self,n):
         # The last 2 rows are for the averages and the standard devs
-        results = np.zeros([n + 2 , 3]) # watchout the 3 is hardcoded
+        results = np.zeros([n + 2 , 4]) # watchout the 3 is hardcoded
         for i in range(n):
             # This returns the results from the match
             results[i,:] = self.play1Game()
             if self.verbose: print("eval game ", i, " sumR,meanV,tsteps ", results[i,:])
 
-        results[n,:] = [np.mean(results[:n,0]),np.mean(results[:n,1]),np.mean(results[:n,2])]
-        results[n+1,:] = [np.std(results[:n,0]),np.std(results[:n,1]),np.std(results[:n,2])]
+        results[n,:] = [np.mean(results[:n,0]),np.mean(results[:n,1]),np.mean(results[:n,2]),np.mean(results[:n,3])]
+        results[n+1,:] = [np.std(results[:n,0]),np.std(results[:n,1]),np.std(results[:n,2]),np.std(results[:n,3])]
         # Specific to our pong implementation
         if not cn.ENV_IS_RARM: self.env.quitScreen()
         if self.verbose:
@@ -376,7 +380,7 @@ workers = []
 # Create worker classes
 for i in range(num_workers):
     workers.append(Worker(i,cn.run_sSize,cn.run_aSize,trainer,cn.run_ModelPath,cn.TF_SUMM_PATH,global_episodes,global_rewardEndEpisode))
-saver = tf.train.Saver(max_to_keep=5)
+saver = tf.train.Saver(max_to_keep=2)
 
 # If eval mode is on, then just directly use the network to run some
 # environments to completion. Set the right pars in globalConst.py

@@ -118,7 +118,7 @@ class SimulationEnvironment:
 #             raise NameError('A collission has occured before the robot '
 #                             + 'had the chance to move! you must redefine your'+
 #                             'starting angles/reset angles')
-#        # compute reward (as it computes distance to endeffector)
+        # compute reward (as it computes distance to endeffector)
         [r, reachGoal] = self.computeReward(dist, not col)
 
         return self.getState()
@@ -137,8 +137,8 @@ class SimulationEnvironment:
         
     def setRandomEnv(self):
         # get the random envNr
-        envNr = np.random.randint(1, 6 + 1)
-        envNr = 6
+        envNr = np.random.randint(1, 7 + 1)
+        #envNr = 7
         # Switch between environments per reset of the environment.
         # This is a pipe witch a corner to the left (most used during training. Our first env.)
         if envNr == 1:
@@ -161,25 +161,32 @@ class SimulationEnvironment:
             self.envWallSide = ['l', 't','r', 'b']
         # this is a T shaped pipe 
         elif envNr == 4:
+            tYe = 130
             self.envWalls = np.array([[(140,400), (140,300)], [(140,300), (45,300)], [(45,300),
-                      (45,180)], [(45,180), (355,180)], [(355,180), (355,300)], [(355,300),(260,300)],[(260,300),(260,400)],[(260,400),(140,400)]])
+                      (45,tYe)], [(45,tYe), (355,tYe)], [(355,tYe), (355,300)], [(355,300),(260,300)],[(260,300),(260,400)],[(260,400),(140,400)]])
             self.envWallSide = ['l', 'b','l', 't', 'r', 'b','r','b']#            
         # 
         # this is a turn to the right Which is at the top of the reach of the arm
         elif envNr == 5:
-            tYs = 200 # rurnYstart This is the upper height of right side
-            tYe = 110 #turn Y end
+            tYs = 200 # rurnYstart This is the start of the right side of the pipe
+            tYe = 110 #turn Y end, the top op the pipe
             self.envWalls = np.array([[(140,400), (140,tYe)], [(140,tYe), (355,tYe)], [(355,tYe),
                       (355,tYs)], [(355,tYs),(260,tYs)],[(260,tYs),(260,400)],[(260,400),(140,400)]])
             self.envWallSide = ['l', 't','r', 'b', 'r', 'b']           
-        # this is a turn to the right which is lower
+        # this is a turn to the right which is high but not that high
         elif envNr == 6:
-            tYs = 300 # rurnYstart This is the upper height of right side
-            tYe = 190 #turn Y end
+            tYs = 270 # rurnYstart This is the start of the right side
+            tYe = 110 #turn Y end, the top of the pipe
             self.envWalls = np.array([[(140,400), (140,tYe)], [(140,tYe), (355,tYe)], [(355,tYe),
                       (355,tYs)], [(355,tYs),(260,tYs)],[(260,tYs),(260,400)],[(260,400),(140,400)]])
             self.envWallSide = ['l', 't','r', 'b', 'r', 'b']     
-            
+            # This is a turn to the right which is the same as the original pipe to the left
+        elif envNr == 7:
+            tYs = 300 # rurnYstart This is the start of the right side
+            tYe = 140 #turn Y end, the top op the pipe
+            self.envWalls = np.array([[(140,400), (140,tYe)], [(140,tYe), (355,tYe)], [(355,tYe),
+                      (355,tYs)], [(355,tYs),(260,tYs)],[(260,tYs),(260,400)],[(260,400),(140,400)]])
+            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']     
         else:
             raise NameError('envNr was out of range, no such environment defined')
 #        

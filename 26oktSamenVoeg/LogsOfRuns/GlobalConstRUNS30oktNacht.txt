@@ -1,3 +1,30 @@
+
+Veranderd in run:
+	run30oktLike29oktG99
+Deze is ter referentie voor de 29okt runs. Nu is het verschil dat er geen update word gedaan op max_steps en dat
+arnold zijn buffer patch niet word uitgevoerd. Het verschilt met het bestand hieronder erin dat:
+De buffersize op 2000 stond. 
+	run30oktLike29oktG98
+Deze is hetzelfde als hierboven maar dan gamma op 98
+	run30oktAlexMix1
+Deze heeft: max ep lenght op 1000.
+buf size naar 20
+entropy naar 0.03 
+Gamma op .98
+nHidnodes naar 128
+En maxGradNorm op 2.
+	run30oktAlexMix2
+max ep length op 1000
+buf size op 25
+Gamma op .98
+nHidNodes naar 256
+maxGradNorm op 1.
+entCoef op 0.05
+
+	
+de rest zelfde als hieronder
+de rest zelfde als hieronder
+
 # -*- coding: utf-8 -*-
 """
 Created on Tue Oct 23 12:28:34 2018
@@ -10,17 +37,17 @@ import numpy as np
 ENV_IS_RARM = True
 
 # PARS FOR EVALUATION ONLY
-EVAL_MODE = True
-EVAL_RENDER = True # only relevant ruing evaluation episodes
+EVAL_MODE = False
 EVAL_SHOW_NORMAL_SPEED = True # only relevant during evaluation episodes
-EVAL_FPS = 60 # only relevant during evalutation episodes
+EVAL_FPS = 30 # only relevant during evalutation episodes
+EVAL_RENDER = True # only relevant ruing evaluation episodes
 #EVAL_CPU_CNT = 12 # Number of cpu's used during training
-EVAL_FOLDER = 'run30oktLike29oktG99' # The folder that holds the model and train folders
+EVAL_FOLDER = 'run29OktSparse96' # The folder that holds the model and train folders
 # deze heb je nodig om iets te evalueren in een compleet andere map
 #EVAL_HIGHLEVEL_FOLDER = './LogsOfRuns/TempTransferCluster29okt'
 #tussen = EVAL_HIGHLEVEL_FOLDER + '/' + EVAL_FOLDER
 #EVAL_MODEL_PATH = tussen + "/model"
-EVAL_NR_OF_GAMES = 100
+EVAL_NR_OF_GAMES = 10
 # ===================================================================
 
 sim_WINDOW_WIDTH = 400
@@ -31,7 +58,7 @@ sim_SparseRewards = False
 sim_Goal = np.array([100,200])
 sim_AddNoise = True
 sim_goalRadius = 5
-sim_GoalReward = 100.
+sim_GoalReward = 100
 sim_expRewardGamma = -0.01 
 sim_expRewardOffset = 100
 sim_thresholdWall = 20. # linear punishmet starts at this amount of pixels
@@ -46,21 +73,18 @@ print("GlobalCOnst ",sim_rewardNormalisation)
 
 
 rob_RandomInit = False
-rob_RandomWalls = False
 rob_NoiseStandDev = 0.001
 rob_StepSize = np.radians(1.4)
 rob_MaxJointAngle = np.radians(np.array([170,-170]))
-rob_JointLenght = [100,100,80,20]#[10, 10, 5, 5] # 100,100,80,20
+rob_JointLenght = [100, 100, 80, 20]
 rob_JointWidth = 10
-#rob_ResetAngles = np.radians(np.array([65,115,-115]))
-#rob_ResetAngles = np.radians(np.array([115,-95,115])) # this is used with randomWalls = True in 31 okt runs
-rob_ResetAngles = np.radians(np.array([130,-140,140])) # this was used during the 29okt runs
+rob_ResetAngles = np.radians(np.array([130,-140,140]))
 
 run_Render = False
 run_NumOfWorkers = 12
 run_MaxEpisodeLenght = 2000
 run_FPS = 15
-run_Gamma = .98 # discount rate for advantage estimation and reward discounting
+run_Gamma = .99 # discount rate for advantage estimation and reward discounting
 run_sSize = 17 # Observations are greyscale frames of 84 * 84 * 1
 run_aSize = 6 # Agent can rotate each joint in 2 directions
 run_LoadModel = False
@@ -69,8 +93,8 @@ run_epsilon = 0.1
 run_decay = 0.99
 run_BufferSize = 30
 run_actionSpace = [1,2,3,4,5,6]
-run_TFsummIntrvl = 5 # after this many episodes a datapoint is saved
-run_TFmodelSaveIntrvl = 100 # after this many episodes the model is saved.
+run_TFsummIntrvl = 10 # after this many episodes a datapoint is saved
+run_TFmodelSaveIntrvl = 250 # after this many episodes the model is saved.
 
 # Pars used in NETWORK
 netw_nHidNodes = 512
@@ -79,7 +103,7 @@ netw_entCoef = 0.1 # Was at 0.1 originally, openAI has 0.01 as default in A2C
 netw_maxGradNorm = 40 # was originally 40 and openAI has 0.5 in A2C
 
 
-OUTP_FOLDER = '/runLocal31oktNachtG98'
+OUTP_FOLDER = '/verwijderDeze3'
 
 OUTP_FOLDER = './LogsOfRuns' + OUTP_FOLDER
 TF_SUMM_PATH = OUTP_FOLDER + '/train_'
