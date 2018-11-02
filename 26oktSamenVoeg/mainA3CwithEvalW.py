@@ -232,7 +232,7 @@ class Worker():
                 self.episode_rewards.append(episode_reward)
                 self.episode_lengths.append(epLength)
                 self.episode_mean_values.append(np.mean(episode_values))
-                self.episode_wallHitPercentages.append(self.env.wallHits/epLength)
+                if cn.ENV_IS_RARM: self.episode_wallHitPercentages.append(self.env.wallHits/epLength)
                 self.episode_terminalRewards.append(r)
                 # print terminal reward
                 print('terminalR ',r)
@@ -255,11 +255,12 @@ class Worker():
                     mean_reward = np.mean(self.episode_rewards[-cn.run_TFsummIntrvl:])
                     mean_length = np.mean(self.episode_lengths[-cn.run_TFsummIntrvl:])
                     mean_value = np.mean(self.episode_mean_values[-cn.run_TFsummIntrvl:])
-                    mean_WallHitPerctg = np.mean(self.episode_wallHitPercentages[-cn.run_TFsummIntrvl:])
                     mean_terminalRs = np.mean(self.episode_terminalRewards[-cn.run_TFsummIntrvl:])
                     summary = tf.Summary()
                     # Add the percentage of timesteps that the agent wanted to hit the wall
-                    if cn.ENV_IS_RARM: summary.value.add(tag='Perf/WallHitPercentage'
+                    if cn.ENV_IS_RARM: 
+                        mean_WallHitPerctg = np.mean(self.episode_wallHitPercentages[-cn.run_TFsummIntrvl:])     
+                        summary.value.add(tag='Perf/WallHitPercentage'
                                                          , simple_value=float(mean_WallHitPerctg))
                     summary.value.add(tag='Perf/Terminal Reward', simple_value=float(mean_terminalRs * cn.sim_rewardNormalisation))
                     summary.value.add(tag='Perf/SumReward', simple_value=float(mean_reward))
@@ -334,22 +335,24 @@ class EvalWorker():
         won = 0.
         if r * cn.sim_rewardNormalisation == cn.sim_GoalReward:
             won = 1.
-        episode_mean_value = np.mean(episode_values)
-        return [episode_reward,episode_mean_value,episode_step_count,won]
+        #episode_mean_value = np.mean(episode_values)
+        wallHitFactor = self.env.wallHits/episode_step_count
+        return [episode_reward,episode_step_count,wallHitFactor,won]
 
     def playNgames(self,n):
         # The last 2 rows are for the averages and the standard devs
-        results = np.zeros([n + 2 , 4]) # watchout the 3 is hardcoded
+        results = np.zeros([n + 2 , 4]) # watchout the 4 is hardcoded
         for i in range(n):
             # This returns the results from the match
             results[i,:] = self.play1Game()
-            if self.verbose: print("eval game ", i, " sumR,meanV,tsteps ", results[i,:])
+            if self.verbose: print("eval game ", i, " sumR,Length,wallHitF.,Won?", results[i,:])
 
         results[n,:] = [np.mean(results[:n,0]),np.mean(results[:n,1]),np.mean(results[:n,2]),np.mean(results[:n,3])]
         results[n+1,:] = [np.std(results[:n,0]),np.std(results[:n,1]),np.std(results[:n,2]),np.std(results[:n,3])]
         # Specific to our pong implementation
         if not cn.ENV_IS_RARM: self.env.quitScreen()
         if self.verbose:
+            print('sumR,Length,wallHitF.,Won?')
             print(results[n,:],"the means", )
             print(results[n + 1,:],"the standard devs", )
             print("ewa ik ben klaar met evalueren man")
