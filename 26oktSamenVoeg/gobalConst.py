@@ -36,6 +36,7 @@ sim_expRewardGamma = -0.01
 sim_expRewardOffset = 100
 sim_thresholdWall = 10. # linear punishmet starts at this amount of pixels
 sim_WallReward = 100
+sim_Y_threshold_goal = 280 
 # the normalisation is dependend on whether sparse rewards are used
 if sim_SparseRewards:
     # the higest reward must be 1, this ensures that is true.
@@ -45,16 +46,27 @@ else: # in case no sparse rewards
 print("GlobalCOnst ",sim_rewardNormalisation)
 
 
-rob_RandomInit = False
-rob_RandomWalls = True
+rob_RandomInit = True
+rob_RandomWalls = False
 rob_NoiseStandDev = 0.001
 rob_StepSize = np.radians(1.4)
 rob_MaxJointAngle = np.radians(np.array([170,-170]))
-rob_JointLenght = [100,100,80,20]#[10, 10, 5, 5] # 100,100,80,20
-rob_JointWidth = 10
+bodyFactor = 0.9
+rob_JointLenght = bodyFactor*np.array([71,112,141*0.6,141*0.4]) #[100,100,80,20] #100,100,80,20
+rob_JointLenght = rob_JointLenght.astype(int)
+rob_JointWidth = int(bodyFactor*30)
+rob_ResetAngles = np.radians(np.array([100,-10,90]))
 #rob_ResetAngles = np.radians(np.array([65,115,-115]))
-rob_ResetAngles = np.radians(np.array([115,-95,115])) # this is used with randomWalls = True in 31 okt runs
+#rob_ResetAngles = np.radians(np.array([115,-95,115])) # this is used with randomWalls = True in 31 okt runs
 #rob_ResetAngles = np.radians(np.array([130,-140,140])) # this was used during the 29okt runs
+rob_resetAngles_Lchance = 0.3 # the chance of having a left oriented init
+rob_resetAngles_Rchance = 0.3 # the chance of having a right oriented init
+rob_ResetAngles_Left = np.radians(np.array([130,-95,115])) # This is oriented for going left
+rob_ResetAngles_Right = np.radians(np.array([45,125,-115])) # this is oriented for going right.
+
+
+
+        
 
 run_Render = False
 run_NumOfWorkers = 12

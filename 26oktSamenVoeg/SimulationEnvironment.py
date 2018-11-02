@@ -358,7 +358,7 @@ class SimulationEnvironment:
         minx = np.min(self.envWalls[:,0,0])
         maxx = np.max(self.envWalls[:,0,0])
         miny = np.min(self.envWalls[:,0,1])
-        maxy = np.max(self.envWalls[:,0,1])
+        maxy = cn.sim_Y_threshold_goal #np.max(self.envWalls[:,0,1])
 
         th = cn.sim_thresholdWall
         pointCorrect = False
@@ -394,19 +394,29 @@ class SimulationEnvironment:
         return minDist
 
     def createRandomInit(self):
-#        minTheta = self.robot.maxJointAngle[1]
-        maxTheta = self.robot.maxJointAngle[0]
-
-        initCorrect = False
-        while(not initCorrect):
-#            th = np.array([0,0,0])
-            th = (np.random.random_sample((3)) - 0.5) * maxTheta
-            self.robot.jointAngles = th
-
-            [initCorrect, dist] = self.checkNOCollision()
-
-        return
-
+            decision = np.random.random_sample()
+            if decision < cn.rob_resetAngles_Lchance:
+                # Init for going left
+                self.robot.jointAngles = cn.rob_ResetAngles_Left
+            elif decision < (cn.rob_resetAngles_Lchance + cn.rob_resetAngles_Rchance):
+                # Init for going left
+                self.robot.jointAngles = cn.rob_ResetAngles_Right
+            else: # Create an uniformly chosen robot configuration
+                #TODO maybe make it not start arbitrarily close to the wall
+                maxTheta = self.robot.maxJointAngle[0]
+                # this loop gets some possible angles and checks whether they are 
+                # possible given the env, it tries for as long as it needs to get
+                # correct angles.
+                initCorrect = False
+                while(not initCorrect):
+                    th = (np.random.random_sample((3)) - 0.5) * maxTheta
+                    self.robot.jointAngles = th
+                    [initCorrect, minDtoWall] = self.checkNOCollision()
+                    # In case the goal is placed within the treshold distance
+                    # of a wall, than try again for a better init.
+                    if minDtoWall < cn.sim_thresholdWall:
+                        initCorrect = False
+            return
     def wallsTOPoints(self,walls):
         """environment is defined in walls. This can be converted into the corner
         points of the environment"""
