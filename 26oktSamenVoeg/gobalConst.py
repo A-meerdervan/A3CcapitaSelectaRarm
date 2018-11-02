@@ -34,7 +34,7 @@ sim_goalRadius = 5
 sim_GoalReward = 100.
 sim_expRewardGamma = -0.01
 sim_expRewardOffset = 100
-sim_thresholdWall = 20. # linear punishmet starts at this amount of pixels
+sim_thresholdWall = 10. # linear punishmet starts at this amount of pixels
 sim_WallReward = 100
 # the normalisation is dependend on whether sparse rewards are used
 if sim_SparseRewards:
@@ -58,7 +58,7 @@ rob_ResetAngles = np.radians(np.array([115,-95,115])) # this is used with random
 
 run_Render = False
 run_NumOfWorkers = 12
-run_MaxEpisodeLenght = 500
+run_MaxEpisodeLenght = 50
 run_FPS = 15
 run_Gamma = .98 # discount rate for advantage estimation and reward discounting
 run_sSize = 17 # Observations are greyscale frames of 84 * 84 * 1

@@ -30,7 +30,7 @@ class SimulationEnvironment:
 #        self.envWalls = np.array([[(10,400),(10,140)], [(10,140), (280,140)], [(280,140), (280,400)], [(280,400),(10,400)]])
         self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
 #        self.envWallSide = ['l', 't', 'r', 'b']
-        self.envPoints = self.wallsTOPoints(self.envWalls)
+        self.envPoints = [0] #self.wallsTOPoints(self.envWalls)
         self.addNoise = cn.sim_AddNoise
         self.goal = cn.sim_Goal
         self.senseDistances = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0]])
@@ -355,27 +355,46 @@ class SimulationEnvironment:
 
     def createRandomGoal(self):
         # create a random goal that sits within the environment AND reach of the robot
-        minx = np.min(self.envWalls[:,0,0]) + 1.*cn.sim_thresholdWall
-        maxx = np.max(self.envWalls[:,0,0]) - 1.*cn.sim_thresholdWall
-        miny = np.min(self.envWalls[:,0,1]) + 1.*cn.sim_thresholdWall
-        maxy = 300. - 1.*cn.sim_thresholdWall #np.max(self.envWalls[:,0,1])
+        minx = np.min(self.envWalls[:,0,0])
+        maxx = np.max(self.envWalls[:,0,0])
+        miny = np.min(self.envWalls[:,0,1])
+        maxy = np.max(self.envWalls[:,0,1])
 
+        th = cn.sim_thresholdWall
         pointCorrect = False
         while(not pointCorrect):
             x = np.random.randint(minx, maxx)
             y = np.random.randint(miny, maxy)
 
+            # check if chosen point is in the environment
             [pointCorrect, w] = self.isPointInEnvironment(np.array([x,y]))
+            # check how far the point is to each of the walls (only checks horizontal and vertical axis)
+            dist = self.computeMinDistanceJointsTOWalls(np.array([x,y]), w)
+            # check the minimum distance the point is from either the walls or a corner in the env
+            dist = min(dist, self.computeMinDistanceToCorner(np.array([x,y])))
 
             d = np.array([x,y]) - self.zeroPosition
             d = np.sqrt(d[0]**2 + d[1]**2)
-            if (d > self.robot.reach):
+            if (d > self.robot.reach or dist < th):
                 pointCorrect = False
 
         return np.array([x,y])
 
+    def computeMinDistanceToCorner(self, p):
+        if len(self.envPoints) == 1:
+            self.envPoints = self.wallsTOPoints(self.envWalls)
+
+        minDist = 100
+        for w in self.envPoints:
+            d = p - w
+            d = np.sqrt(d[0]**2 + d[1]**2)
+
+            minDist = min(minDist, d)
+
+        return minDist
+
     def createRandomInit(self):
-        minTheta = self.robot.maxJointAngle[1]
+#        minTheta = self.robot.maxJointAngle[1]
         maxTheta = self.robot.maxJointAngle[0]
 
         initCorrect = False
