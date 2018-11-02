@@ -97,11 +97,11 @@ class SimulationEnvironment:
 #            pygame.display.init()
 #            self.screen = pygame.display.set_mode((self.WINDOW_WIDTH, self.WINDOW_HEIGHT))
 
-        self.robot.jointAngles = cn.rob_ResetAngles 
+        self.robot.jointAngles = cn.rob_ResetAngles
 
         self.ctr = 0 # reset the number of timesteps
         self.wallHits = 0 # reset the number of times the wall was hit
-        
+
         if cn.rob_RandomWalls:
             self.setRandomEnv()
 
@@ -134,11 +134,11 @@ class SimulationEnvironment:
 
     def setGoal(self, goal):
         self.goal = goal
-        
+
     def setRandomEnv(self):
         # get the random envNr
         envNr = np.random.randint(1, 7 + 1)
-        #envNr = 7
+#        envNr = 7
         # Switch between environments per reset of the environment.
         # This is a pipe witch a corner to the left (most used during training. Our first env.)
         if envNr == 1:
@@ -159,37 +159,40 @@ class SimulationEnvironment:
             self.envWalls = np.array([[(rC-pR,400), (rC-pR,100)], [(rC-pR,100), (rC+pR,100)], [(rC+pR,100),
                       (rC+pR,400)], [(rC+pR,400), (rC-pR,400)]])
             self.envWallSide = ['l', 't','r', 'b']
-        # this is a T shaped pipe 
+        # this is a T shaped pipe
         elif envNr == 4:
             tYe = 130
             self.envWalls = np.array([[(140,400), (140,300)], [(140,300), (45,300)], [(45,300),
                       (45,tYe)], [(45,tYe), (355,tYe)], [(355,tYe), (355,300)], [(355,300),(260,300)],[(260,300),(260,400)],[(260,400),(140,400)]])
-            self.envWallSide = ['l', 'b','l', 't', 'r', 'b','r','b']#            
-        # 
+            self.envWallSide = ['l', 'b','l', 't', 'r', 'b','r','b']#
+        #
         # this is a turn to the right Which is at the top of the reach of the arm
         elif envNr == 5:
             tYs = 200 # rurnYstart This is the start of the right side of the pipe
             tYe = 110 #turn Y end, the top op the pipe
             self.envWalls = np.array([[(140,400), (140,tYe)], [(140,tYe), (355,tYe)], [(355,tYe),
                       (355,tYs)], [(355,tYs),(260,tYs)],[(260,tYs),(260,400)],[(260,400),(140,400)]])
-            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']           
+            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
         # this is a turn to the right which is high but not that high
         elif envNr == 6:
             tYs = 270 # rurnYstart This is the start of the right side
             tYe = 110 #turn Y end, the top of the pipe
             self.envWalls = np.array([[(140,400), (140,tYe)], [(140,tYe), (355,tYe)], [(355,tYe),
                       (355,tYs)], [(355,tYs),(260,tYs)],[(260,tYs),(260,400)],[(260,400),(140,400)]])
-            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']     
+            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
             # This is a turn to the right which is the same as the original pipe to the left
         elif envNr == 7:
             tYs = 300 # rurnYstart This is the start of the right side
             tYe = 140 #turn Y end, the top op the pipe
             self.envWalls = np.array([[(140,400), (140,tYe)], [(140,tYe), (355,tYe)], [(355,tYe),
                       (355,tYs)], [(355,tYs),(260,tYs)],[(260,tYs),(260,400)],[(260,400),(140,400)]])
-            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']     
+            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
         else:
             raise NameError('envNr was out of range, no such environment defined')
-#        
+
+        self.envPoints = self.wallsTOPoints(self.envWalls)
+
+        return
 
 
     def setEnvironment(self, envWalls, envSides, setGoal):
@@ -529,6 +532,7 @@ class SimulationEnvironment:
             # check both sides of the link
             [b2, d] = self.checkLine([l[2*j] + w, l[2*j+1]], [l[2*j+2] + w, l[2*j+3]])
             distance = min(distance, d)
+#            print(b1, b2)
 
             if (not b1 or not b2):
                 return [False, 0]

@@ -15,7 +15,7 @@ EVAL_RENDER = True # only relevant ruing evaluation episodes
 EVAL_SHOW_NORMAL_SPEED = True # only relevant during evaluation episodes
 EVAL_FPS = 60 # only relevant during evalutation episodes
 #EVAL_CPU_CNT = 12 # Number of cpu's used during training
-EVAL_FOLDER = 'run30oktLike29oktG99' # The folder that holds the model and train folders
+EVAL_FOLDER = 'run31oktNachtG98ookEnv7' # The folder that holds the model and train folders
 # deze heb je nodig om iets te evalueren in een compleet andere map
 #EVAL_HIGHLEVEL_FOLDER = './LogsOfRuns/TempTransferCluster29okt'
 #tussen = EVAL_HIGHLEVEL_FOLDER + '/' + EVAL_FOLDER
@@ -32,7 +32,7 @@ sim_Goal = np.array([100,200])
 sim_AddNoise = True
 sim_goalRadius = 5
 sim_GoalReward = 100.
-sim_expRewardGamma = -0.01 
+sim_expRewardGamma = -0.01
 sim_expRewardOffset = 100
 sim_thresholdWall = 20. # linear punishmet starts at this amount of pixels
 sim_WallReward = 100
@@ -40,25 +40,25 @@ sim_WallReward = 100
 if sim_SparseRewards:
     # the higest reward must be 1, this ensures that is true.
     sim_rewardNormalisation = max(sim_GoalReward,sim_WallReward)
-else: # in case no sparse rewards    
+else: # in case no sparse rewards
     sim_rewardNormalisation = sim_WallReward + sim_expRewardOffset
 print("GlobalCOnst ",sim_rewardNormalisation)
 
 
 rob_RandomInit = False
-rob_RandomWalls = False
+rob_RandomWalls = True
 rob_NoiseStandDev = 0.001
 rob_StepSize = np.radians(1.4)
 rob_MaxJointAngle = np.radians(np.array([170,-170]))
 rob_JointLenght = [100,100,80,20]#[10, 10, 5, 5] # 100,100,80,20
 rob_JointWidth = 10
 #rob_ResetAngles = np.radians(np.array([65,115,-115]))
-#rob_ResetAngles = np.radians(np.array([115,-95,115])) # this is used with randomWalls = True in 31 okt runs
-rob_ResetAngles = np.radians(np.array([130,-140,140])) # this was used during the 29okt runs
+rob_ResetAngles = np.radians(np.array([115,-95,115])) # this is used with randomWalls = True in 31 okt runs
+#rob_ResetAngles = np.radians(np.array([130,-140,140])) # this was used during the 29okt runs
 
 run_Render = False
 run_NumOfWorkers = 12
-run_MaxEpisodeLenght = 2000
+run_MaxEpisodeLenght = 500
 run_FPS = 15
 run_Gamma = .98 # discount rate for advantage estimation and reward discounting
 run_sSize = 17 # Observations are greyscale frames of 84 * 84 * 1
