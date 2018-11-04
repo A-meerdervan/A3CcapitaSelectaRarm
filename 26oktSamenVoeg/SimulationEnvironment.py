@@ -64,7 +64,6 @@ class SimulationEnvironment:
         # save previous state of the robot
         stateAng = self.robot.jointAngles
         # move the robot
-        #print('act ',act) This does change!
         self.robot.moveJoints(act, self.addNoise)
 
         [col, dist] = self.checkNOCollision()
@@ -115,14 +114,80 @@ class SimulationEnvironment:
         [col, dist] = self.checkNOCollision()
         if not col:
             print('colision on start, you fucked up the angles')
-#             raise NameError('A collission has occured before the robot '
-#                             + 'had the chance to move! you must redefine your'+
-#                             'starting angles/reset angles')
-        # compute reward (as it computes distance to endeffector)
+            raise NameError('A collission has occured before the robot '
+                 + 'had the chance to move! you must redefine your'+
+                 'starting angles/reset angles')
+                    # compute reward (as it computes distance to endeffector)
         [r, reachGoal] = self.computeReward(dist, not col)
 
         return self.getState()
 
+    # This function is used to test configurations, sizes and environments
+    def runTestMode(self,fromTestConsts):
+        self.ctr = 0 # reset the number of timesteps
+        self.wallHits = 0 # reset the number of times the wall was hit
+        if fromTestConsts:
+            self.robot.jointAngles = cn.TEST_rob_ResetAngles
+            # use the stuff which is in the rest of the file
+        else:
+            self.robot.jointAngles = cn.rob_ResetAngles
+            if cn.rob_RandomWalls:
+                self.setRandomEnv()
+    
+            if (self.randomGoal):
+                self.goal = self.createRandomGoal()
+    
+            if (cn.rob_RandomInit):
+                self.createRandomInit()
+    
+        # check the environment for collisions (needed for the state)
+        [col, dist] = self.checkNOCollision()
+        if not col:
+            print('colision on start, you fucked up the angles')
+#                raise NameError('A collission has occured before the robot '
+#                     + 'had the chance to move! you must redefine your'+
+#                     'starting angles/reset angles')
+#                        # compute reward (as it computes distance to endeffector)
+        [r, reachGoal] = self.computeReward(dist, not col)
+        # show the init screen
+        self.render()
+        print('Used angles ',np.degrees(self.robot.jointAngles),' minD ',dist)
+        print(' r: ',r, ' col? ', not col)
+        # now step using the user input
+        # check whether the window was closed.
+        continiue = True
+        while continiue:
+            action = input("action?")
+            # reset
+            if action == 'r':
+                # a bit of recurion
+                self.runTestMode(fromTestConsts)
+                break
+            if action == 'q':
+                # this will quit the window
+                continiue = False
+                pygame.quit()
+                break
+            # take a step
+            action = int(action)
+            if action > 7 or action < 1: print('try a valid action nr')
+            else:
+                # move the robot
+                self.robot.moveJoints(action, self.addNoise)
+                [col, dist] = self.checkNOCollision()
+                [r, reachGoal] = self.computeReward(dist, not col)
+                print('Used angles ',np.degrees(self.robot.jointAngles),' minD ',dist)
+                print(' r: ',r, ' col? ', not col)    
+                self.render()
+#            FPS = 5 # check 5 times every second (Frames per s = 1)
+#            self.clock.tick(FPS)
+##            for event in pygame.event.get():
+#                if event.type == pygame.QUIT:
+#                    pygame.quit()
+#                    raise NameError('Pygame screen was succesfully closed :)')
+#        
+            
+    
     def getState(self):
         s1 = np.resize(self.senseDistances/400, (12,1)) # normalized between 0 and 1
         s2 = np.resize(self.robot.jointAngles/3.141592653589793, (3,1)) # normalized between -1 and 1
@@ -137,8 +202,9 @@ class SimulationEnvironment:
 
     def setRandomEnv(self):
         # get the random envNr
-        envNr = np.random.randint(1, 7 + 1)
-#        envNr = 7
+        rC = 200 # robotCenter, the x pos of the arm bottom
+        envNr = np.random.randint(1, 8 + 1)
+        envNr =8
         # Switch between environments per reset of the environment.
         # This is a pipe witch a corner to the left (most used during training. Our first env.)
         if envNr == 1:
@@ -161,24 +227,27 @@ class SimulationEnvironment:
             self.envWallSide = ['l', 't','r', 'b']
         # this is a T shaped pipe
         elif envNr == 4:
+            pR = 72 # the width of the pipe
             tYe = 130
-            self.envWalls = np.array([[(140,400), (140,300)], [(140,300), (45,300)], [(45,300),
-                      (45,tYe)], [(45,tYe), (355,tYe)], [(355,tYe), (355,300)], [(355,300),(260,300)],[(260,300),(260,400)],[(260,400),(140,400)]])
+            self.envWalls = np.array([[(rC-pR,400), (rC-pR,300)], [(rC-pR,300), (45,300)], [(45,300),
+                      (45,tYe)], [(45,tYe), (355,tYe)], [(355,tYe), (355,300)], [(355,300),(rC+pR,300)],[(rC+pR,300),(rC+pR,400)],[(rC+pR,400),(rC-pR,400)]])
             self.envWallSide = ['l', 'b','l', 't', 'r', 'b','r','b']#
         #
         # this is a turn to the right Which is at the top of the reach of the arm
         elif envNr == 5:
-            tYs = 200 # rurnYstart This is the start of the right side of the pipe
-            tYe = 110 #turn Y end, the top op the pipe
-            self.envWalls = np.array([[(140,400), (140,tYe)], [(140,tYe), (355,tYe)], [(355,tYe),
-                      (355,tYs)], [(355,tYs),(260,tYs)],[(260,tYs),(260,400)],[(260,400),(140,400)]])
+            tYs = 250 # rurnYstart This is the start of the right side of the pipe
+            tYe = 130 #turn Y end, the top op the pipe
+            pR = 70 # the width of the pipe
+            self.envWalls = np.array([[(rC-pR,400), (rC-pR,tYe)], [(rC-pR,tYe), (355,tYe)], [(355,tYe),
+                      (355,tYs)], [(355,tYs),(rC+pR,tYs)],[(rC+pR,tYs),(rC+pR,400)],[(rC+pR,400),(rC-pR,400)]])
             self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
         # this is a turn to the right which is high but not that high
         elif envNr == 6:
             tYs = 270 # rurnYstart This is the start of the right side
             tYe = 110 #turn Y end, the top of the pipe
-            self.envWalls = np.array([[(140,400), (140,tYe)], [(140,tYe), (355,tYe)], [(355,tYe),
-                      (355,tYs)], [(355,tYs),(260,tYs)],[(260,tYs),(260,400)],[(260,400),(140,400)]])
+            pR = 73 # the width of the pipe
+            self.envWalls = np.array([[(rC-pR,400), (rC-pR,tYe)], [(rC-pR,tYe), (355,tYe)], [(355,tYe),
+                      (355,tYs)], [(355,tYs),(rC+pR,tYs)],[(rC+pR,tYs),(rC+pR,400)],[(rC+pR,400),(rC-pR,400)]])
             self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
             # This is a turn to the right which is the same as the original pipe to the left
         elif envNr == 7:
@@ -187,6 +256,14 @@ class SimulationEnvironment:
             self.envWalls = np.array([[(140,400), (140,tYe)], [(140,tYe), (355,tYe)], [(355,tYe),
                       (355,tYs)], [(355,tYs),(260,tYs)],[(260,tYs),(260,400)],[(260,400),(140,400)]])
             self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
+        # This environment is to move freely. TODO, get rid of maxY handicap
+        elif envNr == 8:
+            tYe = 30 #turn Y end, the top op the pipe
+            x1 = 30
+            x2 = 400 - x1
+            self.envWalls = np.array([[(x1,400), (x1,tYe)], [(x1,tYe), (x2,tYe)], [(x2,tYe),
+                      (x2,400)], [(x2,400),(x1,400)]])
+            self.envWallSide = ['l', 't','r', 'b']
         else:
             raise NameError('envNr was out of range, no such environment defined')
 

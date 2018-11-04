@@ -365,99 +365,102 @@ class EvalWorker():
         else:
             return Env.A3CenvPong.A3CenvPong(self.render)
 
-
-
-
-tf.reset_default_graph()
-
-if not os.path.exists(cn.run_ModelPath):
-    os.makedirs(cn.run_ModelPath)
-
-
-global_episodes = tf.Variable(0,dtype=tf.int32,name='global_episodes',trainable=False)
-global_rewardEndEpisode = tf.Variable(0,dtype=tf.int32,name='global_rewardEndEpisode',trainable=False)
-trainer = tf.train.RMSPropOptimizer(learning_rate=cn.run_LearningRate, decay=cn.run_decay, epsilon=cn.run_epsilon)
-master_network = AC_Network(cn.run_sSize,cn.run_aSize,'global',None) # Generate global network
-num_workers = cn.run_NumOfWorkers #num_workers = multiprocessing.cpu_count() # Set workers ot number of available CPU threads
-workers = []
-# Create worker classes
-for i in range(num_workers):
-    workers.append(Worker(i,cn.run_sSize,cn.run_aSize,trainer,cn.run_ModelPath,cn.TF_SUMM_PATH,global_episodes,global_rewardEndEpisode))
-saver = tf.train.Saver(max_to_keep=2)
-
-# If eval mode is on, then just directly use the network to run some
-# environments to completion. Set the right pars in globalConst.py
-if cn.EVAL_MODE:
-    save = False
-    verbose = True
-    model_path =  './LogsOfRuns/' + cn.EVAL_FOLDER + "/model"
-    #print(model_path)
-    with tf.Session() as sess:
-        coord = tf.train.Coordinator()
-        print('Loading Model...')
-        ckpt = tf.train.get_checkpoint_state(model_path)
-        saver.restore(sess,ckpt.model_checkpoint_path)
-       # Start 1 EvalWorker
-        evalWorker = EvalWorker(cn.ENV_IS_RARM,cn.run_actionSpace,master_network,sess,save,verbose,cn.run_MaxEpisodeLenght)
-        evalWorker.playNgames(cn.EVAL_NR_OF_GAMES)
-# This happens in the learning setting, here learning is performed on multiple threads.
+# if in test mode:
+if not cn.EVAL_MODE and cn.TEST_MODE:
+    env = sim.SimulationEnvironment()
+    env.runTestMode(cn.TEST_fromTestConsts)
+# If in EVAL or TRAIN mode:
 else:
-    # Run everything in a tensforflow session called sess
-    with tf.Session() as sess:
-        coord = tf.train.Coordinator()  # coordinates communication between threads
-        # A: I think this means that it is able to continiue where it left off in a previous run
-        # If load_model == False, then you just start from scratch
-        if cn.run_LoadModel == True:
+    tf.reset_default_graph()
+    
+    if not os.path.exists(cn.run_ModelPath):
+        os.makedirs(cn.run_ModelPath)
+    
+    
+    global_episodes = tf.Variable(0,dtype=tf.int32,name='global_episodes',trainable=False)
+    global_rewardEndEpisode = tf.Variable(0,dtype=tf.int32,name='global_rewardEndEpisode',trainable=False)
+    trainer = tf.train.RMSPropOptimizer(learning_rate=cn.run_LearningRate, decay=cn.run_decay, epsilon=cn.run_epsilon)
+    master_network = AC_Network(cn.run_sSize,cn.run_aSize,'global',None) # Generate global network
+    num_workers = cn.run_NumOfWorkers #num_workers = multiprocessing.cpu_count() # Set workers ot number of available CPU threads
+    workers = []
+    # Create worker classes
+    for i in range(num_workers):
+        workers.append(Worker(i,cn.run_sSize,cn.run_aSize,trainer,cn.run_ModelPath,cn.TF_SUMM_PATH,global_episodes,global_rewardEndEpisode))
+    saver = tf.train.Saver(max_to_keep=2)
+    
+    # If eval mode is on, then just directly use the network to run some
+    # environments to completion. Set the right pars in globalConst.py
+    if cn.EVAL_MODE:
+        save = False
+        verbose = True
+        model_path =  './LogsOfRuns/' + cn.EVAL_FOLDER + "/model"
+        #print(model_path)
+        with tf.Session() as sess:
+            coord = tf.train.Coordinator()
             print('Loading Model...')
-            ckpt = tf.train.get_checkpoint_state(cn.run_ModelPath)
+            ckpt = tf.train.get_checkpoint_state(model_path)
             saver.restore(sess,ckpt.model_checkpoint_path)
-        else:
-            sess.run(tf.global_variables_initializer())
-    
-        # This is where the asynchronous magic happens.
-        # Start the "work" process for each worker in a separate threat.
-        # this list contains the worker threads which are running
-           # solves the problem of making it responsive
-    #    workers[0].work(cn.run_MaxEpisodeLenght,cn.run_Gamma,master_network,sess,coord,saver)
-    #
-        worker_threads = []
-    #     Loop the workers and start a thread for each
-        for worker in workers:
-            # define a function that executes the work method of each worker
-            worker_work = lambda: worker.work(cn.run_MaxEpisodeLenght ,cn.run_Gamma,master_network,sess,coord,saver)
-            # execute the function in a new thread
-            t = threading.Thread(target=(worker_work))
-            # start thread
-            t.start()
-            # keep track of the threads
-            worker_threads.append(t)
-        gs = 0
-    #     The coordinator has the overview and while it wants to continue:
-    #     This routine probes the training proces and prints an update, every 10 seconds.
-    #    if showScreen:
-    #        workers[0].env.initScreen()
-    
-        clock = pygame.time.Clock()
-        ctr = 0
-        while not coord.should_stop():
-            clock.tick(cn.run_FPS)
-            # global episodes is a global tf variable which is synced over all threads
-            # Now the current episode nr is obtained:
-            if (ctr / cn.run_FPS == 10):
-                s = time()
-                gs1 = sess.run(global_episodes)  # get value of variable
-                lastRewardEndOfEp = sess.run(global_rewardEndEpisode)
-                print("Episodes", gs1, 'one for ', (time()-s)/(gs1-gs), "\n" + "Reward at end of episode: ",lastRewardEndOfEp)
-                gs = gs1
-                ctr = 0
-    
-            if cn.run_Render:
-    
-                workers[0].env.render()
-                pygame.event.get()
-    
-            ctr += 1
-    
-        coord.join(worker_threads)   # terminate the threads
-    
-    
+           # Start 1 EvalWorker
+            evalWorker = EvalWorker(cn.ENV_IS_RARM,cn.run_actionSpace,master_network,sess,save,verbose,cn.run_MaxEpisodeLenght)
+            evalWorker.playNgames(cn.EVAL_NR_OF_GAMES)
+    # This happens in the learning setting, here learning is performed on multiple threads.
+    else:
+        # Run everything in a tensforflow session called sess
+        with tf.Session() as sess:
+            coord = tf.train.Coordinator()  # coordinates communication between threads
+            # A: I think this means that it is able to continiue where it left off in a previous run
+            # If load_model == False, then you just start from scratch
+            if cn.run_LoadModel == True:
+                print('Loading Model...')
+                ckpt = tf.train.get_checkpoint_state(cn.run_ModelPath)
+                saver.restore(sess,ckpt.model_checkpoint_path)
+            else:
+                sess.run(tf.global_variables_initializer())
+        
+            # This is where the asynchronous magic happens.
+            # Start the "work" process for each worker in a separate threat.
+            # this list contains the worker threads which are running
+               # solves the problem of making it responsive
+        #    workers[0].work(cn.run_MaxEpisodeLenght,cn.run_Gamma,master_network,sess,coord,saver)
+        #
+            worker_threads = []
+        #     Loop the workers and start a thread for each
+            for worker in workers:
+                # define a function that executes the work method of each worker
+                worker_work = lambda: worker.work(cn.run_MaxEpisodeLenght ,cn.run_Gamma,master_network,sess,coord,saver)
+                # execute the function in a new thread
+                t = threading.Thread(target=(worker_work))
+                # start thread
+                t.start()
+                # keep track of the threads
+                worker_threads.append(t)
+            gs = 0
+        #     The coordinator has the overview and while it wants to continue:
+        #     This routine probes the training proces and prints an update, every 10 seconds.
+        #    if showScreen:
+        #        workers[0].env.initScreen()
+        
+            clock = pygame.time.Clock()
+            ctr = 0
+            while not coord.should_stop():
+                clock.tick(cn.run_FPS)
+                # global episodes is a global tf variable which is synced over all threads
+                # Now the current episode nr is obtained:
+                if (ctr / cn.run_FPS == 10):
+                    s = time()
+                    gs1 = sess.run(global_episodes)  # get value of variable
+                    lastRewardEndOfEp = sess.run(global_rewardEndEpisode)
+                    print("Episodes", gs1, 'one for ', (time()-s)/(gs1-gs), "\n" + "Reward at end of episode: ",lastRewardEndOfEp)
+                    gs = gs1
+                    ctr = 0
+        
+                if cn.run_Render:
+        
+                    workers[0].env.render()
+                    pygame.event.get()
+        
+                ctr += 1
+        
+            coord.join(worker_threads)   # terminate the threads
+        
+        
