@@ -5,6 +5,7 @@ Created on Wed Oct  3 14:07:02 2018
 @author: arnold
 """
 import pygame
+from pygame.locals import *
 import numpy as np
 #import time
 import math
@@ -45,24 +46,10 @@ class SimulationEnvironment:
             self.goal = self.createRandomGoal()
 
     def step(self, action):
-        # map the 6 outputs from the NN to the actions one can take
-        # returns whether there is a collision (True), the reward, and whether the goal
-        # has been reached
-        [col, dist] = self.checkNOCollision() # todo remove
-        #print('Col detected before action ',not col)
-        #print('1 step with action: ',action,'/t op stap ',self.ctr)
-        a = np.zeros((6,1))   # added to convert the output of the agent to the simulation env
-        a[action - 1] = 1
-#        action = a
-
-        a = a.reshape((3, 2))
-        actionMap = [1,-1]
-
-        act = a * actionMap
-        act = np.max(act, axis=1) + np.min(act, axis=1)
-
         # save previous state of the robot
         stateAng = self.robot.jointAngles
+        # map the 6 outputs from the NN to the actions one can take
+        act = self.actionToRoboAction(action)
         # move the robot
         self.robot.moveJoints(act, self.addNoise)
 
@@ -89,6 +76,14 @@ class SimulationEnvironment:
 
         return [state, r, done, self.ctr]  # return [state, reward, done, timestep]
 
+    def actionToRoboAction(self,action):
+        a = np.zeros((6,1))   # added to convert the output of the agent to the simulation env
+        a[action - 1] = 1
+#        action = a
+        a = a.reshape((3, 2))
+        actionMap = [1,-1]
+        act = a * actionMap
+        return np.max(act, axis=1) + np.min(act, axis=1)
 
     def reset(self):
         """resets the robot and the environment, and also returns the state"""
@@ -157,23 +152,32 @@ class SimulationEnvironment:
         # check whether the window was closed.
         continiue = True
         while continiue:
-            action = input("action?")
-            # reset
-            if action == 'r':
-                # a bit of recurion
-                self.runTestMode(fromTestConsts)
-                break
-            if action == 'q':
-                # this will quit the window
-                continiue = False
-                pygame.quit()
-                break
+            Act = False
+            for evt in pygame.event.get():
+                if evt.type == pygame.KEYDOWN:
+                    if evt.key == pygame.K_r:
+                        # a bit of recurion
+                        self.runTestMode(fromTestConsts)
+                        continiue = False
+                        break 
+                    elif evt.key == pygame.K_q or (evt.type == pygame.QUIT):
+                        # this will quit the window
+                        continiue = False
+                        pygame.quit()
+                        break
+                    elif evt.key == pygame.K_1: action = 1; Act = True
+                    elif evt.key == pygame.K_2: action = 2; Act = True
+                    elif evt.key == pygame.K_3: action = 3; Act = True
+                    elif evt.key == pygame.K_4: action = 4; Act = True
+                    elif evt.key == pygame.K_5: action = 5; Act = True
+                    elif evt.key == pygame.K_6: action = 6; Act = True
+                    else: print('This key does nothing')
             # take a step
-            action = int(action)
-            if action > 7 or action < 1: print('try a valid action nr')
-            else:
+            if Act:
+                print('1 step with a = ',action)
+                act = self.actionToRoboAction(action)
                 # move the robot
-                self.robot.moveJoints(action, self.addNoise)
+                self.robot.moveJoints(act, self.addNoise)
                 [col, dist] = self.checkNOCollision()
                 [r, reachGoal] = self.computeReward(dist, not col)
                 print('Used angles ',np.degrees(self.robot.jointAngles),' minD ',dist)

@@ -9,7 +9,7 @@ prevent the discounted reward problem. And the RNN is changed to a NN
 """
 
 import threading
-#import multiprocessing
+#import multiprocessingq
 import numpy as np
 #import matplotlib.pyplot as plt
 import tensorflow as tf

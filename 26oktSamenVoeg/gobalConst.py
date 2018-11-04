@@ -22,7 +22,7 @@ EVAL_FOLDER = 'run3novSetupLinit5050G99' # The folder that holds the model and t
 #EVAL_MODEL_PATH = tussen + "/model"
 EVAL_NR_OF_GAMES = 100
 # ===================================================================
-# PARS FOR ANGLE/BODY TEST MODE
+# PARS FOR ANGLE/BODY TEST MODE (only works if EVAL_MODE = FALSE !!!)
 TEST_MODE = True
 TEST_fromTestConsts = True
 TEST_U_INPUT = True
