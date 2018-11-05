@@ -21,7 +21,7 @@ import gobalConst as cn
 #from helper import * # had to pip it
 #from vizdoom import *
 #import gym # had to pip it and then had to pip gym[atari], then had to pip make, but better from right to left :P!
-import SimulationEnvironment as sim
+import SimulationEnvironment_test as sim
 import pygame
 #from random import choice
 #from time import sleep
@@ -130,7 +130,7 @@ class Worker():
 
         self.actions = [1,2,3,4,5,6]
         self.sleep_time = 0.028
-        self.env = sim.SimulationEnvironment()
+        self.env = sim.SimulationEnvironment2()
         self.r = 0
 
     def train(self,global_AC,rollout,sess,gamma,bootstrap_value):
@@ -140,18 +140,6 @@ class Worker():
         rewards = rollout[:,2]
 #        next_observations = rollout[:,3]
         values = rollout[:,5]
-
-        if(len(rewards) < 30):
-#            rewards = np.asarray(rewards)
-            x = np.repeat([rollout[0]], 30-len(rewards), axis=0)
-            rollout = np.concatenate((rollout, x), axis=0)
-
-            rollout = np.array(rollout)
-            observations = rollout[:,0]
-            actions = rollout[:,1]
-            rewards = rollout[:,2]
-#            next_observations = rollout[:,3]
-            values = rollout[:,5]
 
         # Here we take the rewards and values from the rollout, and use them to
         # generate the advantage and discounted returns.
@@ -187,6 +175,18 @@ class Worker():
             self.local_AC.apply_grads],
             feed_dict=feed_dict)
         return v_l / len(rollout),p_l / len(rollout),e_l / len(rollout), g_n, v_n, adv/len(rollout)
+
+    def pretrain(self, train_length, global_AC, sess):
+
+        for i in train_length:
+            #Take an action using probabilities from policy network output.
+            a_dist,v = sess.run([self.local_AC.policy,self.local_AC.value],
+                    feed_dict={self.local_AC.inputs:[s]})
+
+            # generate data
+
+        # update global network
+        sess.run(self.update_local_ops)
 
     def work(self,max_episode_length,gamma,global_AC,sess,coord,saver):
         episode_count = sess.run(self.global_episodes)
@@ -330,19 +330,19 @@ with tf.Session() as sess:
     # Start the "work" process for each worker in a separate threat.
     # this list contains the worker threads which are running
        # solves the problem of making it responsive
-#    workers[0].work(cn.run_MaxEpisodeLenght,cn.run_Gamma,master_network,sess,coord,saver)
-#
+    workers[0].work(cn.run_MaxEpisodeLenght,cn.run_Gamma,master_network,sess,coord,saver)
+
     worker_threads = []
 #     Loop the workers and start a thread for each
-    for worker in workers:
-        # define a function that executes the work method of each worker
-        worker_work = lambda: worker.work(cn.run_MaxEpisodeLenght ,cn.run_Gamma,master_network,sess,coord,saver)
-        # execute the function in a new thread
-        t = threading.Thread(target=(worker_work))
-        # start thread
-        t.start()
-        # keep track of the threads
-        worker_threads.append(t)
+#    for worker in workers:
+#        # define a function that executes the work method of each worker
+#        worker_work = lambda: worker.work(cn.run_MaxEpisodeLenght ,cn.run_Gamma,master_network,sess,coord,saver)
+#        # execute the function in a new thread
+#        t = threading.Thread(target=(worker_work))
+#        # start thread
+#        t.start()
+#        # keep track of the threads
+#        worker_threads.append(t)
     gs = 0
 #     The coordinator has the overview and while it wants to continue:
 #     This routine probes the training proces and prints an update, every 10 seconds.

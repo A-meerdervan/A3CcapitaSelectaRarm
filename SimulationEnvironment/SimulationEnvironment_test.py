@@ -18,15 +18,15 @@ import gobalConst as cn
 #def importPygame():
 #    import pygame
 
-class SimulationEnvironment:
+class SimulationEnvironment2:
     def __init__(self, WINDOW_WIDTH = 400, WINDOW_HEIGHT = 400):
         self.screen = 0 #pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.zeroPosition = ([cn.sim_WINDOW_WIDTH/2, cn.sim_WINDOW_HEIGHT])   # reference for drawing
         self.WINDOW_HEIGHT = cn.sim_WINDOW_HEIGHT
         self.WINDOW_WIDTH = cn.sim_WINDOW_WIDTH
         self.robot = Robot.Robot([100,100,80,20], np.radians(np.array([105,-90,120])))
-        self.envWalls = np.array([[(120,400), (120,300)], [(120,300), (40,300)], [(40,300),
-                      (40,140)], [(40,140), (280,140)], [(280,140), (280,400)], [(280,400),(120,400)]])
+        self.envWalls = np.array([[(120,480), (120,300)], [(120,300), (40,300)], [(40,300),
+                      (40,140)], [(40,140), (480,140)], [(480,140), (480,480)], [(480,480),(120,480)]])
 #        self.envWalls = np.array([[(10,400),(10,140)], [(10,140), (280,140)], [(280,140), (280,400)], [(280,400),(10,400)]])
         self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
 #        self.envWallSide = ['l', 't', 'r', 'b']
@@ -39,6 +39,8 @@ class SimulationEnvironment:
         self.ctr = 0
 #        self.reward = 0
         self.clock = pygame.time.Clock()
+        self.image = pygame.image.load('armImage3.png')
+        pygame.display.set_caption('Robot arm simulation')
 
         if (self.randomGoal):
             self.goal = self.createRandomGoal()
@@ -213,12 +215,41 @@ class SimulationEnvironment:
         endEffector = [(x_3,y_3),(x_ee,y_ee)]
 
         thickness = self.robot.width
-        pygame.draw.lines(self.screen, colour, False, pointlist, thickness)
         pygame.draw.lines(self.screen, colour, False, endEffector, 2)
 
-        pygame.display.flip()
+        imgs = self.rescaleArmImgs()
+        for i in range(len(imgs)):
+            middle = np.asarray(imgs[i].get_size()) / 2
+
+            pos = np.add(pointlist[i], pointlist[i+1]) / 2 - middle
+            self.screen.blit(imgs[i], pos)
+
+            pygame.draw.circle(self.screen, colour, (int(pointlist[i][0]),
+                                                     int(pointlist[i][1])), int(thickness/2), 0)
+
+        pygame.display.update()
 
         return [(x_0, y_0), (x_1,y_1),(x_2,y_2),(x_3,y_3),(x_ee,y_ee)]
+
+    def rescaleArmImgs(self):
+        w = self.robot.width
+        l = self.robot.jointLength
+        th = self.robot.jointAngles
+
+        ctr =  0
+        ang = -90
+        imgs = []
+        for i in th:
+            im = pygame.transform.scale(self.image, (w, l[ctr]))
+            ang = ang + np.degrees(i)
+            im = pygame.transform.rotate(im, ang)
+
+            imgs = np.append(imgs, im)
+
+            ctr += 1
+
+        return imgs
+
 
     def isPointInEnvironment(self, point):
         """ find four walls surrounding the point. If no four points can be found, the point is not
@@ -302,9 +333,9 @@ class SimulationEnvironment:
         initCorrect = False
         while(not initCorrect):
 #            th = np.array([0,0,0])
-            th = (np.random.random_sample((3)) - 0.5) * 2* maxTheta + np.radians([90, 0, 0])
+            th = (np.random.random_sample((3)) - 0.5) * maxTheta
             self.robot.jointAngles = th
-            print th
+
             [initCorrect, dist] = self.checkNOCollision()
 
         return
@@ -421,8 +452,15 @@ class SimulationEnvironment:
             self.computeDistanceJointsTOWalls(pSense, wSense, i)
 
             # both sides of the joint
-            p1 = np.array([l[2*i] - w ,l[2*i+1]])
-            p2 = np.array([l[2*i] + w ,l[2*i+1]])
+            if (i < 2):
+                p1 = np.array([l[2*i] - w ,l[2*i+1]])
+                p2 = np.array([l[2*i] + w ,l[2*i+1]])
+            else:
+                # TODO: fix this
+                th = sum(self.robot.jointAngles)
+                x_delta = (self.robot.width/2) * np.cos(th+np.radians(90))
+                y_delta = (self.robot.width/2) * np.sin(th+np.radians(90))
+                print(np.degrees(th),'   ',  x_delta, '   ', y_delta)
 
             [b1, wall1] = self.isPointInEnvironment(p1)
             [b2, wall2] = self.isPointInEnvironment(p2)

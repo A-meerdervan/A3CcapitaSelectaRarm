@@ -59,4 +59,7 @@ class Robot:
                 self.jointAngles = self.jointAngles - self.stepSize*joint - noise*joint
                 break
 
+        if (self.jointAngles[1] + self.jointAngles[2] > np.radians(360)):
+            print('oooopss penatrating myself now!')
+
         return self.jointAngles

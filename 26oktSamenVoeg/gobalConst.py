@@ -10,7 +10,7 @@ import numpy as np
 ENV_IS_RARM = True
 
 # PARS FOR EVALUATION ONLY
-EVAL_MODE = True
+EVAL_MODE = False
 EVAL_RENDER = True # only relevant ruing evaluation episodes
 EVAL_SHOW_NORMAL_SPEED = True # only relevant during evaluation episodes
 EVAL_FPS = 60 # only relevant during evalutation episodes
@@ -52,13 +52,13 @@ rob_StepSize = np.radians(1.4)
 rob_MaxJointAngle = np.radians(np.array([170,-170]))
 rob_JointLenght = [100,100,80,20]#[10, 10, 5, 5] # 100,100,80,20
 rob_JointWidth = 10
-#rob_ResetAngles = np.radians(np.array([65,115,-115]))
-rob_ResetAngles = np.radians(np.array([115,-95,115])) # this is used with randomWalls = True in 31 okt runs
+#rob_ResetAngles = np.radians(np.array([65,115,-115]))[110,-110,-150]
+rob_ResetAngles = np.radians(np.array([40,110,150])) # this is used with randomWalls = True in 31 okt runs
 #rob_ResetAngles = np.radians(np.array([130,-140,140])) # this was used during the 29okt runs
 
-run_Render = False
+run_Render = True
 run_NumOfWorkers = 12
-run_MaxEpisodeLenght = 50
+run_MaxEpisodeLenght = 1
 run_FPS = 15
 run_Gamma = .98 # discount rate for advantage estimation and reward discounting
 run_sSize = 17 # Observations are greyscale frames of 84 * 84 * 1

@@ -29,6 +29,7 @@ class SimulationEnvironment:
                       (40,140)], [(40,140), (280,140)], [(280,140), (280,400)], [(280,400),(120,400)]])
 #        self.envWalls = np.array([[(10,400),(10,140)], [(10,140), (280,140)], [(280,140), (280,400)], [(280,400),(10,400)]])
         self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
+
 #        self.envWallSide = ['l', 't', 'r', 'b']
         self.envPoints = [0] #self.wallsTOPoints(self.envWalls)
         self.addNoise = cn.sim_AddNoise
@@ -43,6 +44,10 @@ class SimulationEnvironment:
 
         if (self.randomGoal):
             self.goal = self.createRandomGoal()
+
+        self.pointsTOWalls(np.array([(120,400), (120,300), (40,300) ,(40,140), (280,140), (280,400)]))
+        self.image = pygame.image.load('armImage3.png')
+        pygame.display.set_caption('Robot arm simulation')
 
     def step(self, action):
         # map the 6 outputs from the NN to the actions one can take
@@ -63,12 +68,60 @@ class SimulationEnvironment:
 
         # save previous state of the robot
         stateAng = self.robot.jointAngles
+        senseDist = self.senseDistances
+        distEE = self.distanceEndEffector
+
         # move the robot
         #print('act ',act) This does change!
         self.robot.moveJoints(act, self.addNoise)
 
         [col, dist] = self.checkNOCollision()
         [r, reachGoal] = self.computeReward(dist, not col)
+
+        # Prikkeldraad code!
+        done = False
+        # if a collision occured then set the robot angles back
+        #print('Col detected after action ',not col)
+        if not col:
+            self.wallHits += 1
+            # Restore the state
+            self.robot.jointAngles = stateAng
+            self.senseDistances = senseDist
+            self.distanceEndEffector = distEE
+        elif reachGoal:
+            done = True
+
+        # increase count
+        self.ctr = self.ctr + 1
+
+        state = self.getState()
+
+        self.reward = r # TODO: temporary lines!
+#        self.clock.tick(10)
+
+        return [state, r, done, self.ctr]  # return [state, reward, done, timestep]
+
+    # TODO: fix this function
+    def stepRealWorld(self, action):
+        a = np.zeros((6,1))   # added to convert the output of the agent to the simulation env
+        a[action - 1] = 1
+
+        a = a.reshape((3, 2))
+        actionMap = [1,-1]
+
+        act = a * actionMap
+        act = np.max(act, axis=1) + np.min(act, axis=1)
+
+        # save previous state of the robot
+        stateAng = self.robot.jointAngles
+        # move the robot in simulation
+        self.robot.moveJoints(act, self.addNoise)
+
+        [col, dist] = self.checkNOCollision()
+        [r, reachGoal] = self.computeReward(dist, not col)
+
+        # if there is no collision, move the robot in the real world
+
 
         # Prikkeldraad code!
         done = False
@@ -88,8 +141,7 @@ class SimulationEnvironment:
         self.reward = r # TODO: temporary lines!
 #        self.clock.tick(10)
 
-        return [state, r, done, self.ctr]  # return [state, reward, done, timestep]
-
+        return [state, r, done, self.ctr]
 
     def reset(self):
         """resets the robot and the environment, and also returns the state"""
@@ -103,7 +155,7 @@ class SimulationEnvironment:
         self.wallHits = 0 # reset the number of times the wall was hit
 
         if cn.rob_RandomWalls:
-            self.setRandomEnv()
+            self.setsRandomEnv()
 
         if (self.randomGoal):
             self.goal = self.createRandomGoal()
@@ -292,12 +344,40 @@ class SimulationEnvironment:
         endEffector = [(x_3,y_3),(x_ee,y_ee)]
 
         thickness = self.robot.width
-        pygame.draw.lines(self.screen, colour, False, pointlist, thickness)
         pygame.draw.lines(self.screen, colour, False, endEffector, 2)
 
-        pygame.display.flip()
+        imgs = self.rescaleArmImgs()
+        for i in range(len(imgs)):
+            middle = np.asarray(imgs[i].get_size()) / 2
+
+            pos = np.add(pointlist[i], pointlist[i+1]) / 2 - middle
+            self.screen.blit(imgs[i], pos)
+
+            pygame.draw.circle(self.screen, colour, (int(pointlist[i][0]),
+                                                     int(pointlist[i][1])), int(thickness/2), 0)
+
+        pygame.display.update()
 
         return [(x_0, y_0), (x_1,y_1),(x_2,y_2),(x_3,y_3),(x_ee,y_ee)]
+
+    def rescaleArmImgs(self):
+        w = self.robot.width
+        l = self.robot.jointLength
+        th = self.robot.jointAngles
+
+        ctr =  0
+        ang = -90
+        imgs = []
+        for i in th:
+            im = pygame.transform.scale(self.image, (w, l[ctr]))
+            ang = ang + np.degrees(i)
+            im = pygame.transform.rotate(im, ang)
+
+            imgs = np.append(imgs, im)
+
+            ctr += 1
+
+        return imgs
 
     def isPointInEnvironment(self, point):
         """ find four walls surrounding the point. If no four points can be found, the point is not
@@ -358,7 +438,8 @@ class SimulationEnvironment:
         minx = np.min(self.envWalls[:,0,0])
         maxx = np.max(self.envWalls[:,0,0])
         miny = np.min(self.envWalls[:,0,1])
-        maxy = np.max(self.envWalls[:,0,1])
+#        maxy = np.max(self.envWalls[:,0,1])
+        maxy = self.WINDOW_HEIGHT - self.robot.jointLength[0] - 20
 
         th = cn.sim_thresholdWall
         pointCorrect = False
@@ -400,7 +481,7 @@ class SimulationEnvironment:
         initCorrect = False
         while(not initCorrect):
 #            th = np.array([0,0,0])
-            th = (np.random.random_sample((3)) - 0.5) * maxTheta
+            th = (np.random.random_sample((3)) - 0.5) * 2 * maxTheta + np.radians([90, 0, 0])
             self.robot.jointAngles = th
 
             [initCorrect, dist] = self.checkNOCollision()
@@ -415,6 +496,24 @@ class SimulationEnvironment:
             points = np.vstack((points, walls[i,0]))
 
         return points
+
+    def pointsTOWalls(self, points):
+        """environment defined in points. This can be converted into the walls
+         of the environment"""
+        # necessary or init of the array
+#        walls = np.array([points[0], points[1]])
+
+        walls = np.zeros((len(points), 2, 2))
+        for i in range(0, len(points) - 1):
+            w = np.array([points[i], points[i + 1]])
+#            walls = np.hstack((walls, w))
+            walls[i] = w
+
+        # last one needs to be added manually
+        x = np.array([points[len(points)-1], points[0]])
+        walls[len(points)-1] = x
+
+        return walls
 
     def findCornerPoint(self,cornerPoints, j1, j2):
         """uses two joint positions to see with which points the joint could possibly
@@ -573,6 +672,67 @@ class SimulationEnvironment:
                     return [False, 0]
 
         return [True, distance]
+
+    def setsRandomEnv(self):
+        # get the random envNr
+        envNr = np.random.randint(1, 4 + 1)
+#        envNr = 4
+#        minWallSize = 50
+        minW = 60
+        # Switch between environments per reset of the environment.
+        # This is a pipe which a corner to the left (most used during training. Our first env.)
+
+        # turn to the left
+        if envNr == 1:
+            wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW*2-1)
+            wx1 = np.random.randint(wx0 + minW, self.WINDOW_WIDTH/2 - minW)
+            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW, self.WINDOW_WIDTH)
+            wy0 = 400
+            wy2 = np.random.randint(minW, self.WINDOW_HEIGHT/2)
+            wy1 = np.random.randint(wy2 + minW, wy0 - minW)
+
+            self.envPoints = np.array([(wx1, wy0), (wx1, wy1), (wx0, wy1), (wx0, wy2), (wx2, wy2), (wx2, wy0)])
+            self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
+        # A pipe which is straight up
+        elif envNr == 2:
+            wx0 = np.random.randint(0, self.WINDOW_WIDTH/2 - 50)
+            wx1 = np.random.randint(self.WINDOW_WIDTH/2 + 50, self.WINDOW_WIDTH)
+            wy0 = self.WINDOW_HEIGHT
+            wy1 = np.random.randint(0, self.WINDOW_HEIGHT / 2 - 50)
+
+            self.envPoints = np.array([(wx0,wy0), (wx0, wy1), (wx1, wy1), (wx1, wy0)])
+            self.envWallSide = ['l', 't','r', 'b']
+        # this is a T shaped pipe
+        elif envNr == 3:
+            wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW*2-1)
+            wx1 = np.random.randint(wx0 + minW, self.WINDOW_WIDTH/2 - minW)
+            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW, self.WINDOW_WIDTH - minW)
+            wx3 = np.random.randint(wx2 + minW, self.WINDOW_WIDTH)
+            wy0 = 400
+            wy2 = np.random.randint(minW, self.WINDOW_HEIGHT/2)
+            wy1 = np.random.randint(wy2 + minW, wy0 - minW)
+
+            self.envPoints = np.array([(wx1, wy0), (wx1, wy1), (wx0, wy1), (wx0, wy2), (wx3, wy2), (wx3, wy1), (wx2, wy1), (wx2, wy0)])
+            self.envWallSide = ['l', 'b','l', 't', 'r', 'b','r','b']
+        # this is a turn to the right
+        elif envNr == 4:
+            wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW)
+            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + 2*minW+1, self.WINDOW_WIDTH)
+            wx1 = np.random.randint(self.WINDOW_WIDTH/2 + minW, wx2 - minW)
+
+            wy0 = 400
+            wy2 = np.random.randint(minW, self.WINDOW_HEIGHT/2)
+            wy1 = np.random.randint(wy2 + minW, wy0 - minW)
+
+            self.envPoints = np.array([(wx0, wy0), (wx0, wy2), (wx2, wy2), (wx2, wy1), (wx1, wy1), (wx1, wy0)])
+            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
+        else:
+            raise NameError('envNr was out of range, no such environment defined')
+
+        self.envWalls = self.pointsTOWalls(self.envPoints)
+
+        return
+
 
 #class EnvironmentCreator:
 #    def __init__(self):
