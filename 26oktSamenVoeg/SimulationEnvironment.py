@@ -26,12 +26,7 @@ class SimulationEnvironment:
         self.WINDOW_HEIGHT = cn.sim_WINDOW_HEIGHT
         self.WINDOW_WIDTH = cn.sim_WINDOW_WIDTH
         self.robot = Robot.Robot([100,100,80,20], np.radians(np.array([105,-90,120])))
-        self.envWalls = np.array([[(120,400), (120,300)], [(120,300), (40,300)], [(40,300),
-                      (40,140)], [(40,140), (280,140)], [(280,140), (280,400)], [(280,400),(120,400)]])
-#        self.envWalls = np.array([[(10,400),(10,140)], [(10,140), (280,140)], [(280,140), (280,400)], [(280,400),(10,400)]])
-        self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
-#        self.envWallSide = ['l', 't', 'r', 'b']
-        self.envPoints = [0] #self.wallsTOPoints(self.envWalls)
+        self.getEnv(cn.sim_defaultEnvNr)
         self.addNoise = cn.sim_AddNoise
         self.goal = cn.sim_Goal
         self.senseDistances = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0]])
@@ -41,9 +36,6 @@ class SimulationEnvironment:
         self.wallHits = 0 #nr of times the agent wanted to hit the wall
 #        self.reward = 0
         self.clock = pygame.time.Clock()
-
-        if (self.randomGoal):
-            self.goal = self.createRandomGoal()
 
     def step(self, action):
         # save previous state of the robot
@@ -123,6 +115,13 @@ class SimulationEnvironment:
         self.wallHits = 0 # reset the number of times the wall was hit
         if fromTestConsts:
             self.robot.jointAngles = cn.TEST_rob_ResetAngles
+            if cn.rob_RandomWalls:
+                self.setRandomEnv()
+            if (self.randomGoal):
+                self.goal = self.createRandomGoal()
+            if (cn.rob_RandomInit):
+                self.createRandomInit()
+            
             # use the stuff which is in the rest of the file
         else:
             self.robot.jointAngles = cn.rob_ResetAngles
@@ -181,7 +180,8 @@ class SimulationEnvironment:
                 [col, dist] = self.checkNOCollision()
                 [r, reachGoal] = self.computeReward(dist, not col)
                 print('Used angles ',np.degrees(self.robot.jointAngles),' minD ',dist)
-                print(' r: ',r, ' col? ', not col)    
+                jointLocs = self.robot.computeJointLocations(self.zeroPosition)
+                print('xee ',jointLocs[-2],' yee ',jointLocs[-1],' r: ',r, ' col? ', not col)
                 self.render()
 #            FPS = 5 # check 5 times every second (Frames per s = 1)
 #            self.clock.tick(FPS)
@@ -204,34 +204,36 @@ class SimulationEnvironment:
     def setGoal(self, goal):
         self.goal = goal
 
+    # Switch between environments per reset of the environment.
     def setRandomEnv(self):
-        # get the random envNr
-        rC = 200 # robotCenter, the x pos of the arm bottom
         envNr = np.random.randint(1, 8 + 1)
-        envNr =8
-        # Switch between environments per reset of the environment.
+        self.getEnv(envNr)
+    
+    def getEnv(self,envNr):        
+        rC = 200 # robotCenter, the x pos of the arm bottom        
+        #envNr = 7
+        
         # This is a pipe witch a corner to the left (most used during training. Our first env.)
         if envNr == 1:
-            self.envWalls = np.array([[(120,400), (120,300)], [(120,300), (40,300)], [(40,300),
-                      (40,140)], [(40,140), (280,140)], [(280,140), (280,400)], [(280,400),(120,400)]])
+            pR = 80 # the width of the pipe
+            self.envWalls = np.array([[(rC-pR,400), (rC-pR,300)], [(rC-pR,300), (40,300)], [(40,300),
+                      (40,140)], [(40,140), (rC+pR,140)], [(rC+pR,140), (rC+pR,400)], [(rC+pR,400),(rC-pR,400)]])
             self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
         # A pipe witch is straight up and wide
         elif envNr == 2:
-            rC = 200 # robotCenter, the x pos of the arm bottom
-            pR = 80 # the width of the pipe
+            pR = 90 # the width of the pipe
             self.envWalls = np.array([[(rC-pR,400), (rC-pR,100)], [(rC-pR,100), (rC+pR,100)], [(rC+pR,100),
                       (rC+pR,400)], [(rC+pR,400), (rC-pR,400)]])
             self.envWallSide = ['l', 't','r', 'b']
         # A pipe witch is straight up and narrower
         elif envNr == 3:
-            rC = 200 # robotCenter, the x pos of the arm bottom
-            pR = 70 # the width of the pipe
+            pR = 82 # the width of the pipe
             self.envWalls = np.array([[(rC-pR,400), (rC-pR,100)], [(rC-pR,100), (rC+pR,100)], [(rC+pR,100),
                       (rC+pR,400)], [(rC+pR,400), (rC-pR,400)]])
             self.envWallSide = ['l', 't','r', 'b']
         # this is a T shaped pipe
         elif envNr == 4:
-            pR = 72 # the width of the pipe
+            pR = 86 # the width of the pipe
             tYe = 130
             self.envWalls = np.array([[(rC-pR,400), (rC-pR,300)], [(rC-pR,300), (45,300)], [(45,300),
                       (45,tYe)], [(45,tYe), (355,tYe)], [(355,tYe), (355,300)], [(355,300),(rC+pR,300)],[(rC+pR,300),(rC+pR,400)],[(rC+pR,400),(rC-pR,400)]])
@@ -241,7 +243,7 @@ class SimulationEnvironment:
         elif envNr == 5:
             tYs = 250 # rurnYstart This is the start of the right side of the pipe
             tYe = 130 #turn Y end, the top op the pipe
-            pR = 70 # the width of the pipe
+            pR = 85 # the width of the pipe
             self.envWalls = np.array([[(rC-pR,400), (rC-pR,tYe)], [(rC-pR,tYe), (355,tYe)], [(355,tYe),
                       (355,tYs)], [(355,tYs),(rC+pR,tYs)],[(rC+pR,tYs),(rC+pR,400)],[(rC+pR,400),(rC-pR,400)]])
             self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
@@ -249,7 +251,7 @@ class SimulationEnvironment:
         elif envNr == 6:
             tYs = 270 # rurnYstart This is the start of the right side
             tYe = 110 #turn Y end, the top of the pipe
-            pR = 73 # the width of the pipe
+            pR = 83 # the width of the pipe
             self.envWalls = np.array([[(rC-pR,400), (rC-pR,tYe)], [(rC-pR,tYe), (355,tYe)], [(355,tYe),
                       (355,tYs)], [(355,tYs),(rC+pR,tYs)],[(rC+pR,tYs),(rC+pR,400)],[(rC+pR,400),(rC-pR,400)]])
             self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
@@ -257,8 +259,9 @@ class SimulationEnvironment:
         elif envNr == 7:
             tYs = 300 # rurnYstart This is the start of the right side
             tYe = 140 #turn Y end, the top op the pipe
-            self.envWalls = np.array([[(140,400), (140,tYe)], [(140,tYe), (355,tYe)], [(355,tYe),
-                      (355,tYs)], [(355,tYs),(260,tYs)],[(260,tYs),(260,400)],[(260,400),(140,400)]])
+            pR = 80 # the width of the pipe
+            self.envWalls = np.array([[(rC-pR,400), (rC-pR,tYe)], [(rC-pR,tYe), (355,tYe)], [(355,tYe),
+                      (355,tYs)], [(355,tYs),(rC+pR,tYs)],[(rC+pR,tYs),(rC+pR,400)],[(rC+pR,400),(rC-pR,400)]])
             self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
         # This environment is to move freely. TODO, get rid of maxY handicap
         elif envNr == 8:
@@ -436,30 +439,10 @@ class SimulationEnvironment:
 
     def createRandomGoal(self):
         # create a random goal that sits within the environment AND reach of the robot
-        minx = np.min(self.envWalls[:,0,0])
-        maxx = np.max(self.envWalls[:,0,0])
-        miny = np.min(self.envWalls[:,0,1])
-        maxy = cn.sim_Y_threshold_goal #np.max(self.envWalls[:,0,1])
-
-        th = cn.sim_thresholdWall
-        pointCorrect = False
-        while(not pointCorrect):
-            x = np.random.randint(minx, maxx)
-            y = np.random.randint(miny, maxy)
-
-            # check if chosen point is in the environment
-            [pointCorrect, w] = self.isPointInEnvironment(np.array([x,y]))
-            # check how far the point is to each of the walls (only checks horizontal and vertical axis)
-            dist = self.computeMinDistanceJointsTOWalls(np.array([x,y]), w)
-            # check the minimum distance the point is from either the walls or a corner in the env
-            dist = min(dist, self.computeMinDistanceToCorner(np.array([x,y])))
-
-            d = np.array([x,y]) - self.zeroPosition
-            d = np.sqrt(d[0]**2 + d[1]**2)
-            if (d > self.robot.reach or dist < th):
-                pointCorrect = False
-
-        return np.array([x,y])
+        # the end effector location of a random body config is used as the 
+        # goal location.
+        notUsed,xee,yee = self.getRandomAllowedBodyConfig()
+        return np.array([int(xee),int(yee)])
 
     def computeMinDistanceToCorner(self, p):
         if len(self.envPoints) == 1:
@@ -483,21 +466,46 @@ class SimulationEnvironment:
                 # Init for going left
                 self.robot.jointAngles = cn.rob_ResetAngles_Right
             else: # Create an uniformly chosen robot configuration
-                #TODO maybe make it not start arbitrarily close to the wall
-                maxTheta = self.robot.maxJointAngle[0]
-                # this loop gets some possible angles and checks whether they are 
-                # possible given the env, it tries for as long as it needs to get
-                # correct angles.
-                initCorrect = False
-                while(not initCorrect):
-                    th = (np.random.random_sample((3)) - 0.5) * maxTheta
-                    self.robot.jointAngles = th
-                    [initCorrect, minDtoWall] = self.checkNOCollision()
-                    # In case the goal is placed within the treshold distance
-                    # of a wall, than try again for a better init.
-                    if minDtoWall < cn.sim_thresholdWall:
-                        initCorrect = False
+                angles,xee,yee = self.getRandomAllowedBodyConfig()
+                self.robot.jointAngles = angles
             return
+    # This function gets a randomly chosen body configuration which fits in the
+    # environment and repects its max angles.
+    def getRandomAllowedBodyConfig(self):
+        savedAngles = self.robot.jointAngles # save to restore at the end
+        maxAngls = self.robot.maxJointAngle
+        initCorrect = False
+        while(not initCorrect):
+            R = np.random.random_sample((3)) # get 3 values from 0 to 1
+            th = np.zeros(3) # init the angles
+            for i in range(3):
+                # have the angles range from their min and max value
+                th[i] = maxAngls[0+2*i] + R[i]*(maxAngls[1+2*i] - maxAngls[0+2*i])
+            self.robot.jointAngles = th
+            [initCorrect, minDtoWall] = self.checkNOCollision()
+            # In case the goal is placed within the treshold distance
+            # of a wall, than try again for a better one
+            if minDtoWall < cn.sim_thresholdWall:
+                initCorrect = False
+                
+        # now a succesful configuration has been found
+        # get a point for the location of the end effector:
+        jointLocs = self.robot.computeJointLocations(self.zeroPosition)
+        # restore the robot's jointAngles:
+        self.robot.jointAngles = savedAngles
+        # return, jointAngles, endEffectorX, endEffectorY
+        return th,jointLocs[-2],jointLocs[-1]
+    
+    def createHeatMap(self,envNr,totalDots):
+        self.getEnv(envNr)
+        # These will contain the possible end effector points
+        Xpts = []#np.zeros(totalDots)
+        Ypts = []#np.zeros(totalDots)
+        for i in range(totalDots):
+            notUsed,xee,yee = self.getRandomAllowedBodyConfig()
+            Xpts.append(xee); Ypts.append(yee)
+        return Xpts,Ypts
+        
     def wallsTOPoints(self,walls):
         """environment is defined in walls. This can be converted into the corner
         points of the environment"""
@@ -590,11 +598,6 @@ class SimulationEnvironment:
         return True
 
     def checkNOCollision(self):
-        # cannot collide with itself now
-#        c = self.checkNOCollisionWithItself()
-#        if not c:
-#            return [c, 0]
-
         """ checks if the robot is fully in the environment. Returns True if there is no collision"""
         [x_0,y_0,x_1,y_1,x_2,y_2,x_3,y_3,x_ee,y_ee] = self.robot.computeJointLocations(self.zeroPosition)
 

@@ -49,14 +49,10 @@ class Robot:
         self.jointAngles = self.jointAngles + self.stepSize*joint + noise*joint
 
         # check if the robot does not clash with itself
-        for j in self.jointAngles:
-#            if (j > 3.141592653589793):
-#                j = j - 3.141592653589793
-#            elif(j < -3.141592653589793):
-#                j = j + 3.141592653589793
-            # if one of the angles exceeds the maximum angle, then revert back to the previous angle
-            if (j > self.maxJointAngle[0] or j < self.maxJointAngle[1]):
-                self.jointAngles = self.jointAngles - self.stepSize*joint - noise*joint
-                break
-
+        badAngle = False
+        if (self.jointAngles[0] > self.maxJointAngle[0]) or (self.jointAngles[0] < self.maxJointAngle[1]): badAngle = True;
+        elif (self.jointAngles[1] > self.maxJointAngle[2]) or (self.jointAngles[1] < self.maxJointAngle[3]): badAngle = True;
+        elif (self.jointAngles[2] > self.maxJointAngle[4]) or (self.jointAngles[2] < self.maxJointAngle[5]): badAngle = True;
+        if badAngle:
+            self.jointAngles = self.jointAngles - self.stepSize*joint - noise*joint
         return self.jointAngles
