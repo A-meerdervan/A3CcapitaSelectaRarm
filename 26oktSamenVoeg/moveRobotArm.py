@@ -6,9 +6,10 @@ Created on Mon Nov  5 11:47:13 2018
 """
 from dynamixel_sdk import *                    # Uses Dynamixel SDK library
 import numpy as np
+import time
 
 class RobotController:
-    def __init__(self):
+    def __init__(self, serialPort = 'COM1', _print = True):
         self.maxAngles = np.radians([[0,180], [-90,90], [-90,90]])
 
         # set the default values for the controller
@@ -35,14 +36,14 @@ class RobotController:
 #        self.ESC_CHARACTER               = 'e'          # Key for escaping loop
 
         self.COMM_SUCCESS                = 0            # Communication Success result value
-        self.COMM_TX_FAIL                = -1001        # Communication Tx Failed
+        self.COMM_TX_FAIL                = -3001        # Communication Tx Failed
 
         self.DXL1_ID = 32 #test
         self.DXL2_ID = 33
         self.DXL3_ID = 34
-        self.SERIAL_PORT = 'COM1'
+        self.SERIAL_PORT = serialPort
 
-        self.initCommunication(True)
+        self.initCommunication(_print)
 
 
     def initCommunication(self, _print):
@@ -64,10 +65,10 @@ class RobotController:
             if (_print):
                 print("Failed to open the port")
                 print("Press any key to terminate...")
-            getch()
+#            getch()
             quit()
 
-        # Set port baudrate
+#         Set port baudrate
         if self.portHandler.setBaudRate(self.BAUDRATE):
             if (_print):
                 print("Succeeded to change the baudrate")
@@ -75,34 +76,37 @@ class RobotController:
             if (_print):
                 print("Failed to change the baudrate")
                 print("Press any key to terminate...")
-            getch()
+#            getch()d
             quit()
 
         return
 
     def moveArm(self, armID, angles, _print):
-        if (armID == 1):
+        if (armID == 0):
             DXL_ID = self.DXL1_ID
-        elif (armID == 2):
+        elif (armID == 1):
             DXL_ID = self.DXL2_ID
         else:
             DXL_ID = self.DXL3_ID
 
-        dxl_goal_position = self.convertAnglesToMotor(angles)
+        if (not self.checkAngles(angles)):
+            return
 
-#        # Enable Dynamixel Torque
-#        dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_TORQUE_ENABLE, self.TORQUE_ENABLE)
-#        if dxl_comm_result != COMM_SUCCESS:
-#            print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
-#        elif dxl_error != 0:
-#            print("%s" % self.packetHandler.getRxPacketError(dxl_error))
-#        else:
-#            print("Dynamixel has been successfully connected")
+        dxl_goal_position = self.convertAnglesToMotor(angles).astype(int)
+        print(DXL_ID)
+        # Enable Dynamixel Torque
+        dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_TORQUE_ENABLE, self.TORQUE_ENABLE)
+        if dxl_comm_result != self.COMM_SUCCESS:
+            print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+        else:
+            print("Dynamixel has been successfully connected")
 #
         while 1:
             # Write goal position
-            dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_GOAL_POSITION, dxl_goal_position[armID-1])
-            if dxl_comm_result != COMM_SUCCESS:
+            dxl_comm_result, dxl_error = self.packetHandler.write4ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_GOAL_POSITION, dxl_goal_position[armID])
+            if dxl_comm_result != self.COMM_SUCCESS:
                 if (_print):
                     print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
             elif dxl_error != 0:
@@ -112,24 +116,75 @@ class RobotController:
             while 1:
                 # Read present position
                 dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_PRESENT_POSITION)
-                if dxl_comm_result != COMM_SUCCESS:
+                if dxl_comm_result != self.COMM_SUCCESS:
                     if (_print):
                         print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
                 elif dxl_error != 0:
                     if (_print):
                         print("%s" % self.packetHandler.getRxPacketError(dxl_error))
                 if (_print):
-                    print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_ID, dxl_goal_position[armID-1], dxl_present_position))
+                    print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_ID, dxl_goal_position[armID], dxl_present_position))
 
-                if not abs(dxl_goal_position[armID-1] - dxl_present_position) > self.DXL_MOVING_STATUS_THRESHOLD:
+                if not abs(dxl_goal_position[armID] - dxl_present_position) > self.DXL_MOVING_STATUS_THRESHOLD:
+                    print('got there')
                     break
 
         # Disable Dynamixel Torque
-#        dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_TORQUE_ENABLE, self.TORQUE_DISABLE)
-#        if dxl_comm_result != COMM_SUCCESS:
-#            print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
-#        elif dxl_error != 0:
-#            print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+        dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_TORQUE_ENABLE, self.TORQUE_DISABLE)
+        if dxl_comm_result != self.COMM_SUCCESS:
+            print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+
+    def readCurrentPosition(self, armID, angles):
+        if (armID == 0):
+            DXL_ID = self.DXL1_ID
+        elif (armID == 1):
+            DXL_ID = self.DXL2_ID
+        else:
+            DXL_ID = self.DXL3_ID
+
+        dxl_goal_position = self.convertAnglesToMotor(angles).astype(int)
+        print(dxl_goal_position)
+        dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_TORQUE_ENABLE, self.TORQUE_ENABLE)
+        if dxl_comm_result != self.COMM_SUCCESS:
+            print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+        else:
+            print("Dynamixel has been successfully connected")
+
+        ctr = 0
+        while 1:
+            # Read present position
+            dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_PRESENT_POSITION)
+#            time.sleep(1)
+            print(dxl_comm_result)
+            if dxl_comm_result != self.COMM_SUCCESS:
+                if (_print):
+                    print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
+            elif dxl_error != 0:
+                if (_print):
+                    print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+            if (_print):
+                print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_ID, dxl_goal_position[armID], dxl_present_position))
+
+            ctr += 1
+
+            if ctr > 2:
+                break
+
+        # Disable Dynamixel Torque
+        dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_TORQUE_ENABLE, self.TORQUE_DISABLE)
+        if dxl_comm_result != self.COMM_SUCCESS:
+            print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+
+        time.sleep(5)
+#        quit()
+        return
+
 
     def checkAngles(self, angles):
         ctr = 0
@@ -160,3 +215,12 @@ class RobotController:
         angles = np.radians(angles)
 
         return angles
+
+
+_print = True
+controller = RobotController('COM4', _print)
+
+angles = np.radians(np.array([90,10,-10]))
+
+controller.moveArm(1, angles, _print)
+#controller.readCurrentPosition(0, angles)
