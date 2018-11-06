@@ -142,7 +142,7 @@ class SimulationEnvironment:
         self.wallHits = 0 # reset the number of times the wall was hit
 
         if cn.rob_RandomWalls:
-            self.setsRandomEnv()
+            self.setRandomEnv()
 
         if (self.randomGoal):
             self.goal = self.createRandomGoal()
@@ -157,7 +157,7 @@ class SimulationEnvironment:
             raise NameError('A collission has occured before the robot '
                  + 'had the chance to move! you must redefine your'+
                  'starting angles/reset angles')
-                    # compute reward (as it computes distance to endeffector)
+        # compute reward (as it computes distance to endeffector)
         [r, reachGoal] = self.computeReward(dist, not col)
 
         return self.getState()
@@ -851,65 +851,65 @@ class SimulationEnvironment:
 
         return [True, distance]
 
-    def setsRandomEnv(self):
-        # get the random envNr
-        envNr = np.random.randint(1, 4 + 1)
-#        envNr = 4
-#        minWallSize = 50
-        minW = 60
-        # Switch between environments per reset of the environment.
-        # This is a pipe which a corner to the left (most used during training. Our first env.)
-
-        # turn to the left
-        if envNr == 1:
-            wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW*2-1)
-            wx1 = np.random.randint(wx0 + minW, self.WINDOW_WIDTH/2 - minW)
-            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW, self.WINDOW_WIDTH)
-            wy0 = 400
-            wy2 = np.random.randint(minW, self.WINDOW_HEIGHT/2)
-            wy1 = np.random.randint(wy2 + minW, wy0 - minW)
-
-            self.envPoints = np.array([(wx1, wy0), (wx1, wy1), (wx0, wy1), (wx0, wy2), (wx2, wy2), (wx2, wy0)])
-            self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
-        # A pipe which is straight up
-        elif envNr == 2:
-            wx0 = np.random.randint(0, self.WINDOW_WIDTH/2 - 50)
-            wx1 = np.random.randint(self.WINDOW_WIDTH/2 + 50, self.WINDOW_WIDTH)
-            wy0 = self.WINDOW_HEIGHT
-            wy1 = np.random.randint(0, self.WINDOW_HEIGHT / 2 - 50)
-
-            self.envPoints = np.array([(wx0,wy0), (wx0, wy1), (wx1, wy1), (wx1, wy0)])
-            self.envWallSide = ['l', 't','r', 'b']
-        # this is a T shaped pipe
-        elif envNr == 3:
-            wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW*2-1)
-            wx1 = np.random.randint(wx0 + minW, self.WINDOW_WIDTH/2 - minW)
-            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW, self.WINDOW_WIDTH - minW)
-            wx3 = np.random.randint(wx2 + minW, self.WINDOW_WIDTH)
-            wy0 = 400
-            wy2 = np.random.randint(minW, self.WINDOW_HEIGHT/2)
-            wy1 = np.random.randint(wy2 + minW, wy0 - minW)
-
-            self.envPoints = np.array([(wx1, wy0), (wx1, wy1), (wx0, wy1), (wx0, wy2), (wx3, wy2), (wx3, wy1), (wx2, wy1), (wx2, wy0)])
-            self.envWallSide = ['l', 'b','l', 't', 'r', 'b','r','b']
-        # this is a turn to the right
-        elif envNr == 4:
-            wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW)
-            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + 2*minW+1, self.WINDOW_WIDTH)
-            wx1 = np.random.randint(self.WINDOW_WIDTH/2 + minW, wx2 - minW)
-
-            wy0 = 400
-            wy2 = np.random.randint(minW, self.WINDOW_HEIGHT/2)
-            wy1 = np.random.randint(wy2 + minW, wy0 - minW)
-
-            self.envPoints = np.array([(wx0, wy0), (wx0, wy2), (wx2, wy2), (wx2, wy1), (wx1, wy1), (wx1, wy0)])
-            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
-        else:
-            raise NameError('envNr was out of range, no such environment defined')
-
-        self.envWalls = self.pointsTOWalls(self.envPoints)
-
-        return
+#    def setsRandomEnv(self):
+#        # get the random envNr
+#        envNr = np.random.randint(1, 4 + 1)
+##        envNr = 4
+##        minWallSize = 50
+#        minW = 60
+#        # Switch between environments per reset of the environment.
+#        # This is a pipe which a corner to the left (most used during training. Our first env.)
+#
+#        # turn to the left
+#        if envNr == 1:
+#            wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW*2-1)
+#            wx1 = np.random.randint(wx0 + minW, self.WINDOW_WIDTH/2 - minW)
+#            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW, self.WINDOW_WIDTH)
+#            wy0 = 400
+#            wy2 = np.random.randint(minW, self.WINDOW_HEIGHT/2)
+#            wy1 = np.random.randint(wy2 + minW, wy0 - minW)
+#
+#            self.envPoints = np.array([(wx1, wy0), (wx1, wy1), (wx0, wy1), (wx0, wy2), (wx2, wy2), (wx2, wy0)])
+#            self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
+#        # A pipe which is straight up
+#        elif envNr == 2:
+#            wx0 = np.random.randint(0, self.WINDOW_WIDTH/2 - 50)
+#            wx1 = np.random.randint(self.WINDOW_WIDTH/2 + 50, self.WINDOW_WIDTH)
+#            wy0 = self.WINDOW_HEIGHT
+#            wy1 = np.random.randint(0, self.WINDOW_HEIGHT / 2 - 50)
+#
+#            self.envPoints = np.array([(wx0,wy0), (wx0, wy1), (wx1, wy1), (wx1, wy0)])
+#            self.envWallSide = ['l', 't','r', 'b']
+#        # this is a T shaped pipe
+#        elif envNr == 3:
+#            wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW*2-1)
+#            wx1 = np.random.randint(wx0 + minW, self.WINDOW_WIDTH/2 - minW)
+#            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW, self.WINDOW_WIDTH - minW)
+#            wx3 = np.random.randint(wx2 + minW, self.WINDOW_WIDTH)
+#            wy0 = 400
+#            wy2 = np.random.randint(minW, self.WINDOW_HEIGHT/2)
+#            wy1 = np.random.randint(wy2 + minW, wy0 - minW)
+#
+#            self.envPoints = np.array([(wx1, wy0), (wx1, wy1), (wx0, wy1), (wx0, wy2), (wx3, wy2), (wx3, wy1), (wx2, wy1), (wx2, wy0)])
+#            self.envWallSide = ['l', 'b','l', 't', 'r', 'b','r','b']
+#        # this is a turn to the right
+#        elif envNr == 4:
+#            wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW)
+#            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + 2*minW+1, self.WINDOW_WIDTH)
+#            wx1 = np.random.randint(self.WINDOW_WIDTH/2 + minW, wx2 - minW)
+#
+#            wy0 = 400
+#            wy2 = np.random.randint(minW, self.WINDOW_HEIGHT/2)
+#            wy1 = np.random.randint(wy2 + minW, wy0 - minW)
+#
+#            self.envPoints = np.array([(wx0, wy0), (wx0, wy2), (wx2, wy2), (wx2, wy1), (wx1, wy1), (wx1, wy0)])
+#            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
+#        else:
+#            raise NameError('envNr was out of range, no such environment defined')
+#
+#        self.envWalls = self.pointsTOWalls(self.envPoints)
+#
+#        return
 
 
 #class EnvironmentCreator:

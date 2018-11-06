@@ -47,7 +47,7 @@ sim_expRewardOffset = 100
 sim_thresholdWall = 10. # linear punishmet starts at this amount of pixels
 sim_WallReward = 100
 sim_defaultEnvNr = 1
-sim_Y_threshold_goal = 370 - sim_thresholdWall
+sim_Y_threshold_goal = 370 - sim_thresholdWall #TODOG
 # the normalisation is dependend on whether sparse rewards are used
 if sim_SparseRewards:
     # the higest reward must be 1, this ensures that is true.
