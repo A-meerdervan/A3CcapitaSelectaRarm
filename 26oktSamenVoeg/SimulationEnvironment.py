@@ -235,6 +235,10 @@ class SimulationEnvironment:
                 print('Used angles ',np.degrees(self.robot.jointAngles),' minD ',dist)
                 jointLocs = self.robot.computeJointLocations(self.zeroPosition)
                 print('xee ',jointLocs[-2],' yee ',jointLocs[-1],' r: ',r, ' col? ', not col)
+                # Print the current distance
+                d = self.distanceEndEffector # x and y dist
+                d = np.sqrt(d[0]**2 + d[1]**2) # absolute dist
+                print('D relative: ',d)
                 self.render()
 #            FPS = 5 # check 5 times every second (Frames per s = 1)
 #            self.clock.tick(FPS)
@@ -256,13 +260,88 @@ class SimulationEnvironment:
 
     def setGoal(self, goal):
         self.goal = goal
+        
+    # Take a set of connected points that go clockwise from left bottom to right bottom
+    # and convert it to a valid wall construct. points = np.array([(x1,y1),(x2,y2),...])
+    def getWalls(self,points):
+        walls = []
+        startPoint = points[0]; curEndPoint = startPoint
+        for point in points[1:]:
+            walls.append([curEndPoint,point])
+            curEndPoint = point
+        walls.append([points[-1],startPoint])
+        return np.array(walls)
 
     # Switch between environments per reset of the environment.
     def setRandomEnv(self):
-        envNr = np.random.randint(1, 8 + 1)
+        envNr = np.random.randint(1, 7 + 1)
         self.getEnv(envNr)
     
-    def getEnv(self,envNr):        
+    def getEnv(self,envNr):
+        rC = 200 # robotCenter, the x pos of the arm bottom 
+        WH = self.WINDOW_HEIGHT
+        WW = self.WINDOW_WIDTH
+#        envNr = 5
+        
+        # LEFT corner (most used during training. Our first env.)
+        if envNr == 1:
+            pR = 60 # the width of the pipe
+            tYs = 330 # rurnYstart This is the start of the right side of the pipe
+            tYe = 250 #turn Y end, the top op the pipe
+            pFe = 65 # pixelsFromEdge is the x distance to the side of the screen of the pipe.
+            wallPoints = np.array([(rC-pR,WH), (rC-pR,tYs),(pFe,tYs),(pFe,tYe),(rC+pR,tYe),(rC+pR,WH)])
+            self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
+        # A pipe witch is straight up and wide and high
+        elif envNr == 2:
+            pR = 60 # the width of the pipe
+            tYe = 200 # #turnYend, the top op the pipe
+            wallPoints = np.array([(rC-pR,WH),(rC-pR,tYe),(rC+pR,tYe),(rC+pR,WH)])
+            self.envWallSide = ['l', 't','r', 'b']
+        # A pipe witch is straight up and narrow
+        elif envNr == 3:
+            pR = 50 # the width of the pipe
+            tYe = 250 # #turnYend, the top op the pipe
+            wallPoints = np.array([(rC-pR,WH),(rC-pR,tYe),(rC+pR,tYe),(rC+pR,WH)])
+            self.envWallSide = ['l', 't','r', 'b']
+        # T - shaped pipe
+        elif envNr == 4:
+            pR = 50 # the width of the pipe
+            tYs = 350 # rurnYstart This is the start of the turn of the pipe
+            tYe = 250 #turn Y end, the top op the pipe
+            pFe = 65 # pixelsFromEdge is the x distance to the side of the screen of the pipe.
+            wallPoints = np.array([(rC-pR,WH),(rC-pR,tYs),(pFe,tYs),(pFe,tYe),(WW-pFe,tYe),(WW-pFe,tYs),(rC+pR,tYs),(rC+pR,WH)])
+            self.envWallSide = ['l', 'b','l', 't', 'r', 'b','r','b']
+        # CROSS - section
+        elif envNr == 5:
+            pR = 52 # the width of the pipe
+            tYs = 370 # rurnYstart This is the start of the turn of the pipe
+            tYe = 300 #turn Y end, the top op the pipe
+            tYE = 170 # Even more the top of the pipe :P
+            pFe = 50 # pixelsFromEdge is the x distance to the side of the screen of the pipe.
+            wallPoints = np.array([(rC-pR,WH),(rC-pR,tYs),(pFe,tYs),(pFe,tYe),(rC-pR,tYe),(rC-pR,tYE),(rC+pR,tYE),(rC+pR,tYe),(WW-pFe,tYe),(WW-pFe,tYs),(rC+pR,tYs),(rC+pR,WH)])
+            self.envWallSide = ['l', 'b','l', 't','l','t','r','t','r','b','r','b']
+        # RIGHT corner. 
+        elif envNr == 6:
+            pR = 60 # the width of the pipe
+            tYs = 330 # rurnYstart This is the start of the turn of the pipe
+            tYe = 250 #turn Y end, the top op the pipe
+            pFe = 65 # pixelsFromEdge is the x distance to the side of the screen of the pipe.
+            wallPoints = np.array([(rC-pR,WH), (rC-pR,tYe),(WW-pFe,tYe),(WW-pFe,tYs),(rC+pR,tYs),(rC+pR,WH)])
+            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
+        # This environment is to move freely
+        elif envNr == 7:
+            tYe = 30 #turn Y end, the top op the pipe
+            pFe = 30 # pixelsFromEdge is the x distance to the side of the screen of the pipe.
+            x2 = WW - pFe
+            wallPoints = np.array([(pFe,WH), (pFe,tYe), (x2,tYe),(x2,WH)])
+            self.envWallSide = ['l', 't','r', 'b']
+        
+        # For every environment:
+        self.envWalls = self.getWalls(wallPoints)
+        self.envPoints = self.wallsTOPoints(self.envWalls)
+        return
+    
+    def getOldEnv(self,envNr):        
         rC = 200 # robotCenter, the x pos of the arm bottom        
         #envNr = 7
         
@@ -280,13 +359,13 @@ class SimulationEnvironment:
             self.envWallSide = ['l', 't','r', 'b']
         # A pipe witch is straight up and narrower
         elif envNr == 3:
-            pR = 82 # the width of the pipe
+            pR = 70 # the width of the pipe
             self.envWalls = np.array([[(rC-pR,400), (rC-pR,100)], [(rC-pR,100), (rC+pR,100)], [(rC+pR,100),
                       (rC+pR,400)], [(rC+pR,400), (rC-pR,400)]])
             self.envWallSide = ['l', 't','r', 'b']
         # this is a T shaped pipe
         elif envNr == 4:
-            pR = 86 # the width of the pipe
+            pR = 72 # the width of the pipe
             tYe = 130
             self.envWalls = np.array([[(rC-pR,400), (rC-pR,300)], [(rC-pR,300), (45,300)], [(45,300),
                       (45,tYe)], [(45,tYe), (355,tYe)], [(355,tYe), (355,300)], [(355,300),(rC+pR,300)],[(rC+pR,300),(rC+pR,400)],[(rC+pR,400),(rC-pR,400)]])
@@ -296,7 +375,7 @@ class SimulationEnvironment:
         elif envNr == 5:
             tYs = 250 # rurnYstart This is the start of the right side of the pipe
             tYe = 130 #turn Y end, the top op the pipe
-            pR = 85 # the width of the pipe
+            pR = 70 # the width of the pipe
             self.envWalls = np.array([[(rC-pR,400), (rC-pR,tYe)], [(rC-pR,tYe), (355,tYe)], [(355,tYe),
                       (355,tYs)], [(355,tYs),(rC+pR,tYs)],[(rC+pR,tYs),(rC+pR,400)],[(rC+pR,400),(rC-pR,400)]])
             self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
@@ -304,7 +383,7 @@ class SimulationEnvironment:
         elif envNr == 6:
             tYs = 270 # rurnYstart This is the start of the right side
             tYe = 110 #turn Y end, the top of the pipe
-            pR = 83 # the width of the pipe
+            pR = 73 # the width of the pipe
             self.envWalls = np.array([[(rC-pR,400), (rC-pR,tYe)], [(rC-pR,tYe), (355,tYe)], [(355,tYe),
                       (355,tYs)], [(355,tYs),(rC+pR,tYs)],[(rC+pR,tYs),(rC+pR,400)],[(rC+pR,400),(rC-pR,400)]])
             self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
@@ -312,7 +391,7 @@ class SimulationEnvironment:
         elif envNr == 7:
             tYs = 300 # rurnYstart This is the start of the right side
             tYe = 140 #turn Y end, the top op the pipe
-            pR = 80 # the width of the pipe
+            pR = 60 # the width of the pipe
             self.envWalls = np.array([[(rC-pR,400), (rC-pR,tYe)], [(rC-pR,tYe), (355,tYe)], [(355,tYe),
                       (355,tYs)], [(355,tYs),(rC+pR,tYs)],[(rC+pR,tYs),(rC+pR,400)],[(rC+pR,400),(rC-pR,400)]])
             self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
@@ -522,7 +601,10 @@ class SimulationEnvironment:
         # create a random goal that sits within the environment AND reach of the robot
         # the end effector location of a random body config is used as the 
         # goal location.
-        notUsed,xee,yee = self.getRandomAllowedBodyConfig()
+        while(True):    
+            notUsed,xee,yee = self.getRandomAllowedBodyConfig()
+            if yee < cn.sim_Y_threshold_goal :
+                break
         return np.array([int(xee),int(yee)])
 
 
