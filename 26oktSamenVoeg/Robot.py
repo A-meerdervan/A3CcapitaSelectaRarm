@@ -55,4 +55,5 @@ class Robot:
         elif (self.jointAngles[2] > self.maxJointAngle[4]) or (self.jointAngles[2] < self.maxJointAngle[5]): badAngle = True;
         if badAngle:
             self.jointAngles = self.jointAngles - self.stepSize*joint - noise*joint
+
         return self.jointAngles
