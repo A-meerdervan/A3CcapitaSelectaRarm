@@ -12,6 +12,9 @@ REAL_webcamWindowWidth = 640
 REAL_webcamWindowHeight = 480
 # Dit is afhankelijk van de resolutie!
 REAL_markerAreaTreshold = 30 # must the marker area must be larger than this. For 480p the markers start around 60?
+REAL_collorOfWalls = (0,0,255) # RGB value (0,0,255)=red
+REAL_wallThickness = 5 # in pixels
+REAL_goalColor = (0,255,0) # (0,255,0) = green
 
 ENV_IS_RARM = True
 
@@ -41,7 +44,6 @@ TEST_rob_ResetAngles = np.radians(np.array([50,81,-90])) # This is oriented for 
 
 sim_WINDOW_WIDTH = 400
 sim_WINDOW_HEIGHT = 400
-
 sim_RandomGoal = True
 sim_SparseRewards = False
 sim_Goal = np.array([100,200])
