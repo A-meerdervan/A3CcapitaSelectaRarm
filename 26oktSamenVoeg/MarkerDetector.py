@@ -18,9 +18,14 @@ class MarkerDetector:
     def __init__(self,plotImages,useImShow=False):
         index = 0
         self.cap = cv2.VideoCapture(index)
+        time.sleep(2)
         self.plotImages = plotImages
         self.useImShow = useImShow
         self.markerSizeRelativeTreshold = cn.REAL_markerAreaTreshold
+
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        self.cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
 
     def close(self):
         self.cap.release()
@@ -55,12 +60,12 @@ class MarkerDetector:
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
                 cv2.destroyAllWindows()
-            
+
         # retrieve the position of the markers
         positions = np.array([[0,0]])
         rCnt = 0
         for r in regions:
-            # only if the region is large enough, use it. 
+            # only if the region is large enough, use it.
             if r.area > self.markerSizeRelativeTreshold:
                 rCnt += 1
 #                print('area ',r.area)
@@ -69,6 +74,7 @@ class MarkerDetector:
         if not rCnt == 2:
             raise(NameError('The nr of markers detected was not 2 for this color. it was '+str(rCnt) ))
         positions = np.delete(positions, 0, 0)  # delete dummy
+
         return positions
 
 
@@ -83,5 +89,22 @@ class MarkerDetector:
 
         p1 = self.detectMarker(diffBlue)
         p2 = self.detectMarker(diffRed)
+
         return [p1,p2]
-    
+
+    def computeAngles(self, mkr):
+        th = []
+#        mkr = np.vstack((zeroPosition, markers))
+        for i in range(1,len(mkr)):
+            d_y = mkr[i-1,1] - mkr[i,1]
+            d_x = mkr[i,0] - mkr[i-1,0]
+
+            t = np.arctan2(d_y,d_x)
+            th = np.append(th, t)
+
+        for i in range(1, len(th)):
+            j = len(th) - i
+            th[j] = th[j] - th[j-1]
+
+        return th
+

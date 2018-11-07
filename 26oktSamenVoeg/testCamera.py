@@ -183,24 +183,4 @@ class MarkerDetector:
 #
 #cv2.destroyAllWindows()
 
-zeroPosition = np.array([200, 400])
-markers = np.array([[175.25126265847084, 375.25126265847086],[231.25126265847084, 375.25126265847086],
-                    [284.8743736767993, 330.2561299804131]])#, [237.83114760308638, 349.1260994274798], [188.33367292002805, 299.6286247444215]])
-#markers = np.array([182.5, 369.6891108675446])
-#markers = np.array([[182.5, 369.6891108675446], [146.5038938575538, 326.7906220528819], [146.50389385755383, 256.7906220528819]])
 
-
-th = []
-mkr = np.vstack((zeroPosition, markers))
-for i in range(1,len(mkr)):
-    d_y = mkr[i-1,1] - mkr[i,1]
-    d_x = mkr[i,0] - mkr[i-1,0]
-
-    t = np.arctan2(d_y,d_x)
-    th = np.append(th, t)
-
-for i in range(1, len(th)):
-    j = len(th) - i
-    th[j] = th[j] - th[j-1]
-
-print(np.degrees(th))
