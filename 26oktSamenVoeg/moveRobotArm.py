@@ -216,3 +216,4 @@ class RobotController:
         angles = np.radians(angles)
 
         return angles
+
