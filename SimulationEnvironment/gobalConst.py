@@ -21,7 +21,7 @@ rob_MaxJointAngle = np.radians(np.array([105,-105]))
 #rob_JointLenght = [100, 100, 80, 20]
 rob_JointLenght = [74, 116, 86, 47]
 rob_JointWidth = 37
-rob_ResetAngles = np.radians(np.array([140,-140,140]))
+rob_ResetAngles = np.radians(np.array([130,-100,100]))
 
 
 

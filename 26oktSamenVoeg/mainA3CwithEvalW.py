@@ -139,7 +139,7 @@ class Worker():
 
         """
         This was Arnolds patch to deal with termination of the episode when hitting a wall
-        Now it is not needed anymore and actually causes instability and a too low estimate of the value 
+        Now it is not needed anymore and actually causes instability and a too low estimate of the value
         of reaching the goal.
         Trains when the episode has ended, but then the rewards array is shorter, thus the discounted
         cumelative reward is much lower. The agent cannot train when it has terminated, or its reward needs to be extended
@@ -251,15 +251,15 @@ class Worker():
                     if episode_count % cn.run_TFmodelSaveIntrvl == 0 and self.name == 'worker_0':
                         saver.save(sess,self.model_path+'/model-'+str(episode_count)+'.cptk')
                         print("Saved Model")
-                    
+
                     mean_reward = np.mean(self.episode_rewards[-cn.run_TFsummIntrvl:])
                     mean_length = np.mean(self.episode_lengths[-cn.run_TFsummIntrvl:])
                     mean_value = np.mean(self.episode_mean_values[-cn.run_TFsummIntrvl:])
                     mean_terminalRs = np.mean(self.episode_terminalRewards[-cn.run_TFsummIntrvl:])
                     summary = tf.Summary()
                     # Add the percentage of timesteps that the agent wanted to hit the wall
-                    if cn.ENV_IS_RARM: 
-                        mean_WallHitPerctg = np.mean(self.episode_wallHitPercentages[-cn.run_TFsummIntrvl:])     
+                    if cn.ENV_IS_RARM:
+                        mean_WallHitPerctg = np.mean(self.episode_wallHitPercentages[-cn.run_TFsummIntrvl:])
                         summary.value.add(tag='Perf/WallHitPercentage'
                                                          , simple_value=float(mean_WallHitPerctg))
                     summary.value.add(tag='Perf/Terminal Reward', simple_value=float(mean_terminalRs * cn.sim_rewardNormalisation))
@@ -280,7 +280,7 @@ class Worker():
                 if self.name == 'worker_0':
                     sess.run(self.increment)
                 episode_count += 1
-                
+
 class EvalWorker():
     def __init__(self,envIsRarm,actionSpace,network,sess,save,verbose,max_episode_length):
         self.local_AC = network
@@ -294,7 +294,7 @@ class EvalWorker():
         self.render = cn.EVAL_RENDER
 
     def play1Game(self):
-        
+
         # stuff to keep track of
         episode_values = []
         episode_reward = 0
@@ -324,7 +324,7 @@ class EvalWorker():
             episode_reward += r
             episode_step_count += 1
             episode_values.append(v[0,0])
-                
+
 
             # If the episode terminates or the max steps has been reached
             # Then the episode (and so this while loop) terminates.
@@ -360,7 +360,7 @@ class EvalWorker():
     # Get the right env (nog niet aangepast voor pong env. de global const mist allemaal dingen)
     def getEnv(self,envIsRarm):
         if envIsRarm:
-            return sim.SimulationEnvironment()
+            return sim.SimulationEnvironment(cn.REAL_SETUP)
         # Play Pong S6
         else:
             return Env.A3CenvPong.A3CenvPong(self.render)
@@ -372,11 +372,11 @@ if not cn.EVAL_MODE and cn.TEST_MODE:
 # If in EVAL or TRAIN mode:
 else:
     tf.reset_default_graph()
-    
+
     if not os.path.exists(cn.run_ModelPath):
         os.makedirs(cn.run_ModelPath)
-    
-    
+
+
     global_episodes = tf.Variable(0,dtype=tf.int32,name='global_episodes',trainable=False)
     global_rewardEndEpisode = tf.Variable(0,dtype=tf.int32,name='global_rewardEndEpisode',trainable=False)
     trainer = tf.train.RMSPropOptimizer(learning_rate=cn.run_LearningRate, decay=cn.run_decay, epsilon=cn.run_epsilon)
@@ -387,7 +387,7 @@ else:
     for i in range(num_workers):
         workers.append(Worker(i,cn.run_sSize,cn.run_aSize,trainer,cn.run_ModelPath,cn.TF_SUMM_PATH,global_episodes,global_rewardEndEpisode))
     saver = tf.train.Saver(max_to_keep=2)
-    
+
     # If eval mode is on, then just directly use the network to run some
     # environments to completion. Set the right pars in globalConst.py
     if cn.EVAL_MODE:
@@ -416,7 +416,7 @@ else:
                 saver.restore(sess,ckpt.model_checkpoint_path)
             else:
                 sess.run(tf.global_variables_initializer())
-        
+
             # This is where the asynchronous magic happens.
             # Start the "work" process for each worker in a separate threat.
             # this list contains the worker threads which are running
@@ -439,7 +439,7 @@ else:
         #     This routine probes the training proces and prints an update, every 10 seconds.
         #    if showScreen:
         #        workers[0].env.initScreen()
-        
+
             clock = pygame.time.Clock()
             ctr = 0
             while not coord.should_stop():
@@ -453,14 +453,14 @@ else:
                     print("Episodes", gs1, 'one for ', (time()-s)/(gs1-gs), "\n" + "Reward at end of episode: ",lastRewardEndOfEp)
                     gs = gs1
                     ctr = 0
-        
+
                 if cn.run_Render:
-        
+
                     workers[0].env.render()
                     pygame.event.get()
-        
+
                 ctr += 1
-        
+
             coord.join(worker_threads)   # terminate the threads
-        
-        
+
+

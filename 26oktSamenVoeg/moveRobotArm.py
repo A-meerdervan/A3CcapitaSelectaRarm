@@ -7,10 +7,11 @@ Created on Mon Nov  5 11:47:13 2018
 from dynamixel_sdk import *                    # Uses Dynamixel SDK library
 import numpy as np
 import time
+import gobalConst as cn
 
 class RobotController:
     def __init__(self, serialPort = 'COM4', _print = True):
-        self.maxAngles = np.radians([[0,180], [-90,90], [-90,90]])
+        self.maxAngles = cn.rob_MaxJointAngle
 
         # set the default values for the controller
         # Control table address
@@ -47,7 +48,7 @@ class RobotController:
         if not self.hasConnection:
             print('Could not contact motors. Press key to exit, then try again')
             input()
-            quit()
+            exit()
 
 
     def initCommunication(self, _print):
@@ -87,7 +88,6 @@ class RobotController:
 
     def testCommunicationMotors(self):
         for ctr in range(3):
-            print(ctr)
             if (ctr == 0):
                 DXL_ID = self.DXL1_ID
             elif (ctr == 1):
@@ -115,6 +115,14 @@ class RobotController:
 
         return True
 
+    def moveInitialPosition(self, initAng):
+        for i in range(3):
+            j = 3 - i - 1
+            print('move ', j, 'to: ', np.degrees(initAng[j]))
+            self.moveArm(j, initAng, False)
+
+        return
+
     def moveArm(self, armID, angles, _print):
         if (armID == 0):
             DXL_ID = self.DXL1_ID
@@ -124,6 +132,7 @@ class RobotController:
             DXL_ID = self.DXL3_ID
 
         if (not self.checkAngles(angles)):
+            print ('angle too large')
             return
 
         dxl_goal_position = self.convertAnglesToMotor(angles).astype(int)
@@ -131,11 +140,14 @@ class RobotController:
         # Enable Dynamixel Torque
         dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_TORQUE_ENABLE, self.TORQUE_ENABLE)
         if dxl_comm_result != self.COMM_SUCCESS:
-            print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
+            if (_print):
+                print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
         elif dxl_error != 0:
-            print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+            if (_print):
+                print("%s" % self.packetHandler.getRxPacketError(dxl_error))
         else:
-            print("Dynamixel has been successfully connected")
+            if (_print):
+                print("Dynamixel has been successfully connected")
 #
         while 1:
             # Write goal position
@@ -168,50 +180,17 @@ class RobotController:
         # Disable Dynamixel Torque
         dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_TORQUE_ENABLE, self.TORQUE_DISABLE)
         if dxl_comm_result != self.COMM_SUCCESS:
-            print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
-        elif dxl_error != 0:
-            print("%s" % self.packetHandler.getRxPacketError(dxl_error))
-
-
-    def readCurrentPosition(self, armID, angles):
-        if (armID == 0):
-            DXL_ID = self.DXL1_ID
-        elif (armID == 1):
-            DXL_ID = self.DXL2_ID
-        else:
-            DXL_ID = self.DXL3_ID
-
-        dxl_goal_position = self.convertAnglesToMotor(angles).astype(int)
-
-        ctr = 0
-        while 1:
-            # Read present position
-            dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_PRESENT_POSITION)
-#            time.sleep(1)
-            print(dxl_comm_result)
-            if dxl_comm_result != self.COMM_SUCCESS:
-                if (_print):
-                    print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
-            elif dxl_error != 0:
-                if (_print):
-                    print("%s" % self.packetHandler.getRxPacketError(dxl_error))
             if (_print):
-                print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_ID, dxl_goal_position[armID], dxl_present_position))
-
-            ctr += 1
-
-            if ctr > 2:
-                break
-
-        print(dxl_present_position)
-
-        return
+                print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            if (_print):
+                print("%s" % self.packetHandler.getRxPacketError(dxl_error))
 
 
     def checkAngles(self, angles):
         ctr = 0
         for a in angles:
-            if (a < self.maxAngles[ctr, 0] or a > self.maxAngles[ctr, 1]):
+            if (a >= self.maxAngles[ctr*2] or a <= self.maxAngles[ctr*2 + 1]):
                 return False
             ctr += 1
 
@@ -237,37 +216,3 @@ class RobotController:
         angles = np.radians(angles)
 
         return angles
-
-#controller.portHandler.closePort()
-_print = False
-controller = RobotController('COM4', _print)
-#
-#angles = np.radians(np.array([90, 0, 0]))
-#controller.moveArm(0, angles, _print)
-#controller.readCurrentPosition(0, angles)
-
-if (controller.hasConnection):
-    angles = np.radians(np.array([90, 0, 0]))
-    controller.moveArm(0, angles, _print)
-    controller.readCurrentPosition(0, angles)
-#    for i in range(20):
-#        angles = np.radians(np.array([90-i*1.4, 0, 0]))
-#    #
-#        controller.moveArm(0, angles, _print)
-
-controller.readCurrentPosition(0, angles)
-
-controller.portHandler.closePort()
-
-""" Middle:
-    208 = 180
-    505 = 90
-    818 = 0
-
-    2e joint:
-    526.933 middle
-
-    3e joint:
-    510.53333333
-
-"""

@@ -87,7 +87,7 @@ class MarkerDetector:
             return np.array([centroids[1],centroids[0]])
 
 
-    def detectMarkerPositions(self, frame):
+    def detectMarkerPositionsFromFrame(self, frame):
 #        t = time.time()
         """ Algorithm for detecting the markers is copied from Martha """
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -102,6 +102,16 @@ class MarkerDetector:
         # from the base to the top is, small red, large blue, large red, small blue
         # return the marker locations in that order.
         return np.array([locsRed[0],locsBlue[1],locsRed[1],locsBlue[0]])
+
+    def getAnglesFromWebcam(self):
+        # Grab a frame
+        frame = self.grabScreenshot(False)
+        # detect the positions of the markers in the frame
+        mkrPos = self.detectMarkerPositionsFromFrame(frame)
+        # compute the angles of the robot arm using the positions of the markers
+        th = self.computeAngles(mkrPos)
+
+        return th, [0,0,0]
 
     def computeAngles(self, mkr):
         th = []

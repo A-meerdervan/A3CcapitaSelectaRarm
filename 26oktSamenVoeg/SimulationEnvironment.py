@@ -13,7 +13,7 @@ import Robot
 #import threading
 import gobalConst as cn
 import moveRobotArm as cont
-import testCamera as cam
+import MarkerDetector as cam
 #import copy
 
 #pygame.init()
@@ -42,11 +42,14 @@ class SimulationEnvironment:
         self.image = pygame.image.load('armImage3.png')
         pygame.display.set_caption('Robot arm simulation')
 
+        self.realSetup = realSetup
         if (realSetup):
             port = 'COM4'
             # start up controller
             self.controller = cont.RobotController(port, False)
+
             # start up webcam
+            self.markerDetector = cam.MarkerDetector(False,False)
 
         # init previous states
         self.distEE = 0
@@ -115,7 +118,7 @@ class SimulationEnvironment:
             self.controller.moveArm(joint, self.robot.jointAngles, False)
 
         # use webcam to evaluate the angles
-#        self.robot.jointAngles =
+        self.robot.jointAngles, dummy = self.markerDetector.getAnglesFromWebcam()
 
         # check for any collision or if the robot has reached the goal
         [col, dist] = self.checkNOCollision()
@@ -126,7 +129,8 @@ class SimulationEnvironment:
             # check for collisison
             self.wallHits += 1
             self.robot.jointAngles = self.stateAng
-            self.controller.moveArm(joint, self.robot.jointAngles, False)
+            if (self.controller.hasConnection):
+                self.controller.moveArm(joint, self.robot.jointAngles, False)
             # if after restoring the previous state, the robot is still hitting
             # the walls, go back another state
             [c, dist] = self.checkNOCollision()
@@ -134,7 +138,8 @@ class SimulationEnvironment:
                 self.robot.jointAngles = s0
                 self.senseDistances = s1
                 self.distanceEndEffector = s2
-                self.controller.moveArm(joint, self.robot.jointAngles, False)
+                if (self.controller.hasConnection):
+                    self.controller.moveArm(joint, self.robot.jointAngles, False)
 
         elif reachGoal:
             done = True
@@ -175,6 +180,9 @@ class SimulationEnvironment:
 
         if (cn.rob_RandomInit):
             self.createRandomInit()
+
+        if (self.realSetup):
+            self.controller.moveInitialPosition(self.robot.jointAngles)
 
         # check the environment for collisions (needed for the state)
         [col, dist] = self.checkNOCollision()
@@ -937,55 +945,6 @@ class SimulationEnvironment:
 #
 #        return
 
-
-#class EnvironmentCreator:
-#    def __init__(self):
-#        self.WINDOW_WIDTH = 400
-#        self.WINDOW_HEIGHT = 400
-#
-#
-#    def createEnvironment(self):
-#        # type 1:
-#        leftWall = np.random.randint(0,self.WINDOW_WIDTH/2 - 60)
-#        middleWall = np.random.randint(leftWall,self.WINDOW_WIDTH/2 - 51)
-#        rightWall = np.random.randint(self.WINDOW_WIDTH/2 + 50, self.WINDOW_WIDTH)
-#        top = np.random.randint(30,self.WINDOW_HEIGHT/2)
-#        bottom = np.random.randint(self.WINDOW_HEIGHT/2 + 30, self.WINDOW_HEIGHT)
-#
-#        self.walls = np.array([[(middleWall,self.WINDOW_HEIGHT), (middleWall,bottom)], [(middleWall,bottom), (leftWall,bottom)], [(leftWall,bottom),
-#                      (leftWall,top)], [(leftWall,top), (rightWall,top)], [(rightWall,top), (rightWall,self.WINDOW_HEIGHT)], [(rightWall,self.WINDOW_HEIGHT),(middleWall,self.WINDOW_HEIGHT)]])
-#        self.wallSide = ['l', 'b', 'l', 't', 'r', 'b']
-#
-#        return [self.walls, self.wallSide]
-
-#    def createVeryRandomEnvironment(self):
-#        nrWalls = np.random.randint(3,10)
-#        walls = np.array([[0,0],[0,0]])
-#        wLabels = np.array('b')
-#
-#        wi = self.WINDOW_WIDTH / 2
-#        hi = self.WINDOW_HEIGHT / 2
-#        # create the walls
-#        for i in range(1,nrWalls + 1):
-#            p = walls[i-1, 1, :]
-#            pNew = np.array([0,0])
-#            if (wLabels[i-1] == 'b'):
-#                pNew[0] = p[0]
-#                pNew[1] = np.random.randint(p[1], hi*2)
-#                # label is either 'l' or 'r'
-#                if (p[0] < wi):
-#
-#                else:
-#
-#            elif(wLabels[i-1] == 'l'):
-#                # label is either 't' or 'b'
-#
-#            elif(wLabels[i-1] == 't'):
-#                # label is either 'l' or 'r'
-#
-#            elif(wLabels[i-1] == 'r'):
-#                # label is either 't' or 'b'
-#
-#            w = np.random.randint(0,wi - 60)
-
-
+sim = SimulationEnvironment(True)
+sim.reset()
+#sim.markerDetector.getAnglesFromWebcam()

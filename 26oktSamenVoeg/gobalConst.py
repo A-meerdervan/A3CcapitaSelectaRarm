@@ -17,11 +17,12 @@ ENV_IS_RARM = True
 
 # PARS FOR EVALUATION ONLY
 EVAL_MODE = True
+REAL_SETUP = True
 EVAL_RENDER = True # only relevant ruing evaluation episodes
 EVAL_SHOW_NORMAL_SPEED = True # only relevant during evaluation episodes
 EVAL_FPS = 120 # only relevant during evalutation episodes
 #EVAL_CPU_CNT = 12 # Number of cpu's used during training
-EVAL_FOLDER = 'run06novReachable5050G993' # The folder that holds the model and train folders
+EVAL_FOLDER = 'TestRun' # The folder that holds the model and train folders
 # deze heb je nodig om iets te evalueren in een compleet andere map
 #EVAL_HIGHLEVEL_FOLDER = './LogsOfRuns/TempTransferCluster29okt'
 #tussen = EVAL_HIGHLEVEL_FOLDER + '/' + EVAL_FOLDER
@@ -80,8 +81,8 @@ else: # this is for the old thin body
     rob_JointLenght = np.array([100,100,80,20]) # this is the original thin body
     rob_JointWidth = 10
 #rob_ResetAngles = np.radians(np.array([100,-10,90])) # dont know this one
-#rob_ResetAngles = np.radians(np.array([65,115,-115])) # This is the one to the right. 
-rob_ResetAngles = np.radians(np.array([115,-95,115])) # this is used with randomWalls = True in 31 okt runs
+#rob_ResetAngles = np.radians(np.array([65,115,-115])) # This is the one to the right.
+rob_ResetAngles = np.radians(np.array([120,-99,99])) # this is used with randomWalls = True in 31 okt runs
 #rob_ResetAngles = np.radians(np.array([130,-140,140])) # this was used during the 29okt runs
 rob_resetAngles_Lchance = 0.5 # the chance of having a left oriented init
 rob_resetAngles_Rchance = 0.5 # the chance of having a right oriented init
@@ -90,7 +91,7 @@ rob_ResetAngles_Right = np.radians(np.array([48,95,-102])) # this is oriented fo
 
 
 
-        
+
 
 run_Render = True
 run_NumOfWorkers = 12
@@ -115,7 +116,7 @@ netw_entCoef = 0.1 # Was at 0.1 originally, openAI has 0.01 as default in A2C
 netw_maxGradNorm = 40 # was originally 40 and openAI has 0.5 in A2C
 
 
-OUTP_FOLDER = '/runLocalToLeftG99TEST'
+OUTP_FOLDER = '/TestRun'
 
 OUTP_FOLDER = './LogsOfRuns' + OUTP_FOLDER
 TF_SUMM_PATH = OUTP_FOLDER + '/train_'
