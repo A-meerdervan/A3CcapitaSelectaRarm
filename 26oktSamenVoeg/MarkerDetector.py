@@ -42,6 +42,7 @@ class MarkerDetector:
                     break
         return frame
 
+    # Return [small marker, large marker] locations in pixels using a difference image.
     def detectMarker(self, img):
         kernel = np.ones((3,3),np.float32)/9
         img = cv2.filter2D(img,-1,kernel)
@@ -62,20 +63,28 @@ class MarkerDetector:
                 cv2.destroyAllWindows()
 
         # retrieve the position of the markers
-        positions = np.array([[0,0]])
+#        positions = np.array([[0,0]])
         rCnt = 0
+        areas = np.array([])
+        centroids = np.array([0,0])
         for r in regions:
             # only if the region is large enough, use it.
             if r.area > self.markerSizeRelativeTreshold:
                 rCnt += 1
+                areas = np.append(areas,r.area)
+                centroids = np.vstack((centroids,r.centroid))
 #                print('area ',r.area)
 #                print('pos ',r.centroid)
-                positions = np.vstack((positions, [r.centroid]))
+#                positions = np.vstack((positions, [r.centroid]))
         if not rCnt == 2:
             raise(NameError('The nr of markers detected was not 2 for this color. it was '+str(rCnt) ))
-        positions = np.delete(positions, 0, 0)  # delete dummy
 
-        return positions
+        centroids = np.delete(centroids, 0, 0)  # delete dummy
+        # Return [small marker, large marker]
+        if areas[0] < areas[1]:
+            return centroids
+        else:
+            return np.array([centroids[1],centroids[0]])
 
 
     def detectMarkerPositions(self, frame):
@@ -87,10 +96,12 @@ class MarkerDetector:
         diffBlue = cv2.subtract(frame[:,:,0], gray)
         diffRed = cv2.subtract(frame[:,:,2], gray)
 
-        p1 = self.detectMarker(diffBlue)
-        p2 = self.detectMarker(diffRed)
-
-        return [p1,p2]
+        locsBlue = self.detectMarker(diffBlue)
+        locsRed = self.detectMarker(diffRed)
+        # Determine them in order:
+        # from the base to the top is, small red, large blue, large red, small blue
+        # return the marker locations in that order.
+        return np.array([locsRed[0],locsBlue[1],locsRed[1],locsBlue[0]])
 
     def computeAngles(self, mkr):
         th = []
