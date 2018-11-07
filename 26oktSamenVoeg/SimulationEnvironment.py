@@ -141,7 +141,6 @@ class SimulationEnvironment:
 
         # return state
         state = self.getState()
-        # save previous state of the robot
 
         # increase count
         self.ctr = self.ctr + 1
