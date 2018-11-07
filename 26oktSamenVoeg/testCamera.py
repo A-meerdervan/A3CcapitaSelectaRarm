@@ -16,28 +16,33 @@ from skimage.measure import label
 import time
 
 
-cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture(0)
+#cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920) # works
+#cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080) # works
+#cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
 
-while(True):
-    # Capture frame-by-frame
-    ret, frame = cap.read()
-
-    # Our operations on the frame come here
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    # Display the resulting frame
-    cv2.imshow('frame',frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-    if cv2.waitKey(10) == ord('s'):
-        cv2.imwrite('testImg1.png', frame)
-        print('saved image')
-
-
-# When everything done, release the capture
-cap.release()
-cv2.destroyAllWindows()
+#while(True):
+#    # Capture frame-by-frame
+#    ret, frame = cap.read()
+#
+#    # Our operations on the frame come here
+##    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+#
+#    # Display the resulting frame
+#    cv2.imshow('frame',frame)
+#    if cv2.waitKey(1) & 0xFF == ord('q'):
+#        print(frame.shape)
+#        break
+#
+#    if cv2.waitKey(10) == ord('s'):
+#        cv2.imwrite('testImg1.png', frame)
+#        print('saved image')
+#
+#
+## When everything done, release the capture
+#
+#cap.release()
+#cv2.destroyAllWindows()
 
 
 
@@ -139,6 +144,25 @@ class MarkerDetector:
 #        print('Detection took: ', time.time() - t)
 
         return [p1,p2,p3]
+
+    def computeAngles(self, zeroPosition, markers):
+        th = []
+        mkr = np.vstack((zeroPosition, markers))
+        for i in range(1,len(mkr)):
+            d_y = mkr[i-1,1] - mkr[i,1]
+            d_x = mkr[i,0] - mkr[i-1,0]
+
+            t = np.arctan2(d_y,d_x)
+            th = np.append(th, t)
+
+        for i in range(1, len(th)):
+            j = len(th) - i
+            th[j] = th[j] - th[j-1]
+
+        return th
+
+
+
 #
 #detector = MarkerDetector()
 #time.sleep(1)
@@ -158,3 +182,25 @@ class MarkerDetector:
 #        break
 #
 #cv2.destroyAllWindows()
+
+zeroPosition = np.array([200, 400])
+markers = np.array([[175.25126265847084, 375.25126265847086],[231.25126265847084, 375.25126265847086],
+                    [284.8743736767993, 330.2561299804131]])#, [237.83114760308638, 349.1260994274798], [188.33367292002805, 299.6286247444215]])
+#markers = np.array([182.5, 369.6891108675446])
+#markers = np.array([[182.5, 369.6891108675446], [146.5038938575538, 326.7906220528819], [146.50389385755383, 256.7906220528819]])
+
+
+th = []
+mkr = np.vstack((zeroPosition, markers))
+for i in range(1,len(mkr)):
+    d_y = mkr[i-1,1] - mkr[i,1]
+    d_x = mkr[i,0] - mkr[i-1,0]
+
+    t = np.arctan2(d_y,d_x)
+    th = np.append(th, t)
+
+for i in range(1, len(th)):
+    j = len(th) - i
+    th[j] = th[j] - th[j-1]
+
+print(np.degrees(th))

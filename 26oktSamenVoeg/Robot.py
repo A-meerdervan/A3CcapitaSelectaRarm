@@ -11,7 +11,7 @@ class Robot:
     def __init__(self, jointLenght = [100, 100, 80, 20], jointAngles = [90,0,0], width = 10):
         self.jointLength = cn.rob_JointLenght   # in pixels. [link 1, link 2, link 3, endeffector stick]
         self.reach = np.sum(self.jointLength)
-        self.jointAngles = cn.rob_ResetAngles   # in radians # angles of death: np.array([2.44346096, -2.44346096, 2.44346096])
+        self.jointAngles =np.radians(jointAngles)# cn.rob_ResetAngles   # in radians # angles of death: np.array([2.44346096, -2.44346096, 2.44346096])
         self.width = cn.rob_JointWidth               # in pixels
 #        self.endeffectorWidth = 2        # width of the slim endeffector piece
         self.maxJointAngle = cn.rob_MaxJointAngle

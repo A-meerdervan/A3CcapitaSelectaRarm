@@ -457,7 +457,11 @@ class SimulationEnvironment2:
                 p2 = np.array([l[2*i] + w ,l[2*i+1]])
             else:
                 # TODO: fix this
-                th = sum(self.robot.jointAngles)
+#                th = sum(self.robot.jointAngles)
+#                if (th < 1.570796):
+#                    ang = 90 - th
+#                else:
+
                 x_delta = (self.robot.width/2) * np.cos(th+np.radians(90))
                 y_delta = (self.robot.width/2) * np.sin(th+np.radians(90))
                 print(np.degrees(th),'   ',  x_delta, '   ', y_delta)
