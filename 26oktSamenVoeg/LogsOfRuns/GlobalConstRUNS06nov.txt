@@ -1,0 +1,121 @@
+AAN GEZET:
+	run06novReachableInitLeftOnlyEnv1G99
+de init op random en kans links op 1 en rechts op 0. 
+De randomWalls op False om alleen de default env 1 te krijgen, de pijp naar links
+	
+	PASOP: deze is corrupt: run06novReachableInitLeftOnlyEnv1G99noNoise
+Pas op! negeer deze map! hij staat nog wel aan want ik ben het jobnr vergeten dus kan niet cancelen
+Zelfde als hierboven maar dan zonder noise.
+	run06novReachableInitLeftOnlyEnv1G99noNoiseGOED
+dezelfde als boven maar dan wel goed, neem alleen deze.
+	run06novReachable5050G98
+Zie naam, is met alle 7 envs
+	run06novReachable5050G99
+zie naam
+	run06novReachable5050G993
+Zie naam
+------3434 runs-------
+	run06novReachable3434G98
+zie naam
+	run06novReachable3434G99
+zie naam
+	run06novReachable3434G993
+zie naam
+---- extra
+	run06novReachable5050G99gradNrm80
+Deze is om te kijken wat een grotere gradNorm doet, 2x zo hoog, 40->80
+jobNr: 42800
+	
+
+
+
+
+
+
+
+
+
+
+
+UIT GEZET:	
+run06novReachableG99
+gamma op 99 alle 7 envs. Deze is ook met 5050!
+	run06novReachable5050G98
+zie naam
+	run06novReachableInitLeftOnlyEnv1G98
+aangezet, alleen env = 1 voor snel leren. 
+	run06novReachable3434G99
+Aangezet voor vergelijking met de 5050 run.
+	run06novReachable5050G93
+nog niet aangezet
+
+
+Global constfile used ---------------------------------------------------
+
+
+SIM ENVS USED:-------------------------------------------------------
+    def getEnv(self,envNr):
+        rC = 200 # robotCenter, the x pos of the arm bottom 
+        WH = self.WINDOW_HEIGHT
+        WW = self.WINDOW_WIDTH
+#        envNr = 8
+        
+        # LEFT corner (most used during training. Our first env.)
+        if envNr == 1:
+            pR = 60 # the width of the pipe
+            tYs = 330 # rurnYstart This is the start of the right side of the pipe
+            tYe = 250 #turn Y end, the top op the pipe
+            pFe = 65 # pixelsFromEdge is the x distance to the side of the screen of the pipe.
+            wallPoints = np.array([(rC-pR,WH), (rC-pR,tYs),(pFe,tYs),(pFe,tYe),(rC+pR,tYe),(rC+pR,WH)])
+            self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
+        # A pipe witch is straight up and wide and high
+        elif envNr == 2:
+            pR = 60 # the width of the pipe
+            tYe = 200 # #turnYend, the top op the pipe
+            wallPoints = np.array([(rC-pR,WH),(rC-pR,tYe),(rC+pR,tYe),(rC+pR,WH)])
+            self.envWallSide = ['l', 't','r', 'b']
+        # A pipe witch is straight up and narrow
+        elif envNr == 3:
+            pR = 50 # the width of the pipe
+            tYe = 250 # #turnYend, the top op the pipe
+            wallPoints = np.array([(rC-pR,WH),(rC-pR,tYe),(rC+pR,tYe),(rC+pR,WH)])
+            self.envWallSide = ['l', 't','r', 'b']
+        # T - shaped pipe
+        elif envNr == 4:
+            pR = 50 # the width of the pipe
+            tYs = 350 # rurnYstart This is the start of the turn of the pipe
+            tYe = 250 #turn Y end, the top op the pipe
+            pFe = 65 # pixelsFromEdge is the x distance to the side of the screen of the pipe.
+            wallPoints = np.array([(rC-pR,WH),(rC-pR,tYs),(pFe,tYs),(pFe,tYe),(WW-pFe,tYe),(WW-pFe,tYs),(rC+pR,tYs),(rC+pR,WH)])
+            self.envWallSide = ['l', 'b','l', 't', 'r', 'b','r','b']
+        # CROSS - section
+        elif envNr == 5:
+            pR = 52 # the width of the pipe
+            tYs = 370 # rurnYstart This is the start of the turn of the pipe
+            tYe = 300 #turn Y end, the top op the pipe
+            tYE = 170 # Even more the top of the pipe :P
+            pFe = 50 # pixelsFromEdge is the x distance to the side of the screen of the pipe.
+            wallPoints = np.array([(rC-pR,WH),(rC-pR,tYs),(pFe,tYs),(pFe,tYe),(rC-pR,tYe),(rC-pR,tYE),(rC+pR,tYE),(rC+pR,tYe),(WW-pFe,tYe),(WW-pFe,tYs),(rC+pR,tYs),(rC+pR,WH)])
+            self.envWallSide = ['l', 'b','l', 't','l','t','r','t','r','b','r','b']
+        # RIGHT corner. 
+        elif envNr == 6:
+            pR = 60 # the width of the pipe
+            tYs = 330 # rurnYstart This is the start of the turn of the pipe
+            tYe = 250 #turn Y end, the top op the pipe
+            pFe = 65 # pixelsFromEdge is the x distance to the side of the screen of the pipe.
+            wallPoints = np.array([(rC-pR,WH), (rC-pR,tYe),(WW-pFe,tYe),(WW-pFe,tYs),(rC+pR,tYs),(rC+pR,WH)])
+            self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
+        # This environment is to move freely
+        elif envNr == 7:
+            tYe = 30 #turn Y end, the top op the pipe
+            pFe = 30 # pixelsFromEdge is the x distance to the side of the screen of the pipe.
+            x2 = WW - pFe
+            wallPoints = np.array([(pFe,WH), (pFe,tYe), (x2,tYe),(x2,WH)])
+            self.envWallSide = ['l', 't','r', 'b']
+        
+        # For every environment:
+        self.envWalls = self.getWalls(wallPoints)
+        self.envPoints = self.wallsTOPoints(self.envWalls)
+        return
+
+

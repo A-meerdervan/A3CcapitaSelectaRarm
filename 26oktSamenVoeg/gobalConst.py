@@ -7,15 +7,21 @@ Created on Tue Oct 23 12:28:34 2018
 
 import numpy as np
 
+# REAL setup parameters
+REAL_webcamWindowWidth = 640
+REAL_webcamWindowHeight = 480
+# Dit is afhankelijk van de resolutie!
+REAL_markerAreaTreshold = 30 # must the marker area must be larger than this. For 480p the markers start around 60?
+
 ENV_IS_RARM = True
 
 # PARS FOR EVALUATION ONLY
-EVAL_MODE = False
+EVAL_MODE = True
 EVAL_RENDER = True # only relevant ruing evaluation episodes
 EVAL_SHOW_NORMAL_SPEED = True # only relevant during evaluation episodes
 EVAL_FPS = 120 # only relevant during evalutation episodes
 #EVAL_CPU_CNT = 12 # Number of cpu's used during training
-EVAL_FOLDER = 'run06novReachable3434G99' # The folder that holds the model and train folders
+EVAL_FOLDER = 'run06novReachable5050G993' # The folder that holds the model and train folders
 # deze heb je nodig om iets te evalueren in een compleet andere map
 #EVAL_HIGHLEVEL_FOLDER = './LogsOfRuns/TempTransferCluster29okt'
 #tussen = EVAL_HIGHLEVEL_FOLDER + '/' + EVAL_FOLDER
