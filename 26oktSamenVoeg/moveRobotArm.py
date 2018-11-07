@@ -237,37 +237,3 @@ class RobotController:
         angles = np.radians(angles)
 
         return angles
-
-#controller.portHandler.closePort()
-_print = False
-controller = RobotController('COM4', _print)
-#
-#angles = np.radians(np.array([90, 0, 0]))
-#controller.moveArm(0, angles, _print)
-#controller.readCurrentPosition(0, angles)
-
-if (controller.hasConnection):
-    angles = np.radians(np.array([90, 0, 0]))
-    controller.moveArm(0, angles, _print)
-    controller.readCurrentPosition(0, angles)
-#    for i in range(20):
-#        angles = np.radians(np.array([90-i*1.4, 0, 0]))
-#    #
-#        controller.moveArm(0, angles, _print)
-
-controller.readCurrentPosition(0, angles)
-
-controller.portHandler.closePort()
-
-""" Middle:
-    208 = 180
-    505 = 90
-    818 = 0
-
-    2e joint:
-    526.933 middle
-
-    3e joint:
-    510.53333333
-
-"""

@@ -40,6 +40,7 @@ class MarkerDetector:
                 cv2.imshow('frame',frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
+            cv2.destroyAllWindows()
         return frame
 
     # Return [small marker, large marker] locations in pixels using a difference image.
