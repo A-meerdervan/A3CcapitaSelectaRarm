@@ -39,13 +39,14 @@ class SimulationEnvironment:
         self.ctr = 0 # current timestep
         self.wallHits = 0 #nr of times the agent wanted to hit the wall
         self.clock = pygame.time.Clock()
+        self.actQueue = []
 
         self.image = pygame.image.load('armImage3.png')
         pygame.display.set_caption('Robot arm simulation')
 
         self.realSetup = realSetup
         if (realSetup):
-            port = 'COM4'
+            port = cn.REAL_comPort
             # start up controller
             self.controller = cont.RobotController(port, False)
 
@@ -97,16 +98,17 @@ class SimulationEnvironment:
         # must set the zeroPosition
 #        self.zeroPosition
         # remember two states back
-        s0 = self.stateAng
-        s1 = self.senseDist
-        s2 = self.distEE
-
-        self.stateAng = self.robot.jointAngles
-        self.senseDist = self.senseDistances
-        self.distEE = self.distanceEndEffector
+#        s0 = self.stateAng
+#        s1 = self.senseDist
+#        s2 = self.distEE
+#
+#        self.stateAng = self.robot.jointAngles
+#        self.senseDist = self.senseDistances
+#        self.distEE = self.distanceEndEffector
 
         # map the 6 outputs from the NN to the actions one can take
         act = self.actionToRoboAction(action)
+        self.actQueue.insert(0,list(act))
 
         # angles are stored in robot, computed here
 #        self.robot.jointAngles = self.robot.jointAngles + cn.rob_StepSize*act
@@ -114,38 +116,58 @@ class SimulationEnvironment:
         # perform action in the real world
         if (self.controller.hasConnection):
             # find the joint to move
-            joint = np.argmax(np.abs(act))
+#            joint = np.argmax(np.abs(act))
 #            self.controller.moveArm(joint, self.robot.jointAngles, True)
             print(act)
             self.controller.moveArm2(act, self.robot.jointAngles, False)
 
         # use webcam to evaluate the angles
         self.robot.jointAngles, dummy = self.markerDetector.getAnglesFromWebcam(self.envWalls, self.goal)
-
+        print(self.robot.jointAngles)
         # check for any collision or if the robot has reached the goal
         [col, dist] = self.checkNOCollision()
-        [r, reachGoal] = self.computeReward(dist, not col)
+        
         # if collision: Do something
-        done = False
-        if not col:
-            # check for collisison
+        
+#        if not col:
+#            # check for collisison
+#            self.wallHits += 1
+#            self.robot.jointAngles = self.stateAng
+#            if (self.controller.hasConnection):
+#                self.controller.moveArm2(-1*act, self.robot.jointAngles, False)
+#            # if after restoring the previous state, the robot is still hitting
+#            # the walls, go back another state
+#            print('collision')
+#            [c, dist] = self.checkNOCollision()
+#            if not c:
+#                self.robot.jointAngles = s0
+#                self.senseDistances = s1
+#                self.distanceEndEffector = s2
+#                if (self.controller.hasConnection):
+#                    self.controller.moveArm2(-1*act, self.robot.jointAngles, False)
+#                print('second collision')
+        ctr = 0
+        while not col:
             self.wallHits += 1
-            self.robot.jointAngles = self.stateAng
             if (self.controller.hasConnection):
-                self.controller.moveArm2(-1*act, self.robot.jointAngles, False)
-            # if after restoring the previous state, the robot is still hitting
-            # the walls, go back another state
-            print('collision')
-            [c, dist] = self.checkNOCollision()
-            if not c:
-                self.robot.jointAngles = s0
-                self.senseDistances = s1
-                self.distanceEndEffector = s2
-                if (self.controller.hasConnection):
-                    self.controller.moveArm2(-1*act, self.robot.jointAngles, False)
-                print('second collision')
+                self.controller.moveArm2(-1*np.asarray(self.actQueue[ctr]), self.robot.jointAngles, False)
+                time.sleep(0.5)
+                 
+            # use webcam to evaluate the angles
+            self.robot.jointAngles, dummy = self.markerDetector.getAnglesFromWebcam(self.envWalls, self.goal)
 
-        elif reachGoal:
+            [col, dist] = self.checkNOCollision()
+            
+            ctr += 1
+            print('restore previous angle, try:  ', ctr)
+           
+             
+        # only computes the reward if the collision has been solved. 
+        # this can only be done if you are not training
+        [r, reachGoal] = self.computeReward(dist, not col)
+        
+        done = False
+        if reachGoal:
             done = True
 
         # return state
@@ -154,6 +176,9 @@ class SimulationEnvironment:
         # increase count
         self.ctr = self.ctr + 1
         print(self.ctr)
+        # make sure the act queue is only 10 long always.
+        if len(self.actQueue) > 10:
+            self.actQueue.pop()
 
         return [state, r, done, self.ctr]
 
