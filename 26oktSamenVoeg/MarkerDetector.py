@@ -17,7 +17,7 @@ import visualEnvironmentOverlay as visOverlay
 
 class MarkerDetector:
     def __init__(self,plotImages,useImShow=False):
-        index = 0
+        index = cn.REAL_webcamIndex
         self.cap = cv2.VideoCapture(index)
         time.sleep(1)
         self.plotImages = plotImages
@@ -27,6 +27,10 @@ class MarkerDetector:
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         self.cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+        firstImg = self.grabScreenshot()
+        plt.imshow(firstImg)
+        plt.show()
+        
 
     def close(self):
         self.cap.release()
@@ -78,6 +82,8 @@ class MarkerDetector:
 #                positions = np.vstack((positions, [r.centroid]))
         if not rCnt == 2:
             print('The nr of markers detected was not 2 for this color. it was '+str(rCnt) )
+            # Jump out of the function so it can be called again.
+            return None
 #            raise(NameError('The nr of markers detected was not 2 for this color. it was '+str(rCnt) ))
 
         centroids = np.delete(centroids, 0, 0)  # delete dummy
@@ -90,15 +96,36 @@ class MarkerDetector:
 
     def detectMarkerPositionsFromFrame(self, frame):
 #        t = time.time()
-        """ Algorithm for detecting the markers is copied from Martha """
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        # subtract the average from each of the channels
-        diffBlue = cv2.subtract(frame[:,:,0], gray)
-        diffRed = cv2.subtract(frame[:,:,2], gray)
-
-        locsBlue = self.detectMarker(diffBlue)
-        locsRed = self.detectMarker(diffRed)
+        markersDetected = False
+        tryCnt = 0
+        while (markersDetected == False):
+                
+            """ Algorithm for detecting the markers is copied from Martha """
+            try:
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            except:
+                print(frame)
+                plt.imshow(frame)
+                plt.show()
+                raise(NameError('frame went wrong'))
+    
+            # subtract the average from each of the channels
+            diffBlue = cv2.subtract(frame[:,:,0], gray)
+            diffRed = cv2.subtract(frame[:,:,2], gray)
+    
+            locsBlue = self.detectMarker(diffBlue)
+            locsRed = self.detectMarker(diffRed)
+            if (locsBlue is None) or (locsRed is None):
+                print('marker detection failed, try again nr ',tryCnt)
+                # Loop to try and succesfully get a new frame:
+                gotFrame = False
+                while(gotFrame == False):
+                    frame = self.grabScreenshot(False)
+                    if frame is not None:
+                        gotFrame = True
+                    else: print("Frame was None, try againnnnnnnnnnnnn")
+            else: markersDetected = True # to exit this while loop
+            tryCnt += 1
         # Determine them in order:
         # from the base to the top is, small red, large blue, large red, small blue
         # return the marker locations in that order.
@@ -117,10 +144,16 @@ class MarkerDetector:
 
 
     def getAnglesFromWebcam(self,envWalls,simGoalLoc):
-        # Grab a frame
-        frame = self.grabScreenshot(False)
+        # Try to grab a frame, and if unsuccesul, try again
+        gotFrame = False
+        while(gotFrame == False):
+            frame = self.grabScreenshot(False)
+            if frame is not None:
+                gotFrame = True
+            else: print("Frame was None, try againnnnnnnnnnnnn")
         # detect the positions of the markers in the frame
         mkrPos = self.detectMarkerPositionsFromFrame(frame)
+        print(mkrPos)
         # compute the angles of the robot arm using the positions of the markers
         th = self.computeAngles(mkrPos)
 

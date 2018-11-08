@@ -15,6 +15,8 @@ REAL_markerAreaTreshold = 200 # must the marker area must be larger than this. F
 REAL_collorOfWalls = (0,0,255) # RGB value (0,0,255)=red
 REAL_wallThickness = 5 # in pixels
 REAL_goalColor = (0,255,0) # (0,255,0) = green
+REAL_comPort = 'COM3'
+REAL_webcamIndex = 1
 
 ENV_IS_RARM = True
 
@@ -67,7 +69,7 @@ print("GlobalCOnst ",sim_rewardNormalisation)
 
 
 rob_RandomInit = True
-rob_RandomWalls = False
+rob_RandomWalls = True
 rob_UseSetupBody = True
 rob_NoiseStandDev = 0.001
 rob_StepSize = np.radians(2)

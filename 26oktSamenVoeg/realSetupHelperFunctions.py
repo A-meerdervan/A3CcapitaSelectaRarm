@@ -39,18 +39,22 @@ if testOverlay:
     # get an env
     envWalls = env.envWalls
     simGoalLoc = env.createRandomGoal()
-    img = imread('testImg5.png')
+#    img = imread('kapo2Pi.PNG')
     detector = cam.MarkerDetector(False)
-    markers = detector.detectMarkerPositionsFromFrame(img)
+#    markers = detector.detectMarkerPositionsFromFrame(img)
+    
+    th = detector.getAnglesFromWebcam(env.envWalls,env.goal)
+#    print(markers)
+    print(th)
 
     # A loop that opens a window and keeps plotting the overlayed image.
 
-    while (True):
-        imgOverlay = visOverlay.getImgWithWallOverlay(img,envWalls,simGoalLoc,markers)
-        cv2.imshow('frame',img)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    cv2.destroyAllWindows()
+#    while (True):
+#        imgOverlay = visOverlay.getImgWithWallOverlay(img,envWalls,simGoalLoc,markers)
+#        cv2.imshow('frame',img)
+#        if cv2.waitKey(1) & 0xFF == ord('q'):
+#            break
+#    cv2.destroyAllWindows()
 
 if testWebcamFeed:
     cap = cv2.VideoCapture(index)

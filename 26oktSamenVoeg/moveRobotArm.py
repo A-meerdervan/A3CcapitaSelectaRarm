@@ -144,11 +144,13 @@ class RobotController:
 
         dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_PRESENT_POSITION)
 
-        while (dxl_present_position > 1300):
+        while (dxl_present_position > 1024):
+            print('re-reading the situation')
             try:
+                time.sleep(0.01)
                 dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_PRESENT_POSITION)
             except:
-                continue
+                break
 
         dummy = np.array([0,0,0])
         dummy[joint] = dxl_present_position

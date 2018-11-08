@@ -330,7 +330,6 @@ class EvalWorker():
             episode_step_count += 1
             episode_values.append(v[0,0])
 
-
             # If the episode terminates or the max steps has been reached
             # Then the episode (and so this while loop) terminates.
             if  episode_step_count >= self.max_episode_length - 1 or d == True:
@@ -399,7 +398,7 @@ else:
         save = False
         verbose = True
         model_path =  './LogsOfRuns/' + cn.EVAL_FOLDER + "/model"
-        #print(model_path)
+        #print(model_path).
         with tf.Session() as sess:
             coord = tf.train.Coordinator()
             print('Loading Model...')
