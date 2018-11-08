@@ -31,8 +31,8 @@ class RobotController:
         self.DXL_INITIAL_POSITION_VALUE1 = 820           # Define center position
         self.DXL_INITIAL_POSITION_VALUE2 = 512
         self.DXL_INITIAL_POSITION_VALUE3 = 516
-        self.DXL_VELOCITY_VALUE          = 110
-        self.DXL_MOVING_STATUS_THRESHOLD = 20           # Dynamixel moving status threshold
+        self.DXL_VELOCITY_VALUE          = 130
+        self.DXL_MOVING_STATUS_THRESHOLD = 5           # Dynamixel moving status threshold
 
         self.COMM_SUCCESS                = 0            # Communication Success result value
         self.COMM_TX_FAIL                = -3001        # Communication Tx Failed
@@ -123,6 +123,96 @@ class RobotController:
 
         return
 
+    def moveArm2(self, act, angles, _print):
+#        a = np.zeros((6,1))   # added to convert the output of the agent to the simulation env
+#        a[action - 1] = 1
+##        action = a
+#        a = a.reshape((3, 2))
+#        actionMap = [1,-1]
+#        act = a * actionMap
+#        act = np.max(act, axis=1) + np.min(act, axis=1)
+
+        joint = int(np.argmax(np.abs(act)))
+
+        if (joint == 0):
+            DXL_ID = self.DXL1_ID
+        elif (joint == 1):
+            DXL_ID = self.DXL2_ID
+        else:
+            DXL_ID = self.DXL3_ID
+#        dxl_current_position = self.convertAnglesToMotor(angles).astype(int)
+
+        dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_PRESENT_POSITION)
+
+        dummy = np.array([0,0,0])
+        dummy[joint] = dxl_present_position
+        dxl_goal_position = dummy + 10 * act * np.array([-1,-1,1])
+
+        newAng = self.convertMotorToAngles(dxl_goal_position)
+
+        if (not self.checkAngle(newAng[joint], joint)):
+            print ('angle too large to move ', joint)
+            print(np.degrees(newAng), '   ', joint)
+            return
+
+#        print('moving arm: ', joint)
+
+        dxl_goal_position = dxl_goal_position.astype(int)
+
+        # Enable Dynamixel Torque
+        dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_TORQUE_ENABLE, self.TORQUE_ENABLE)
+        if dxl_comm_result != self.COMM_SUCCESS:
+            if (_print):
+                print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            if (_print):
+                print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+        else:
+            if (_print):
+                print("Dynamixel has been successfully connected")
+#
+        while 1:
+            # Write goal position
+            dxl_comm_result, dxl_error = self.packetHandler.write4ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_GOAL_POSITION, dxl_goal_position[joint])
+            if dxl_comm_result != self.COMM_SUCCESS:
+                if (_print):
+                    print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
+            elif dxl_error != 0:
+                if (_print):
+                    print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+
+            while 1:
+                # Read present position
+                dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_PRESENT_POSITION)
+                if dxl_comm_result != self.COMM_SUCCESS:
+                    if (_print):
+                        print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
+                elif dxl_error != 0:
+                    if (_print):
+                        print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+                if (_print):
+                    print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_ID, dxl_goal_position[joint], dxl_present_position))
+
+                if not abs(dxl_goal_position[joint] - dxl_present_position) > self.DXL_MOVING_STATUS_THRESHOLD:
+                    break
+
+            if not abs(dxl_goal_position[joint] - dxl_present_position) > self.DXL_MOVING_STATUS_THRESHOLD:
+                break
+
+        # Disable Dynamixel Torque
+        dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_TORQUE_ENABLE, self.TORQUE_DISABLE)
+        if dxl_comm_result != self.COMM_SUCCESS:
+            if (_print):
+                print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            if (_print):
+                print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+
+        return
+
+
+
+
     def moveArm(self, armID, angles, _print):
         if (armID == 0):
             DXL_ID = self.DXL1_ID
@@ -130,9 +220,11 @@ class RobotController:
             DXL_ID = self.DXL2_ID
         else:
             DXL_ID = self.DXL3_ID
+        print('moving arm: ', armID)
 
         if (not self.checkAngle(angles[armID], armID)):
             print ('angle too large')
+            print(np.degrees(angles), '   ', armID)
             return
 
         dxl_goal_position = self.convertAnglesToMotor(angles).astype(int)

@@ -41,10 +41,10 @@ if testOverlay:
     simGoalLoc = env.createRandomGoal()
     img = imread('testImg5.png')
     detector = cam.MarkerDetector(False)
-    markers = detector.detectMarkerPositions(img)
-    
+    markers = detector.detectMarkerPositionsFromFrame(img)
+
     # A loop that opens a window and keeps plotting the overlayed image.
-    
+
     while (True):
         imgOverlay = visOverlay.getImgWithWallOverlay(img,envWalls,simGoalLoc,markers)
         cv2.imshow('frame',img)
@@ -54,24 +54,24 @@ if testOverlay:
 
 if testWebcamFeed:
     cap = cv2.VideoCapture(index)
-    
+
     while(True):
         # Capture frame-by-frame
         ret, frame = cap.read()
-    
+
         # Our operations on the frame come here
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    
+
         # Display the resulting frame
         cv2.imshow('frame',frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-    
+
         if cv2.waitKey(10) == ord('s'):
             cv2.imwrite(saveImgPath, frame)
             print('saved image')
-    
-    
+
+
     # When everything done, release the capture
     cap.release()
     cv2.destroyAllWindows()

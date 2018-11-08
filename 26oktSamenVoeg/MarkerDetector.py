@@ -13,12 +13,13 @@ from skimage.measure import label
 import time
 import matplotlib.pyplot as plt
 import gobalConst as cn
+import visualEnvironmentOverlay as visOverlay
 
 class MarkerDetector:
     def __init__(self,plotImages,useImShow=False):
         index = 0
         self.cap = cv2.VideoCapture(index)
-        time.sleep(2)
+        time.sleep(1)
         self.plotImages = plotImages
         self.useImShow = useImShow
         self.markerSizeRelativeTreshold = cn.REAL_markerAreaTreshold
@@ -74,11 +75,10 @@ class MarkerDetector:
                 rCnt += 1
                 areas = np.append(areas,r.area)
                 centroids = np.vstack((centroids,r.centroid))
-#                print('area ',r.area)
-#                print('pos ',r.centroid)
 #                positions = np.vstack((positions, [r.centroid]))
         if not rCnt == 2:
-            raise(NameError('The nr of markers detected was not 2 for this color. it was '+str(rCnt) ))
+            print('The nr of markers detected was not 2 for this color. it was '+str(rCnt) )
+#            raise(NameError('The nr of markers detected was not 2 for this color. it was '+str(rCnt) ))
 
         centroids = np.delete(centroids, 0, 0)  # delete dummy
         # Return [small marker, large marker]
@@ -107,12 +107,16 @@ class MarkerDetector:
         markerPosFix = []
         for loc in asItShouldBe:
             fixedLoc = [loc[1],loc[0]]
-            # using insert reverses the order, which is somehow nessasary. 
-            markerPosFix.insert(0,fixedLoc)
-        return np.array(markerPosFix)
-            
+            # using insert reverses the order, which is somehow nessasary.
+            markerPosFix.append(fixedLoc)
+#        print(markerPosFix)
 
-    def getAnglesFromWebcam(self):
+#        cv2.imwrite('markerImg.png', frame)
+        return np.array(markerPosFix)
+#        return asItShouldBe
+
+
+    def getAnglesFromWebcam(self,envWalls,simGoalLoc):
         # Grab a frame
         frame = self.grabScreenshot(False)
         # detect the positions of the markers in the frame
@@ -120,6 +124,13 @@ class MarkerDetector:
         # compute the angles of the robot arm using the positions of the markers
         th = self.computeAngles(mkrPos)
 
+        # visualise the environment
+        imgOverlay = visOverlay.getImgWithWallOverlay(frame,envWalls,simGoalLoc,mkrPos)
+        cv2.imshow('frame',imgOverlay)
+#        if cv2.waitKey(1) & 0xFF == ord('q'):
+#            break
+
+#        print('grabbed frame!')
         return th, [0,0,0]
 
     def computeAngles(self, mkr):
@@ -138,3 +149,5 @@ class MarkerDetector:
 
         return th
 
+#mrk = MarkerDetector(True,True)
+#mar = mrk.getAnglesFromWebcam([0],[0])
