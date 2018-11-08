@@ -22,7 +22,7 @@ EVAL_RENDER = True # only relevant ruing evaluation episodes
 EVAL_SHOW_NORMAL_SPEED = True # only relevant during evaluation episodes
 EVAL_FPS = 120 # only relevant during evalutation episodes
 #EVAL_CPU_CNT = 12 # Number of cpu's used during training
-EVAL_FOLDER = 'TestRun' # The folder that holds the model and train folders
+EVAL_FOLDER = 'run06novReachable5050G993' # The folder that holds the model and train folders
 # deze heb je nodig om iets te evalueren in een compleet andere map
 #EVAL_HIGHLEVEL_FOLDER = './LogsOfRuns/TempTransferCluster29okt'
 #tussen = EVAL_HIGHLEVEL_FOLDER + '/' + EVAL_FOLDER
@@ -69,7 +69,7 @@ rob_RandomWalls = True
 rob_UseSetupBody = True
 rob_NoiseStandDev = 0.001
 rob_StepSize = np.radians(1.4)
-rob_MaxJointAngle = np.radians(np.array([180,0,100,-100,107,-107])) # these are from the actual setup
+rob_MaxJointAngle = np.radians(np.array([180,0,90,-90,100,-100])) # these are from the actual setup
 #rob_MaxJointAngle = np.radians(np.array([180,0,170,-170,170,-170])) # these are what was used before 5 nov
 
 if rob_UseSetupBody:
@@ -86,8 +86,8 @@ rob_ResetAngles = np.radians(np.array([120,-99,99])) # this is used with randomW
 #rob_ResetAngles = np.radians(np.array([130,-140,140])) # this was used during the 29okt runs
 rob_resetAngles_Lchance = 0.5 # the chance of having a left oriented init
 rob_resetAngles_Rchance = 0.5 # the chance of having a right oriented init
-rob_ResetAngles_Left = np.radians(np.array([131,-96,103])) # This is oriented for going left
-rob_ResetAngles_Right = np.radians(np.array([48,95,-102])) # this is oriented for going right.
+rob_ResetAngles_Left = np.radians(np.array([131,-89,99])) # This is oriented for going left
+rob_ResetAngles_Right = np.radians(np.array([48,89,-99])) # this is oriented for going right.
 
 
 

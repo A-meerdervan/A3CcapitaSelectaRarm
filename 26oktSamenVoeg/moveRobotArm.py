@@ -36,7 +36,7 @@ class RobotController:
 
         self.COMM_SUCCESS                = 0            # Communication Success result value
         self.COMM_TX_FAIL                = -3001        # Communication Tx Failed
-        self.STEP_SIZE                   = 1.4          # Stepsize in degrees
+        self.STEP_SIZE                   = cn.rob_StepSize         # Stepsize in degrees
 
         self.DXL1_ID = 32
         self.DXL2_ID = 33
@@ -131,7 +131,7 @@ class RobotController:
         else:
             DXL_ID = self.DXL3_ID
 
-        if (not self.checkAngles(angles)):
+        if (not self.checkAngle(angles[armID], armID)):
             print ('angle too large')
             return
 
@@ -186,6 +186,12 @@ class RobotController:
             if (_print):
                 print("%s" % self.packetHandler.getRxPacketError(dxl_error))
 
+
+    def checkAngle(self, a, ID):
+        if (a >= self.maxAngles[ID*2] or a <= self.maxAngles[ID*2 + 1]):
+            return False
+
+        return True
 
     def checkAngles(self, angles):
         ctr = 0

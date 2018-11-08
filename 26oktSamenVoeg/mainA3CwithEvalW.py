@@ -208,6 +208,7 @@ class Worker():
                     a = np.random.choice(a_dist[0],p=a_dist[0])
                     a = np.argmax(a_dist == a)
 
+#                    s1,r,d,epLength = self.env.step(self.actions[a])
                     s1,r,d,epLength = self.env.step(self.actions[a])
 
                     episode_buffer.append([s,a,r,s1,d,v[0,0]])
@@ -317,7 +318,11 @@ class EvalWorker():
             a = np.argmax(a_dist == a)
 
             # Take one step in env using the chosen action a
-            s1,r,d, i = self.env.step(self.actions[a])
+#
+            if (cn.REAL_SETUP):
+                s1,r,d, i = self.env.stepRealWorld(self.actions[a])
+            else:
+                s1,r,d, i = self.env.step(self.actions[a])
 
             s = s1 # needed for next timestep
             # bookkeeping

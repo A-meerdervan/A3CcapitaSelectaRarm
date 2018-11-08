@@ -108,8 +108,7 @@ class SimulationEnvironment:
         act = self.actionToRoboAction(action)
 
         # angles are stored in robot, computed here
-        stepSize = 1.4
-        self.robot.jointAngles = self.robot.jointAngles + stepSize*act
+        self.robot.jointAngles = self.robot.jointAngles + cn.rob_StepSize*act
 
         # perform action in the real world
         if (self.controller.hasConnection):
@@ -944,7 +943,7 @@ class SimulationEnvironment:
 #        self.envWalls = self.pointsTOWalls(self.envPoints)
 #
 #        return
-
-sim = SimulationEnvironment(True)
-sim.reset()
+#
+#sim = SimulationEnvironment(True)
+#sim.reset()
 #sim.markerDetector.getAnglesFromWebcam()
