@@ -102,7 +102,15 @@ class MarkerDetector:
         # Determine them in order:
         # from the base to the top is, small red, large blue, large red, small blue
         # return the marker locations in that order.
-        return np.array([locsRed[0],locsBlue[1],locsRed[1],locsBlue[0]])
+        asItShouldBe = np.array([locsRed[0],locsBlue[1],locsRed[1],locsBlue[0]])
+        # The above did not work and a fix apeared to be this strange reordering:
+        markerPosFix = []
+        for loc in asItShouldBe:
+            fixedLoc = [loc[1],loc[0]]
+            # using insert reverses the order, which is somehow nessasary. 
+            markerPosFix.insert(0,fixedLoc)
+        return np.array(markerPosFix)
+            
 
     def getAnglesFromWebcam(self):
         # Grab a frame

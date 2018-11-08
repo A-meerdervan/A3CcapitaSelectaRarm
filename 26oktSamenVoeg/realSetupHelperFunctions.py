@@ -13,7 +13,12 @@ from skimage.measure import label
 import time
 import matplotlib.pyplot as plt
 import gobalConst as cn
-import MarkerDetector
+import MarkerDetector as cam
+import visualEnvironmentOverlay as visOverlay
+import SimulationEnvironment as sim
+from scipy.misc import imread
+
+testOverlay = True
 
 # used if this bool is True
 testWebcamFeed = False
@@ -22,10 +27,30 @@ saveImgPath = 'testImg1.png'
 # -----------------------------
 # used if testWebcamFeed == False:
 
-# Detect markers from a saved image:
-plotImages = False
-useImShow = True
-savedImgPath = 'testImg2.png'
+if testOverlay:
+    """These are to make it work, but would not be given"""
+    ## From inspecting a webcam image with the arm at angle 1 = 90 degrees a2,a3 = 0,0
+    ## Done with testImg1
+    env = sim.SimulationEnvironment()
+    envNr = 3
+    env.getEnv(envNr)
+    env.createRandomGoal()
+    """These are inputs from outside:"""
+    # get an env
+    envWalls = env.envWalls
+    simGoalLoc = env.createRandomGoal()
+    img = imread('testImg5.png')
+    detector = cam.MarkerDetector(False)
+    markers = detector.detectMarkerPositions(img)
+    
+    # A loop that opens a window and keeps plotting the overlayed image.
+    
+    while (True):
+        imgOverlay = visOverlay.getImgWithWallOverlay(img,envWalls,simGoalLoc,markers)
+        cv2.imshow('frame',img)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    cv2.destroyAllWindows()
 
 if testWebcamFeed:
     cap = cv2.VideoCapture(index)
@@ -50,21 +75,3 @@ if testWebcamFeed:
     # When everything done, release the capture
     cap.release()
     cv2.destroyAllWindows()
-else:
-    # Detect markers from a saved image:
-    detector = MarkerDetector.MarkerDetector(plotImages,useImShow)
-    time.sleep(1)
-    #frame = detector.grabScreenshot(True)
-    
-    ##load image
-    frame = cv2.imread(savedImgPath)
-    pos = detector.detectMarkerPositions(frame)
-    print(pos, len(pos))
-
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    # subtract the average from each of the channels
-    diffBlue = cv2.subtract(frame[:,:,0], gray)
-    diffGreen = cv2.subtract(frame[:,:,1], gray)
-    diffRed = cv2.subtract(frame[:,:,2], gray)
-
