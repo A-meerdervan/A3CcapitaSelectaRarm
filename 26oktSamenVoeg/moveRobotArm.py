@@ -157,7 +157,7 @@ class RobotController:
                 dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_PRESENT_POSITION)
             except:
                 break
-            
+
         dummy = np.array([0,0,0])
         dummy[joint] = dxl_present_position
         dxl_goal_position = dummy + 10 * act * np.array([-1,-1,1])
