@@ -1,0 +1,22 @@
+
+All with stepsize 2.9
+en huidge walls
+
+5050
+3434
+0,0 # volledig random init
+1,0 # alleen naar links
+
+Noise?
+RandomInit of 5050 kijk maar
+
+En nu met randomly generated wall configurations:
+
+5050
+3434
+0,0 # volledig random init
+1,0 # alleen naar links
+
+Noise?
+RandomInit of 5050 kijk maar
+

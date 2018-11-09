@@ -118,12 +118,11 @@ class SimulationEnvironment:
             # find the joint to move
 #            joint = np.argmax(np.abs(act))
 #            self.controller.moveArm(joint, self.robot.jointAngles, True)
-            print(act)
+#            print(act)
             self.controller.moveArm2(act, self.robot.jointAngles, False)
 
         # use webcam to evaluate the angles
         self.robot.jointAngles, dummy = self.markerDetector.getAnglesFromWebcam(self.envWalls, self.goal)
-        print(self.robot.jointAngles)
         # check for any collision or if the robot has reached the goal
         [col, dist] = self.checkNOCollision()
 

@@ -353,6 +353,9 @@ class EvalWorker():
 
         results[n,:] = [np.mean(results[:n,0]),np.mean(results[:n,1]),np.mean(results[:n,2]),np.mean(results[:n,3])]
         results[n+1,:] = [np.std(results[:n,0]),np.std(results[:n,1]),np.std(results[:n,2]),np.std(results[:n,3])]
+        
+        # release video
+        if cn.REAL_SETUP: self.env.markerDetector.releaseVideo()
         # Specific to our pong implementation
         if not cn.ENV_IS_RARM: self.env.quitScreen()
         if self.verbose:

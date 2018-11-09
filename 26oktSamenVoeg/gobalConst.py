@@ -8,8 +8,8 @@ Created on Tue Oct 23 12:28:34 2018
 import numpy as np
 
 # REAL setup parameters
-REAL_webcamWindowWidth = 640
-REAL_webcamWindowHeight = 480
+REAL_webcamWindowWidth = 1920
+REAL_webcamWindowHeight = 1080
 # Dit is afhankelijk van de resolutie!
 REAL_markerAreaTreshold = 200 # must the marker area must be larger than this. For 480p the markers start around 60?
 REAL_collorOfWalls = (0,0,255) # RGB value (0,0,255)=red
@@ -17,6 +17,7 @@ REAL_wallThickness = 5 # in pixels
 REAL_goalColor = (0,255,0) # (0,255,0) = green
 REAL_comPort = 'COM3'
 REAL_webcamIndex = 1
+REAL_videoPath = 'firstVid.avi'
 
 ENV_IS_RARM = True
 
@@ -72,7 +73,7 @@ rob_RandomInit = True
 rob_RandomWalls = True
 rob_UseSetupBody = True
 rob_NoiseStandDev = 0.001
-rob_StepSize = np.radians(2)
+rob_StepSize = np.radians(1.4) # used in real: 2 # 6 nov trained on 1.4
 rob_MaxJointAngle = np.radians(np.array([180,0,100,-100,107,-107])) # these are from the actual setup
 #rob_MaxJointAngle = np.radians(np.array([180,0,170,-170,170,-170])) # these are what was used before 5 nov
 
@@ -88,8 +89,8 @@ else: # this is for the old thin body
 #rob_ResetAngles = np.radians(np.array([65,115,-115])) # This is the one to the right.
 rob_ResetAngles = np.radians(np.array([120,-99,99])) # this is used with randomWalls = True in 31 okt runs
 #rob_ResetAngles = np.radians(np.array([130,-140,140])) # this was used during the 29okt runs
-rob_resetAngles_Lchance = 1 # the chance of having a left oriented init
-rob_resetAngles_Rchance = 0 # the chance of having a right oriented init
+rob_resetAngles_Lchance = 0.5 # the chance of having a left oriented init
+rob_resetAngles_Rchance = 0.5 # the chance of having a right oriented init
 rob_ResetAngles_Left = np.radians(np.array([131,-89,99])) # This is oriented for going left
 rob_ResetAngles_Right = np.radians(np.array([48,89,-99])) # this is oriented for going right.
 
@@ -99,7 +100,7 @@ rob_ResetAngles_Right = np.radians(np.array([48,89,-99])) # this is oriented for
 
 run_Render = True
 run_NumOfWorkers = 12
-run_MaxEpisodeLenght = 500
+run_MaxEpisodeLenght = 2000
 run_FPS = 15
 run_Gamma = .99 # discount rate for advantage estimation and reward discounting
 run_sSize = 17 # Observations are greyscale frames of 84 * 84 * 1
