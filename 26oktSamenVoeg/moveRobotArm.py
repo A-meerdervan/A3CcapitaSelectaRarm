@@ -116,10 +116,13 @@ class RobotController:
         return True
 
     def moveInitialPosition(self, initAng):
+        for i in range(2):
+            self.moveArm(i+1, np.radians([90,0,0]), False)
+        
         for i in range(3):
-            j = 3 - i - 1
-            print('move ', j, 'to: ', np.degrees(initAng[j]))
-            self.moveArm(j, initAng, False)
+#            j = 3 - i - 1
+            print('move ', i, 'to: ', np.degrees(initAng[i]))
+            self.moveArm(i, initAng, False)
 
         return
 
@@ -144,8 +147,11 @@ class RobotController:
 
         dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_PRESENT_POSITION)
 
+        # The communication failes more often than that it works. 
+        # When it fails it just sends a realy high number.
+        # This loop tries until it gets one in the acceptable range.
         while (dxl_present_position > 1024):
-            print('re-reading the situation')
+#            print('re-reading the situation')
             try:
                 time.sleep(0.01)
                 dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, DXL_ID, self.ADDR_MX_PRESENT_POSITION)

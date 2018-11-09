@@ -14,6 +14,7 @@ import time
 import matplotlib.pyplot as plt
 import gobalConst as cn
 import visualEnvironmentOverlay as visOverlay
+import math
 
 class MarkerDetector:
     def __init__(self,plotImages,useImShow=False):
@@ -30,6 +31,7 @@ class MarkerDetector:
         firstImg = self.grabScreenshot()
         plt.imshow(firstImg)
         plt.show()
+        self.videoWr = cv2.VideoWriter(cn.REAL_videoPath,cv2.VideoWriter_fourcc(*'MJPG'),30,(cn.REAL_webcamWindowWidth,cn.REAL_webcamWindowHeight))
         
 
     def close(self):
@@ -142,7 +144,6 @@ class MarkerDetector:
         return np.array(markerPosFix)
 #        return asItShouldBe
 
-
     def getAnglesFromWebcam(self,envWalls,simGoalLoc):
         # Try to grab a frame, and if unsuccesul, try again
         gotFrame = False
@@ -153,34 +154,49 @@ class MarkerDetector:
             else: print("Frame was None, try againnnnnnnnnnnnn")
         # detect the positions of the markers in the frame
         mkrPos = self.detectMarkerPositionsFromFrame(frame)
-        print(mkrPos)
         # compute the angles of the robot arm using the positions of the markers
         th = self.computeAngles(mkrPos)
 
         # visualise the environment
         imgOverlay = visOverlay.getImgWithWallOverlay(frame,envWalls,simGoalLoc,mkrPos)
         cv2.imshow('frame',imgOverlay)
+        self.videoWr.write(imgOverlay)
 #        if cv2.waitKey(1) & 0xFF == ord('q'):
 #            break
 
 #        print('grabbed frame!')
         return th, [0,0,0]
 
-    def computeAngles(self, mkr):
-        th = []
-#        mkr = np.vstack((zeroPosition, markers))
-        for i in range(1,len(mkr)):
-            d_y = mkr[i-1,1] - mkr[i,1]
-            d_x = mkr[i,0] - mkr[i-1,0]
-
-            t = np.arctan2(d_y,d_x)
-            th = np.append(th, t)
-
-        for i in range(1, len(th)):
-            j = len(th) - i
-            th[j] = th[j] - th[j-1]
-
-        return th
+    def releaseVideo(self):
+        self.videoWr.release()
+        
+        return
+    
+    # This function returns the joint angles as defined by us. 
+    # Angles range from -179 unto + 180. 
+    def computeAngles(self, markers):
+        m1 = markers[0];    m2 = markers[1]
+        m3 = markers[2];    m4 = markers[3]
+        # This is a trick to add a non existing point, shifted to the left of m1
+        # This makes the assumption that the webcam is nicely centered. Then 
+        # it reasons as if m1 is attached to an arm which ends at m1shifted.
+        # This makes it possible to use the same formula for the angle. 
+        m1copy = list(m1)
+        m1shifted = np.array(m1copy) + np.array([-100,0])
+        th1 = self.getJointAngle(m1shifted,m2,m1)
+        th2 = self.getJointAngle(m1,m3,m2)
+        th3 = self.getJointAngle(m2,m4,m3)
+        return np.array([th1,th2,th3])
+    
+    # Returns an angle in rad. The angle is taken between 3 points, where centroid
+    # is the middle of the 3 angle defining points. Points expected in format [x,y]
+    def getJointAngle(self,p1,p2,centroid):
+        angle = math.atan2(p1[1] - centroid[1], p1[0] - centroid[0]) - math.atan2(p2[1] - centroid[1], p2[0] - centroid[0])
+        # adjust
+        if angle > 0:
+            return angle - np.radians(180)
+        else:
+            return angle + np.radians(180)
 
 #mrk = MarkerDetector(True,True)
 #mar = mrk.getAnglesFromWebcam([0],[0])
