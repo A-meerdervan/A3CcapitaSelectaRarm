@@ -21,8 +21,8 @@ REAL_webcamIndex = 1
 ENV_IS_RARM = True
 
 # PARS FOR EVALUATION ONLY
-EVAL_MODE = True
-REAL_SETUP = True
+EVAL_MODE = False
+REAL_SETUP = False
 EVAL_RENDER = True # only relevant ruing evaluation episodes
 EVAL_SHOW_NORMAL_SPEED = True # only relevant during evaluation episodes
 EVAL_FPS = 120 # only relevant during evalutation episodes

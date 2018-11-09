@@ -126,9 +126,9 @@ class SimulationEnvironment:
         print(self.robot.jointAngles)
         # check for any collision or if the robot has reached the goal
         [col, dist] = self.checkNOCollision()
-        
+
         # if collision: Do something
-        
+
 #        if not col:
 #            # check for collisison
 #            self.wallHits += 1
@@ -152,20 +152,20 @@ class SimulationEnvironment:
             if (self.controller.hasConnection):
                 self.controller.moveArm2(-1*np.asarray(self.actQueue[ctr]), self.robot.jointAngles, False)
                 time.sleep(0.5)
-                 
+
             # use webcam to evaluate the angles
             self.robot.jointAngles, dummy = self.markerDetector.getAnglesFromWebcam(self.envWalls, self.goal)
 
             [col, dist] = self.checkNOCollision()
-            
+
             ctr += 1
             print('restore previous angle, try:  ', ctr)
-           
-             
-        # only computes the reward if the collision has been solved. 
+
+
+        # only computes the reward if the collision has been solved.
         # this can only be done if you are not training
         [r, reachGoal] = self.computeReward(dist, not col)
-        
+
         done = False
         if reachGoal:
             done = True
@@ -203,7 +203,8 @@ class SimulationEnvironment:
         self.wallHits = 0 # reset the number of times the wall was hit
 
         if cn.rob_RandomWalls:
-            self.setRandomEnv()
+            self.setsRandomEnv()
+#            self.setRandomEnv()
 
         if (self.randomGoal):
             self.goal = self.createRandomGoal()
