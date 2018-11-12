@@ -159,15 +159,16 @@ class Worker():
 
         # Here we take the rewards and values from the rollout, and use them to
         # generate the advantage and discounted returns.
-        # The advantage function uses "Generalized Advantage Estimation"
         self.rewards_plus = np.asarray(rewards.tolist() + [bootstrap_value])
-#        print('ee ',  self.rewards_plus)
         discounted_rewards = discount(self.rewards_plus,gamma)[:-1]   #the :-1 takes only the first decimal
-
-        #TODO: why only use the first decimal?
+        # the advantages are calculated by taking the discounted rewards and subtracting the baseline, the value.
         self.value_plus = np.asarray(values.tolist() + [bootstrap_value])
-        advantages = rewards + gamma * self.value_plus[1:] - self.value_plus[:-1]
-        advantages = discount(advantages,gamma)
+        advantages = discounted_rewards - self.value_plus[:-1]
+        # This uses generalised advantage estimation. But we have not used this:
+#        tdErrors = rewards + gamma * self.value_plus[1:] - self.value_plus[:-1]
+#        advantages = discount(tdErrors,Lambda*gamma)
+        
+        
 
         # Update the global network using gradients from loss
         # Generate network statistics to periodically save

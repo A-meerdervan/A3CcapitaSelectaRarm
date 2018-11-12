@@ -22,9 +22,9 @@ r3 = offset * np.exp(rGamma3 * d) - offset
 # plot heatmap:
 figName = "The exponential relative reward set out against the relative distance."
 fig = plt.figure()
-plt.plot(d, r1, 'C7',label='gamma = 0.01')
-plt.plot(d, r2, 'C5',label='gamma = 0.022')
-plt.plot(d, r3, 'C6',label='gamma = 0.03')
+#plt.plot(d, r1, 'C7',label='gamma = 0.01')
+plt.plot(d, r2, 'C3',label='gamma = 0.022')
+#plt.plot(d, r3, 'C6',label='gamma = 0.03')
 
 # Plot a line which shows the lower Y goal threshold
 #plt.plot([0,400],[280,280],linestyle= (0, ()), linewidth=4, color='black')
