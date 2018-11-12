@@ -125,9 +125,9 @@ class SimulationEnvironment:
         self.robot.jointAngles, dummy = self.markerDetector.getAnglesFromWebcam(self.envWalls, self.goal)
         # check for any collision or if the robot has reached the goal
         [col, dist] = self.checkNOCollision()
-        
+
         # if collision: Do something
-        
+
 #        if not col:
 #            # check for collisison
 #            self.wallHits += 1
@@ -151,20 +151,20 @@ class SimulationEnvironment:
             if (self.controller.hasConnection):
                 self.controller.moveArm2(-1*np.asarray(self.actQueue[ctr]), self.robot.jointAngles, False)
                 time.sleep(0.5)
-                 
+
             # use webcam to evaluate the angles
             self.robot.jointAngles, dummy = self.markerDetector.getAnglesFromWebcam(self.envWalls, self.goal)
 
             [col, dist] = self.checkNOCollision()
-            
+
             ctr += 1
             print('restore previous angle, try:  ', ctr)
-           
-             
-        # only computes the reward if the collision has been solved. 
+
+
+        # only computes the reward if the collision has been solved.
         # this can only be done if you are not training
         [r, reachGoal] = self.computeReward(dist, not col)
-        
+
         done = False
         if reachGoal:
             done = True
@@ -202,7 +202,10 @@ class SimulationEnvironment:
         self.wallHits = 0 # reset the number of times the wall was hit
 
         if cn.rob_RandomWalls:
-            self.setRandomEnv()
+            if cn.sim_FullyRandomWalls:
+                self.setsRandomEnv()
+            else:
+                self.setRandomEnv()
 
         if (self.randomGoal):
             self.goal = self.createRandomGoal()
@@ -527,8 +530,11 @@ class SimulationEnvironment:
         if (self.screen == 0):
             self.screen = pygame.display.set_mode((cn.sim_WINDOW_WIDTH, cn.sim_WINDOW_HEIGHT))
 
-        [wall, goal] = self.drawEnvironment()
-        robot = self.drawRobot()
+        try:
+            [wall, goal] = self.drawEnvironment()
+            robot = self.drawRobot()
+        except:
+            [wall, robot, goal] = [0,0,0]
 
         return [wall, robot, goal]
 
@@ -536,6 +542,7 @@ class SimulationEnvironment:
 #        pygame.event.pump()
 
         self.screen.fill((0,0,0)) # black out screen
+        time.sleep(0.1)
 
         colour = (255,0,0)
         thickness = 10
@@ -919,7 +926,7 @@ class SimulationEnvironment:
         envNr = np.random.randint(1, 4 + 1)
 #        envNr = 4
 #        minWallSize = 50
-        minW = 60
+        minW = 50
         # Switch between environments per reset of the environment.
         # This is a pipe which a corner to the left (most used during training. Our first env.)
 
@@ -935,7 +942,7 @@ class SimulationEnvironment:
             wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW, self.WINDOW_WIDTH)
             wy0 = 400
             wy2 = np.random.randint(minW, self.WINDOW_HEIGHT/2)
-            wy1 = np.random.randint(wy2 + minW, wy0 - minW)
+            wy1 = np.random.randint(200, wy0 - minW/3)
 
             self.envPoints = np.array([(wx1, wy0), (wx1, wy1), (wx0, wy1), (wx0, wy2), (wx2, wy2), (wx2, wy0)])
             self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
@@ -944,7 +951,7 @@ class SimulationEnvironment:
             wx0 = np.random.randint(0, self.WINDOW_WIDTH/2 - 50)
             wx1 = np.random.randint(self.WINDOW_WIDTH/2 + 50, self.WINDOW_WIDTH)
             wy0 = self.WINDOW_HEIGHT
-            wy1 = np.random.randint(0, self.WINDOW_HEIGHT / 2 - 50)
+            wy1 = np.random.randint(100, self.WINDOW_HEIGHT / 2 + 40)
 
             self.envPoints = np.array([(wx0,wy0), (wx0, wy1), (wx1, wy1), (wx1, wy0)])
             self.envWallSide = ['l', 't','r', 'b']
@@ -955,8 +962,8 @@ class SimulationEnvironment:
             wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW, self.WINDOW_WIDTH - minW)
             wx3 = np.random.randint(wx2 + minW, self.WINDOW_WIDTH)
             wy0 = 400
-            wy2 = np.random.randint(minW, self.WINDOW_HEIGHT/2)
-            wy1 = np.random.randint(wy2 + minW, wy0 - minW)
+            wy2 = np.random.randint(100, self.WINDOW_HEIGHT/2)
+            wy1 = np.random.randint(200, wy0 - minW/3)
 
             self.envPoints = np.array([(wx1, wy0), (wx1, wy1), (wx0, wy1), (wx0, wy2), (wx3, wy2), (wx3, wy1), (wx2, wy1), (wx2, wy0)])
             self.envWallSide = ['l', 'b','l', 't', 'r', 'b','r','b']
@@ -964,11 +971,11 @@ class SimulationEnvironment:
         elif envNr == 4:
             wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW)
             wx2 = np.random.randint(self.WINDOW_WIDTH/2 + 2*minW+1, self.WINDOW_WIDTH)
-            wx1 = np.random.randint(self.WINDOW_WIDTH/2 + minW, wx2 - minW)
+            wx1 = np.random.randint(self.WINDOW_WIDTH/2 + minW, wx2 - minW/2)
 
             wy0 = 400
-            wy2 = np.random.randint(minW, self.WINDOW_HEIGHT/2)
-            wy1 = np.random.randint(wy2 + minW, wy0 - minW)
+            wy2 = np.random.randint(100, self.WINDOW_HEIGHT/2)
+            wy1 = np.random.randint(200, wy0 - minW/3)
 
             self.envPoints = np.array([(wx0, wy0), (wx0, wy2), (wx2, wy2), (wx2, wy1), (wx1, wy1), (wx1, wy0)])
             self.envWallSide = ['l', 't','r', 'b', 'r', 'b']

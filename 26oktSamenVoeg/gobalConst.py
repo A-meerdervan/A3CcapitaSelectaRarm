@@ -28,7 +28,7 @@ EVAL_RENDER = True # only relevant ruing evaluation episodes
 EVAL_SHOW_NORMAL_SPEED = True # only relevant during evaluation episodes
 EVAL_FPS = 120 # only relevant during evalutation episodes
 #EVAL_CPU_CNT = 12 # Number of cpu's used during training
-EVAL_FOLDER = 'run06novReachable5050G993' # The folder that holds the model and train folders
+EVAL_FOLDER = 'Normal0100' # The folder that holds the model and train folders
 # deze heb je nodig om iets te evalueren in een compleet andere map
 #EVAL_HIGHLEVEL_FOLDER = './LogsOfRuns/TempTransferCluster29okt'
 #tussen = EVAL_HIGHLEVEL_FOLDER + '/' + EVAL_FOLDER
@@ -68,12 +68,12 @@ else: # in case no sparse rewards
     sim_rewardNormalisation = sim_WallReward + sim_expRewardOffset
 print("GlobalCOnst ",sim_rewardNormalisation)
 
-
+sim_FullyRandomWalls = True
 rob_RandomInit = True
 rob_RandomWalls = True
 rob_UseSetupBody = True
 rob_NoiseStandDev = 0.001
-rob_StepSize = np.radians(1.4) # used in real: 2 # 6 nov trained on 1.4
+rob_StepSize = np.radians(2.9296875) # used in real: 2 # 6 nov trained on 1.4
 rob_MaxJointAngle = np.radians(np.array([180,0,100,-100,107,-107])) # these are from the actual setup
 #rob_MaxJointAngle = np.radians(np.array([180,0,170,-170,170,-170])) # these are what was used before 5 nov
 
@@ -98,7 +98,7 @@ rob_ResetAngles_Right = np.radians(np.array([48,89,-99])) # this is oriented for
 
 
 
-run_Render = True
+run_Render = False
 run_NumOfWorkers = 12
 run_MaxEpisodeLenght = 2000
 run_FPS = 15
@@ -118,7 +118,7 @@ run_TFmodelSaveIntrvl = 100 # after this many episodes the model is saved.
 netw_nHidNodes = 128
 netw_vfCoef = 0.5 # Was originally at 0.5, openAI also had 0.5
 netw_entCoef = 0.1 # Was at 0.1 originally, openAI has 0.01 as default in A2C
-netw_maxGradNorm = 40 # was originally 40 and openAI has 0.5 in A2C
+netw_maxGradNorm = 80 # was originally 40 and openAI has 0.5 in A2C
 
 
 OUTP_FOLDER = '/TestRun'

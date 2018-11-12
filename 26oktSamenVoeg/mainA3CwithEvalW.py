@@ -67,6 +67,29 @@ class AC_Network():
             hidden = slim.fully_connected(self.inputs,cn.netw_nHidNodes,activation_fn=tf.nn.elu)
             hidden2 = slim.fully_connected(hidden,cn.netw_nHidNodes,activation_fn=tf.nn.elu)
 
+            # -- Specifies a LSTM cell with all its vars -- #
+            #Recurrent network for temporal dependencies
+#            lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(cn.netw_nHidNodes,state_is_tuple=True)
+#            # init hidden state
+#            c_init = np.zeros((1, lstm_cell.state_size.c), np.float32)
+#            # init output state
+#            h_init = np.zeros((1, lstm_cell.state_size.h), np.float32)
+#            self.state_init = [c_init, h_init]
+#            # placeholder: way to feed data into a tensor
+#            c_in = tf.placeholder(tf.float32, [1, lstm_cell.state_size.c])
+#            h_in = tf.placeholder(tf.float32, [1, lstm_cell.state_size.h])
+#            self.state_in = (c_in, h_in)
+#            rnn_in = tf.expand_dims(hidden2, [0])
+#            step_size = tf.shape(hidden2)[:1]
+#            state_in = tf.nn.rnn_cell.LSTMStateTuple(c_in, h_in)
+#            # define the lstm cells
+#            lstm_outputs, lstm_state = tf.nn.dynamic_rnn(
+#                lstm_cell, rnn_in, initial_state=state_in, sequence_length=step_size,
+#                time_major=False)
+#            lstm_c, lstm_h = lstm_state
+#            self.state_out = (lstm_c[:1, :], lstm_h[:1, :])
+#            rnn_out = tf.reshape(lstm_outputs, [-1, cn.netw_nHidNodes])
+
             #Output layers for policy and value estimations
             self.policy = slim.fully_connected(hidden2,a_size,
                 activation_fn=tf.nn.softmax,
@@ -237,7 +260,7 @@ class Worker():
                 if cn.ENV_IS_RARM: self.episode_wallHitPercentages.append(self.env.wallHits/epLength)
                 self.episode_terminalRewards.append(r)
                 # print terminal reward
-                print('terminalR ',r)
+#                print('terminalR ',r)
 
                 #Alex added: Store a global end of episode reward to print it
                 sess.run(self.global_rewardEndEpisode.assign(int(episode_reward)))
@@ -354,7 +377,7 @@ class EvalWorker():
 
         results[n,:] = [np.mean(results[:n,0]),np.mean(results[:n,1]),np.mean(results[:n,2]),np.mean(results[:n,3])]
         results[n+1,:] = [np.std(results[:n,0]),np.std(results[:n,1]),np.std(results[:n,2]),np.std(results[:n,3])]
-        
+
         # release video
         if cn.REAL_SETUP: self.env.markerDetector.releaseVideo()
         # Specific to our pong implementation

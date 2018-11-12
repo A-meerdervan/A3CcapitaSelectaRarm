@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 
 def pltLine(p1,p2):
     plt.plot([p1[0],p2[0]],[p1[1],p2[1]],linestyle= (0, ()), linewidth=4, color='red')
-def plotWalls(envWalls):        
+def plotWalls(envWalls):
     for wall in envWalls:
         p1 = wall[0]
         p2 = wall[1]
@@ -43,12 +43,12 @@ def getWalls(points):
         curEndPoint = point
     walls.append([points[-1],startPoint])
     return np.array(walls)
-        
-        
+
+
 env = sim.SimulationEnvironment()
 #env.runTestMode(cn.TEST_fromTestConsts)
-envNr = 5
-totalDots = 2000
+envNr = 1
+totalDots = 1000
 Xpts,Ypts = env.createHeatMap(envNr,totalDots)
 envWalls = env.envWalls
 # plot heatmap:
@@ -66,8 +66,8 @@ plt.ylim([400, 0])
 plt.axis('equal')
 plt.grid(True)
 plt.ylabel("y in pixels"); plt.xlabel("x in pixels"); #plt.legend()
-plt.title("end effector heatmap for envNr = " + str(envNr)) ; plt.show() 
+plt.title("end effector heatmap for envNr = " + str(envNr)) ; plt.show()
 ## Save the fig to file
-##fig.savefig(figName + '.png')   
+##fig.savefig(figName + '.png')
 #
 ##plt.scatter(Xpts, Ypts, 'C7',label='endEffector')

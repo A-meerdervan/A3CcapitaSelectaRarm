@@ -2,21 +2,21 @@
 All with stepsize 2.9
 en huidge walls
 
-5050
-3434
-0,0 # volledig random init
-1,0 # alleen naar links
+5050 - Normal5050 - job nr 42869
+3434 - Normal3434 - 42870
+0,0 # volledig random init - Normal0000 - 42871
+1,0 # alleen naar links - Normal0100 - 42872
 
 Noise?
-RandomInit of 5050 kijk maar
+RandomInit of 5050 kijk maar - NormalNoNoise - 42874
 
 En nu met randomly generated wall configurations:
 
-5050
-3434
-0,0 # volledig random init
-1,0 # alleen naar links
+5050 - Random5050 - 42876
+3434 - Random3434 - 42877
+0,0 # volledig random init - Random0000 - 42877
+1,0 # alleen naar links - Random0100 - 42877
 
 Noise?
-RandomInit of 5050 kijk maar
+RandomInit of 5050 kijk maar - RandomNoNoise 42875
 
