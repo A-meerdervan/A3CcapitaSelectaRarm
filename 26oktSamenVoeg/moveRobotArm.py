@@ -121,7 +121,7 @@ class RobotController:
         
         for i in range(3):
 #            j = 3 - i - 1
-            print('move ', i, 'to: ', np.degrees(initAng[i]))
+#            print('move ', i, 'to: ', np.degrees(initAng[i]))
             self.moveArm(i, initAng, False)
 
         return
@@ -165,8 +165,8 @@ class RobotController:
         newAng = self.convertMotorToAngles(dxl_goal_position)
 
         if (not self.checkAngle(newAng[joint], joint)):
-            print ('angle too large to move ', joint)
-            print(np.degrees(newAng), '   ', joint)
+#            print ('angle too large to move ', joint)
+#            print(np.degrees(newAng), '   ', joint)
             return
 
 #        print('moving arm: ', joint)
@@ -234,11 +234,11 @@ class RobotController:
             DXL_ID = self.DXL2_ID
         else:
             DXL_ID = self.DXL3_ID
-        print('moving arm: ', armID)
+#        print('moving arm: ', armID)
 
         if (not self.checkAngle(angles[armID], armID)):
-            print ('angle too large')
-            print(np.degrees(angles), '   ', armID)
+#            print ('angle too large')
+#            print(np.degrees(angles), '   ', armID)
             return
 
         dxl_goal_position = self.convertAnglesToMotor(angles).astype(int)

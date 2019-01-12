@@ -159,12 +159,13 @@ class MarkerDetector:
 
         # visualise the environment
         imgOverlay = visOverlay.getImgWithWallOverlay(frame,envWalls,simGoalLoc,mkrPos)
-        cv2.imshow('frame',imgOverlay)
+        
+#        plt.imshow(imgOverlay)
+#        plt.show()
+#        cv2.imshow('frame',imgOverlay)
         self.videoWr.write(imgOverlay)
-#        if cv2.waitKey(1) & 0xFF == ord('q'):
-#            break
-
-#        print('grabbed frame!')
+        # Returns the angles but it could also return positions. Thats why the
+        # [0,0,0] is put there as a placeholder.
         return th, [0,0,0]
 
     def releaseVideo(self):

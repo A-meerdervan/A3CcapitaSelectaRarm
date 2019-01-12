@@ -315,15 +315,17 @@ class EvalWorker():
         self.env = self.getEnv(cn.ENV_IS_RARM)
         self.actions = actionSpace
         self.verbose = verbose
+        self.printMinimal = True
         self.clock = pygame.time.Clock()
         self.render = cn.EVAL_RENDER
 
     def play1Game(self):
 
         # stuff to keep track of
-        episode_values = []
         episode_reward = 0
         episode_step_count = 0
+        won = 0.
+        noWallHits = 0
 
         # Start the game
         s = self.env.reset()
@@ -352,7 +354,6 @@ class EvalWorker():
             # bookkeeping
             episode_reward += r
             episode_step_count += 1
-            episode_values.append(v[0,0])
 
             # If the episode terminates or the max steps has been reached
             # Then the episode (and so this while loop) terminates.
@@ -360,34 +361,36 @@ class EvalWorker():
                 break
         # Now that the episode has terminated, store the relevant
         # statistics
-        won = 0.
         if r * cn.sim_rewardNormalisation == cn.sim_GoalReward:
             won = 1.
+        # If there are no wallhits this episode, set noWallHits to 1 which means True
+        if self.env.wallHits == 0:
+            noWallHits = 1            
         #episode_mean_value = np.mean(episode_values)
         wallHitFactor = self.env.wallHits/episode_step_count
-        return [episode_reward,episode_step_count,wallHitFactor,won]
+        return [episode_reward,episode_step_count,noWallHits,wallHitFactor,won]
 
     def playNgames(self,n):
         # The last 2 rows are for the averages and the standard devs
-        results = np.zeros([n + 2 , 4]) # watchout the 4 is hardcoded
+        results = np.zeros([n + 2 , 5]) # watchout the 4 is hardcoded
         for i in range(n):
             # This returns the results from the match
             results[i,:] = self.play1Game()
-            if self.verbose: print("eval game ", i, " sumR,Length,wallHitF.,Won?", results[i,:])
+            if self.verbose: print("eval game ", i, " sumR,Length,noWallHits,wallHitF.,Won?", results[i,:])
+            elif self.printMinimal:  print('game ',i,' finished in ',results[i,1], ' steps')
 
-        results[n,:] = [np.mean(results[:n,0]),np.mean(results[:n,1]),np.mean(results[:n,2]),np.mean(results[:n,3])]
-        results[n+1,:] = [np.std(results[:n,0]),np.std(results[:n,1]),np.std(results[:n,2]),np.std(results[:n,3])]
+        results[n,:] = [np.mean(results[:n,0]),np.mean(results[:n,1]),np.mean(results[:n,2]),np.mean(results[:n,3]),np.mean(results[:n,4])]
+        results[n+1,:] = [np.std(results[:n,0]),np.std(results[:n,1]),np.std(results[:n,2]),np.std(results[:n,3]),np.std(results[:n,4])]
 
-        # release video
-        if cn.REAL_SETUP: self.env.markerDetector.releaseVideo()
         # Specific to our pong implementation
         if not cn.ENV_IS_RARM: self.env.quitScreen()
         if self.verbose:
-            print('sumR,Length,wallHitF.,Won?')
-            print(results[n,:],"the means", )
-            print(results[n + 1,:],"the standard devs", )
+            print('sumR,Length,noWallHit,wallHitF.,Won?')
+            print(np.round_(results[n,:], decimals=4, out=None),"the means", )
+            print(np.round_(results[n+1,:], decimals=4, out=None),"the standard devs", )
             print("ewa ik ben klaar met evalueren man")
-
+        return results
+            
     # Get the right env (nog niet aangepast voor pong env. de global const mist allemaal dingen)
     def getEnv(self,envIsRarm):
         if envIsRarm:
@@ -395,6 +398,104 @@ class EvalWorker():
         # Play Pong S6
         else:
             return Env.A3CenvPong.A3CenvPong(self.render)
+    
+    def evaluateForTheReport(self):
+        allResults = []
+        # Games per env
+        EpsPerEnv = 1
+        nrOfEnvs = 7
+        decimals = 4
+        print("evaluating for the report")
+        print("using folder: ",cn.EVAL_FOLDER)
+        # Set the random wall things to false to be able to set them in the for loop
+        randomWalls = False
+        FullyRandomWalls = False
+        self.env.setRandomWallsAndFullyRandomWalls(randomWalls,FullyRandomWalls)
+        self.verbose = False
+        # loop the environments
+        means = np.zeros(5)
+        for envNr in range(1,nrOfEnvs+1):
+            # Set the environment
+            print('starting episodes with envNr = ',envNr)
+            self.env.getEnv(envNr)
+            results = self.playNgames(EpsPerEnv)
+            print('sumR,Length,noWallHit,wallHitF.,Won?')
+            print(np.round_(np.array(results[EpsPerEnv,:]), decimals=decimals),"the means" )
+            print(np.round_(np.array(results[EpsPerEnv + 1,:]), decimals=decimals),"the standard devs")
+            allResults.append(results)
+            means += np.array(results[EpsPerEnv,:])
+        # Get results of all envs together
+        # TODO weet ff niet hoe.
+        means = means/nrOfEnvs
+        means = np.round_(means, decimals=decimals)
+        print('of all envs together, the means')
+        print(means)
+#        # Set the environment to random generating
+#        randomWalls = True
+#        FullyRandomWalls = True
+#        self.env.setRandomWallsAndFullyRandomWalls(randomWalls,FullyRandomWalls)
+#        results = self.playNgames(EpsPerEnv*nrOfEnvs)
+        # TODO print results
+        
+        
+            
+        print("ewa ik ben klaar met evalueren man")
+    
+    # this funciton teruns a rounded of number to the desired significance (amount of digits in exponential notiaton)
+    def nsf(self,num, n=1):
+        """n-Significant Figures"""
+        numstr = ("{0:.%ie}" % (n-1)).format(num)
+        return float(numstr)
+    
+    # This function prints an array of 5 results in human readable format.
+    def printEvalResultsNicely(self,results,numSignif,numOfEvals):
+        niceRes = []
+        tab = '\t'
+        niceRes.append(float('%.1f' % results[0]))
+        niceRes.append(float('%.1f' % results[1]))
+        niceRes.append(float('%.3f' % results[2]))
+        niceRes.append(self.nsf(results[3],numSignif))
+        niceRes.append(float('%.3f' % results[4]))
+        # This calculates the average length of the eps where the goal was reached.
+        meanLsuccesEvals = 1/(numOfEvals*results[4])*numOfEvals*(results[1] - (1-results[4])*cn.run_MaxEpisodeLenght)
+        niceRes.insert(1,float('%.1f' % meanLsuccesEvals))
+        print(niceRes[0],tab,niceRes[1],tab,niceRes[2],tab,niceRes[3],tab,niceRes[4],tab,niceRes[5])
+                
+    def determineAmountOfEvals(self):
+        allResults = []
+        N = 7 * 1
+        M = 10 # the number of runs where you do N episodes
+        self.verbose = False
+        self.printMinimal = False
+        print("using folder: ",cn.EVAL_FOLDER)
+        print('playing N = ', N, ' episodes')
+        for i in range(M):
+            print('started run ', i, ' out of ', M)
+            results = self.playNgames(N)
+            print('sumR,LengthSucces,Lenght,noWallHit,wallHitF.,Won?')
+            self.printEvalResultsNicely(results[N,:],3,N)
+            allResults.append(list(results[N,:]))
+    #            means += np.array(results[EpsPerEnv,:])
+        
+        print('here the means of all M runs:')
+        for i in range(M):
+            self.printEvalResultsNicely(allResults[i],3,N)
+        print('of all envs together, the means')
+        #get the overal means
+        means = np.zeros(len(allResults[0]))
+        for i in range (M):
+            means += np.array(list(allResults[i]))
+        means = means/M
+        self.printEvalResultsNicely(means,3,N)
+        # get the standard deviations
+        standardDevs = np.zeros(len(allResults[0]))
+        for i in range(M):
+            standardDevs += (np.array(list(allResults[i])) - means)**2
+        standardDevs = np.sqrt(standardDevs/M)
+        print('the standard devs')
+        self.printEvalResultsNicely(standardDevs,3,N)
+        
+        print("ewa ik ben klaar met evalueren man")
 
 # if in test mode:
 if not cn.EVAL_MODE and cn.TEST_MODE:
@@ -433,7 +534,14 @@ else:
             saver.restore(sess,ckpt.model_checkpoint_path)
            # Start 1 EvalWorker
             evalWorker = EvalWorker(cn.ENV_IS_RARM,cn.run_actionSpace,master_network,sess,save,verbose,cn.run_MaxEpisodeLenght)
-            evalWorker.playNgames(cn.EVAL_NR_OF_GAMES)
+            if cn.EVAL_FOR_REPORT:
+                evalWorker.evaluateForTheReport()
+            else:
+#                evalWorker.playNgames(cn.EVAL_NR_OF_GAMES)
+                evalWorker.determineAmountOfEvals()
+            # release video
+            if cn.REAL_SETUP: evalWorker.env.markerDetector.releaseVideo()
+        
     # This happens in the learning setting, here learning is performed on multiple threads.
     else:
         # Run everything in a tensforflow session called sess

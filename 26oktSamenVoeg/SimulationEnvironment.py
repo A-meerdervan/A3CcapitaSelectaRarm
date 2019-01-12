@@ -36,6 +36,8 @@ class SimulationEnvironment:
         self.senseDistances = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0]])
         self.distanceEndEffector = np.array([0,0])
         self.randomGoal = cn.sim_RandomGoal
+        self.FullyRandomWalls = cn.sim_FullyRandomWalls
+        self.randomWalls = cn.rob_RandomWalls
         self.ctr = 0 # current timestep
         self.wallHits = 0 #nr of times the agent wanted to hit the wall
         self.clock = pygame.time.Clock()
@@ -145,9 +147,13 @@ class SimulationEnvironment:
 #                if (self.controller.hasConnection):
 #                    self.controller.moveArm2(-1*act, self.robot.jointAngles, False)
 #                print('second collision')
+        
+        # Only if a collision was detected, this while loop is activated
+        # it tries to move back one action, so take the reverse of the last action
+        # if this still results in a collision then move back two moves and then 
+        # 3,4,5,6,7,8,9, 10 moves. 10 is the max. That is the length of the actions queue
         ctr = 0
         while not col:
-            self.wallHits += 1
             if (self.controller.hasConnection):
                 self.controller.moveArm2(-1*np.asarray(self.actQueue[ctr]), self.robot.jointAngles, False)
                 time.sleep(0.5)
@@ -156,9 +162,12 @@ class SimulationEnvironment:
             self.robot.jointAngles, dummy = self.markerDetector.getAnglesFromWebcam(self.envWalls, self.goal)
 
             [col, dist] = self.checkNOCollision()
-
+            # At this point, if there is NO collision, then the hacky move to
+            # return to a save configuration has worked for the first time
+            # then the wallhits should be increased by 1.
+            if col: self.wallHits += 1
             ctr += 1
-            print('restore previous angle, try:  ', ctr)
+            if not cn.EVAL_FOR_REPORT: print('restore previous angle, try:  ', ctr, ' wallhit now at: ',self.wallHits)
 
 
         # only computes the reward if the collision has been solved.
@@ -174,7 +183,8 @@ class SimulationEnvironment:
 
         # increase count
         self.ctr = self.ctr + 1
-        print(self.ctr)
+        # Every 501 steps, print an update of the cntr to see its still working correctly
+        if self.ctr % 501 == 0 : print(self.ctr)
         # make sure the act queue is only 10 long always.
         if len(self.actQueue) > 10:
             self.actQueue.pop()
@@ -201,8 +211,8 @@ class SimulationEnvironment:
         self.ctr = 0 # reset the number of timesteps
         self.wallHits = 0 # reset the number of times the wall was hit
 
-        if cn.rob_RandomWalls:
-            if cn.sim_FullyRandomWalls:
+        if self.randomWalls:
+            if self.FullyRandomWalls:
                 self.setsRandomEnv()
             else:
                 self.setRandomEnv()
@@ -542,7 +552,6 @@ class SimulationEnvironment:
 #        pygame.event.pump()
 
         self.screen.fill((0,0,0)) # black out screen
-        time.sleep(0.1)
 
         colour = (255,0,0)
         thickness = 10
@@ -985,6 +994,11 @@ class SimulationEnvironment:
         self.envWalls = self.pointsTOWalls(self.envPoints)
 
         return
+    
+    # This is used in Eval worker to be able to switch during one session.
+    def setRandomWallsAndFullyRandomWalls(self,randomWalls,FullyRandomWalls):
+        self.FullyRandomWalls = FullyRandomWalls
+        self.randomWalls = randomWalls
 #
 #sim = SimulationEnvironment(True)
 #sim.reset()
