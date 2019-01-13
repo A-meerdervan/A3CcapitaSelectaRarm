@@ -48,11 +48,11 @@ def getWalls(points):
 env = sim.SimulationEnvironment()
 #env.runTestMode(cn.TEST_fromTestConsts)
 envNr = 1
-totalDots = 1000
+totalDots = 20000
 Xpts,Ypts = env.createHeatMap(envNr,totalDots)
 envWalls = env.envWalls
 # plot heatmap:
-figName = "Heatmap end effector"
+figName = "HeatmapEndEffector_Report"
 fig = plt.figure()
 plt.scatter(Xpts, Ypts,s=1)
 plotWalls(envWalls)
@@ -67,7 +67,7 @@ plt.axis('equal')
 plt.grid(True)
 plt.ylabel("y in pixels"); plt.xlabel("x in pixels"); #plt.legend()
 plt.title("end effector heatmap for envNr = " + str(envNr)) ; plt.show()
-## Save the fig to file
-##fig.savefig(figName + '.png')
+# Save the fig to file
+fig.savefig(figName + '.png')
 #
 ##plt.scatter(Xpts, Ypts, 'C7',label='endEffector')

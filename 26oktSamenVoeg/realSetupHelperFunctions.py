@@ -18,11 +18,11 @@ import visualEnvironmentOverlay as visOverlay
 import SimulationEnvironment as sim
 from scipy.misc import imread
 
-testOverlay = True
+testOverlay = False
 
 # used if this bool is True
-testWebcamFeed = False
-index = 1
+testWebcamFeed = True
+index = 0
 saveImgPath = 'testImg1.png'
 # -----------------------------
 # used if testWebcamFeed == False:
@@ -56,7 +56,7 @@ if testOverlay:
 #            break
 #    cv2.destroyAllWindows()
 
-if testWebcamFeed:
+elif testWebcamFeed:
     cap = cv2.VideoCapture(index)
 
     while(True):

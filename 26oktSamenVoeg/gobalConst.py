@@ -16,19 +16,20 @@ REAL_collorOfWalls = (0,0,255) # RGB value (0,0,255)=red
 REAL_wallThickness = 5 # in pixels
 REAL_goalColor = (0,255,0) # (0,255,0) = green
 REAL_comPort = 'COM3'
-REAL_webcamIndex = 1
-REAL_videoPath = 'firstVid.avi'
+REAL_webcamIndex = 0
+REAL_videoPath = 'finalEvaluation.avi'
 
 ENV_IS_RARM = True
 
 # PARS FOR EVALUATION ONLY
 EVAL_MODE = False
 REAL_SETUP = False
-EVAL_RENDER = True # only relevant ruing evaluation episodes
+EVAL_RENDER =  False# only relevant ruing evaluation episodes
 EVAL_SHOW_NORMAL_SPEED = True # only relevant during evaluation episodes
-EVAL_FPS = 120 # only relevant during evalutation episodes
+EVAL_FPS = 300 # only relevant during evalutation episodes
 #EVAL_CPU_CNT = 12 # Number of cpu's used during training
 EVAL_FOLDER = 'Normal0100' # The folder that holds the model and train folders
+EVAL_FOR_REPORT = False
 # deze heb je nodig om iets te evalueren in een compleet andere map
 #EVAL_HIGHLEVEL_FOLDER = './LogsOfRuns/TempTransferCluster29okt'
 #tussen = EVAL_HIGHLEVEL_FOLDER + '/' + EVAL_FOLDER
@@ -68,9 +69,9 @@ else: # in case no sparse rewards
     sim_rewardNormalisation = sim_WallReward + sim_expRewardOffset
 print("GlobalCOnst ",sim_rewardNormalisation)
 
-sim_FullyRandomWalls = True
+sim_FullyRandomWalls = False # Select the more random case, if False, select the 7 envs die random langs komen
 rob_RandomInit = True
-rob_RandomWalls = True
+rob_RandomWalls = True # Select 1 of the 2 random wall options
 rob_UseSetupBody = True
 rob_NoiseStandDev = 0.001
 rob_StepSize = np.radians(2.9296875) # used in real: 2 # 6 nov trained on 1.4
@@ -89,8 +90,8 @@ else: # this is for the old thin body
 #rob_ResetAngles = np.radians(np.array([65,115,-115])) # This is the one to the right.
 rob_ResetAngles = np.radians(np.array([120,-99,99])) # this is used with randomWalls = True in 31 okt runs
 #rob_ResetAngles = np.radians(np.array([130,-140,140])) # this was used during the 29okt runs
-rob_resetAngles_Lchance = 0.5 # the chance of having a left oriented init
-rob_resetAngles_Rchance = 0.5 # the chance of having a right oriented init
+rob_resetAngles_Lchance = 1 # the chance of having a left oriented init
+rob_resetAngles_Rchance = 0 # the chance of having a right oriented init
 rob_ResetAngles_Left = np.radians(np.array([131,-89,99])) # This is oriented for going left
 rob_ResetAngles_Right = np.radians(np.array([48,89,-99])) # this is oriented for going right.
 
@@ -118,7 +119,7 @@ run_TFmodelSaveIntrvl = 100 # after this many episodes the model is saved.
 netw_nHidNodes = 128
 netw_vfCoef = 0.5 # Was originally at 0.5, openAI also had 0.5
 netw_entCoef = 0.1 # Was at 0.1 originally, openAI has 0.01 as default in A2C
-netw_maxGradNorm = 80 # was originally 40 and openAI has 0.5 in A2C
+netw_maxGradNorm = 40 # was originally 40 and openAI has 0.5 in A2C
 
 
 OUTP_FOLDER = '/TestRun'
