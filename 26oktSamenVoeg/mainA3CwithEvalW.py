@@ -537,8 +537,8 @@ else:
             if cn.EVAL_FOR_REPORT:
                 evalWorker.evaluateForTheReport()
             else:
-#                evalWorker.playNgames(cn.EVAL_NR_OF_GAMES)
-                evalWorker.determineAmountOfEvals()
+                evalWorker.playNgames(cn.EVAL_NR_OF_GAMES)
+#                evalWorker.determineAmountOfEvals()
             # release video
             if cn.REAL_SETUP: evalWorker.env.markerDetector.releaseVideo()
         
