@@ -922,11 +922,18 @@ class SimulationEnvironment:
         return [True, distance]
 
     def setsRandomEnv(self):
+        Jee_height = np.sum(self.robot.jointLength) # height of endeffector
+#        J3_height = np.sum(self.robot.jointLength[:-1]) # height of the last joint
+        J1_height = self.robot.jointLength[0]
+
+        minW = 40
+        maxW = 180
+        minH = 280
+
+
         # get the random envNr
-        envNr = np.random.randint(1, 4 + 1)
-#        envNr = 4
-#        minWallSize = 50
-        minW = 50
+        envNr = np.random.randint(1, 5 + 1)
+
         # Switch between environments per reset of the environment.
         # This is a pipe which a corner to the left (most used during training. Our first env.)
 
@@ -939,19 +946,21 @@ class SimulationEnvironment:
         if envNr == 1:
             wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW*2-1)
             wx1 = np.random.randint(wx0 + minW, self.WINDOW_WIDTH/2 - minW)
-            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW, self.WINDOW_WIDTH)
+            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW, max(wx1 + maxW, self.WINDOW_WIDTH/2 + minW+1))
+
             wy0 = 400
-            wy2 = np.random.randint(minW, self.WINDOW_HEIGHT/2)
-            wy1 = np.random.randint(200, wy0 - minW/3)
+            wy2 = np.random.randint(wy0-Jee_height,minH)
+            wy1 = np.random.randint(wy2+minW-10,wy0-J1_height/2)
 
             self.envPoints = np.array([(wx1, wy0), (wx1, wy1), (wx0, wy1), (wx0, wy2), (wx2, wy2), (wx2, wy0)])
+
             self.envWallSide = ['l', 'b','l', 't', 'r', 'b']
         # A pipe which is straight up
         elif envNr == 2:
-            wx0 = np.random.randint(0, self.WINDOW_WIDTH/2 - 50)
-            wx1 = np.random.randint(self.WINDOW_WIDTH/2 + 50, self.WINDOW_WIDTH)
+            wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW)
+            wx1 = np.random.randint(self.WINDOW_WIDTH/2 + minW, 400)
             wy0 = self.WINDOW_HEIGHT
-            wy1 = np.random.randint(100, self.WINDOW_HEIGHT / 2 + 40)
+            wy1 = np.random.randint(self.WINDOW_WIDTH - Jee_height - 90, minH)
 
             self.envPoints = np.array([(wx0,wy0), (wx0, wy1), (wx1, wy1), (wx1, wy0)])
             self.envWallSide = ['l', 't','r', 'b']
@@ -959,26 +968,49 @@ class SimulationEnvironment:
         elif envNr == 3:
             wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW*2-1)
             wx1 = np.random.randint(wx0 + minW, self.WINDOW_WIDTH/2 - minW)
-            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW, self.WINDOW_WIDTH - minW)
-            wx3 = np.random.randint(wx2 + minW, self.WINDOW_WIDTH)
+
+#            print(wx1+maxW, self.WINDOW_WIDTH/2 + minW*2+2))
+            wx3 = np.random.randint(self.WINDOW_WIDTH/2 + minW*2+1, max(wx1+maxW+minW, self.WINDOW_WIDTH/2 + minW*2+2))
+
+            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW, wx3 - minW + 1)
+#            wx3 = np.random.randint(wx2 + minW, self.WINDOW_WIDTH)
+
             wy0 = 400
-            wy2 = np.random.randint(100, self.WINDOW_HEIGHT/2)
-            wy1 = np.random.randint(200, wy0 - minW/3)
+            wy2 = np.random.randint(wy0-Jee_height,minH)
+            wy1 = np.random.randint(wy2+minW-5,wy0-J1_height)
 
             self.envPoints = np.array([(wx1, wy0), (wx1, wy1), (wx0, wy1), (wx0, wy2), (wx3, wy2), (wx3, wy1), (wx2, wy1), (wx2, wy0)])
             self.envWallSide = ['l', 'b','l', 't', 'r', 'b','r','b']
         # this is a turn to the right
         elif envNr == 4:
-            wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW)
-            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + 2*minW+1, self.WINDOW_WIDTH)
-            wx1 = np.random.randint(self.WINDOW_WIDTH/2 + minW, wx2 - minW/2)
+            wx0 = np.random.randint(100,self.WINDOW_WIDTH/2 - minW)
+            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW*2+1, max(np.clip(wx0+maxW*1.2+minW,1,self.WINDOW_WIDTH-10), self.WINDOW_WIDTH/2 + minW*2+2))
+            wx1 = np.random.randint(self.WINDOW_WIDTH/2 + minW, wx2 - minW + 1)
 
             wy0 = 400
-            wy2 = np.random.randint(100, self.WINDOW_HEIGHT/2)
-            wy1 = np.random.randint(200, wy0 - minW/3)
+            wy2 = np.random.randint(wy0-Jee_height,minH)
+            wy1 = np.random.randint(wy2+minW-5,wy0-J1_height/2)
 
             self.envPoints = np.array([(wx0, wy0), (wx0, wy2), (wx2, wy2), (wx2, wy1), (wx1, wy1), (wx1, wy0)])
             self.envWallSide = ['l', 't','r', 'b', 'r', 'b']
+        elif envNr == 5:
+            wx0 = np.random.randint(0,self.WINDOW_WIDTH/2 - minW*2-1)
+            wx1 = np.random.randint(wx0 + minW, self.WINDOW_WIDTH/2 - minW)
+            wx3 = np.random.randint(self.WINDOW_WIDTH/2 + minW*2+1, max(wx1+maxW+minW, self.WINDOW_WIDTH/2 + minW*2+2))
+            wx2 = np.random.randint(self.WINDOW_WIDTH/2 + minW, wx3 - minW + 1)
+
+            wy0 = 400
+            wy3 = np.random.randint(wy0-Jee_height-20,minH-minW)
+            wy2 = np.random.randint(wy3+minW+20,wy0-J1_height-minW)
+            wy1 = np.random.randint(wy2+minW-5,wy0-J1_height/2)
+
+
+            self.envPoints = np.array([(wx1, wy0), (wx1, wy1), (wx0, wy1), (wx0, wy2),
+                                   (wx1, wy2), (wx1, wy3), (wx2, wy3), (wx2, wy2),
+                                   (wx3, wy2), (wx3, wy1), (wx2, wy1), (wx2, wy0)])
+            self.envWallSide = ['l', 'b','l', 't','l','t','r','t','r','b','r','b']
+
+
         else:
             raise NameError('envNr was out of range, no such environment defined')
 

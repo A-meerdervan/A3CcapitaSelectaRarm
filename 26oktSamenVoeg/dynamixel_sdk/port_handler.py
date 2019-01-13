@@ -20,7 +20,7 @@
 # Author: Ryu Woon Jung (Leon)
 
 import time
-import serial
+#import serial
 import sys
 import platform
 
@@ -139,4 +139,4 @@ class PortHandler(object):
                             2000000, 2500000, 3000000, 3500000, 4000000]:
                 return baudrate
             else:
-                return -1            
+                return -1

@@ -22,7 +22,7 @@ REAL_videoPath = 'firstVid.avi'
 ENV_IS_RARM = True
 
 # PARS FOR EVALUATION ONLY
-EVAL_MODE = True
+EVAL_MODE = False
 REAL_SETUP = False
 EVAL_RENDER = True # only relevant ruing evaluation episodes
 EVAL_SHOW_NORMAL_SPEED = True # only relevant during evaluation episodes
@@ -98,9 +98,9 @@ rob_ResetAngles_Right = np.radians(np.array([48,89,-99])) # this is oriented for
 
 
 
-run_Render = False
+run_Render = True
 run_NumOfWorkers = 12
-run_MaxEpisodeLenght = 2000
+run_MaxEpisodeLenght = 100
 run_FPS = 15
 run_Gamma = .99 # discount rate for advantage estimation and reward discounting
 run_sSize = 17 # Observations are greyscale frames of 84 * 84 * 1
